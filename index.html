@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title></title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css" />
+		<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" charset="utf-8">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/js/swiper.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<router-view></router-view>
+		</div>
+
+		<script type="text/x-template" id="intro">
+			<div class="screen">
+				<div class="inner">
+					<div class='logo img' style="background-image:url(./img/logo.png);"></div>
+					<div class="swiper-container">
+						<div class="swiper-wrapper">
+							<div class="swiper-slide">
+
+								<div class='img' style="background-image:url(./img/welcome-1.png);"></div>
+								<h1 class='center'>Welcome</h1>
+								<p class="text center">
+									This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
+								</p>
+								<div class="pink next button">
+									Next
+								</div>
+
+							</div>
+							<div class="swiper-slide">
+
+								<div class='img' style="background-image:url(./img/welcome-2.png);"></div>
+
+								<h1 class='center'>Proofs</h1>
+								<p class="text center">
+								Proofs are unchallengeable evidence that a file existed at a specific time in the past. They are immutable and resistent to manipulation.
+								</p>
+								<div class="pink next button">
+									Next
+								</div>
+
+							</div>
+							<div class="swiper-slide">
+
+								<div class='img' style="background-image:url(./img/welcome-3.png);"></div>
+
+								<h1 class='center'>Welcome</h1>
+								<p class="text center">
+									In order to create proofs you need to identify with the Identity Manager. Please download it from the App Store and set up your identity.
+								</p>
+								<div class="pink button">
+									<router-link to="/home">
+										Open Identity Manager
+									</router-link>
+								</div>
+
+							</div>
+						</div>
+						<div class="center notice">
+							<router-link to="/home">skip</router-link>
+						</div>
+						<div class="swiper-pagination"></div>
+					</div>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="identity">
+			<div class="identity">
+
+			 <div class="balance">
+					<span class="amount">{{balance}}</span>
+					<span class="currency-symbol">AET</span>
+			 </div>
+
+			 <div :style='style' class="avatar"></div>
+			 <div class="account-info">
+			 <div class="name">{{name}}</div>
+			 <div class="address">{{address}}</div>
+			 </div>
+
+			</div>
+		</script>
+		<script type="text/x-template" id="header">
+			<header>
+				<div class="burger"></div>
+			</header>
+		</script>
+
+		<script type="text/x-template" id="home">
+			<div class="screen">
+								<h1 class='center'>Success</h1>
+								<p class="text center">
+									This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
+								</p>
+								<div class="pink next button">
+								Create first proof
+								</div>
+								<identity/>
+			</div>
+		</script>
+
+	</body>
+	<script src="main.js"></script>
+</html>
