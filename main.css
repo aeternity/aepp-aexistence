@@ -1,0 +1,186 @@
+html, body {
+	font-family: 'Roboto', sans-serif;
+}
+#app {
+	box-shadow: 0 0 24px 0 rgba(0,0,0,0.22), 0 24px 24px 0 rgba(0,0,0,0.30);
+	/* wallet: */
+	position:absolute;
+	top:50%;
+	left:50%;
+	transform:translate(-50%,-50%);
+	width:375px;
+	height:667px;
+}
+.screen {
+	/*padding:0 21px;*/
+	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
+	min-height:100vh;
+}
+.screen >.inner {
+	margin-top:20px;
+}
+.notice {
+	/* Skip: */
+	font-family: Roboto-Regular;
+	font-size: 14px;
+	color: #4A4A4A;
+	letter-spacing: 0.35px;
+}
+a {
+	color:inherit;
+	text-decoration:inherit;
+}
+.button {
+	/* Rectangle: */
+	border-radius: 76px;
+	/* Create First Proof: */
+	font-family: Roboto-Regular;
+	font-size: 18px;
+	letter-spacing: 0.45px;
+	padding:10px;
+	text-align:center;
+	max-width:75%;
+	margin:0 auto;
+}
+.img {
+	width:100%;
+	height:210px;
+	z-index:100;
+	position:relative;
+	background-repeat:no-repeat;
+	background-position:center center;
+}
+.img.cover {
+	background-size:cover;
+}
+.img.contain {
+background-size:contain;
+}
+.logo.img {
+	height:23px;
+	margin-bottom:30px;
+}
+.pink.button {
+	background: #F03C6E;
+	color: #FFFFFF;
+}
+.text {
+
+	/* This is the æxistenc: */
+	font-family: Roboto-Light;
+	font-size: 16px;
+	color: #000000;
+	letter-spacing: 0.4px;
+	line-height: 24px;
+}
+h1, p {
+	max-width:calc(100% - 42px);
+	margin-left:21px;
+}
+h1 {
+	font-family: Roboto-Regular;
+	font-size: 26px;
+	color: #000000;
+	letter-spacing: 0.65px;
+}
+.center {
+	text-align:center;
+	margin-left: auto;
+	margin-right: auto;
+}
+/* Oval: */
+.bullets {
+	text-align:center;
+}
+.swiper-pagination-bullet,
+.oval {
+	/*background: #E0E0E0;*/
+	display:inline-block;
+	border-radius:50%;
+	width:8px;
+	height:8px;
+
+}
+.swiper-pagination-bullet-active,
+.active.oval {
+	background: #F03C6E;
+}
+.swiper-container-horizontal>.swiper-pagination-bullets{
+	/*top:10px;*/
+	/*background:red;*/
+}
+.swiper-container {
+	padding-bottom:40px;
+}
+.identity {
+	position:relative;
+	box-sizing:border-box;
+	/* Rectangle: */
+	background-image: linear-gradient(-180deg, #F03C6E 0%, #FF96A0 100%);
+	box-shadow: 0 0 4px 0 rgba(0,0,0,0.18);
+	border-radius: 6px;
+	width:355px;
+	height:200px;
+	padding:21px;
+	color:white;
+}
+.identity:after {
+	content:"";
+	width:100%;
+	height:100%;
+	position:absolute;
+	top:0;
+	background-image:url(img/identity-background.svg);
+	background-repeat:no-repeat;
+	background-position:center;
+	background-size:cover;
+}
+.identity .avatar {
+	position:absolute;
+	top:20px;
+	right:20px;
+}
+.identity {
+	position:fixed;
+	bottom:8px;
+	left:50%;
+	transform:translate(-50%,0);
+}
+.account-info {
+	position:absolute;
+	bottom:20px;
+}
+.account-info .name {
+	font-family: Roboto-Regular;
+	font-size: 20px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+}
+.account-info .address {
+	opacity: 0.5;
+	font-family: Roboto-Light;
+	font-size: 15px;
+	color: #FFFFFF;
+	letter-spacing: 0.6px;
+}
+.balance {
+}
+.balance .amount {
+	font-family: Roboto-Light;
+	font-size: 60px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+}
+.balance .currency-symbol {
+	font-family: Roboto-Regular;
+	font-size: 20px;
+	color: #FFFFFF;
+	letter-spacing: 2.4px;
+}
+.avatar {
+	border-radius:50%;
+	background:white;
+	width:50px;
+	height:50px;
+	border:2px solid white;
+}
