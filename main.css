@@ -362,6 +362,50 @@ nav .name {
 	/*background: #3C3C3C;*/
 	border-color: transparent #F03C6E #F03C6E transparent;
 }
+.typing-indicator {
+	will-change: transform;
+	width: auto;
+	background: #3C3C3C;
+	border-radius: 20px;
+	padding: 20px;
+	display: table;
+	margin: 0 auto;
+	position: relative;
+}
+.typing-indicator span {
+	height: 12px;
+	width: 12px;
+	float: left;
+	margin: 0 1px;
+	background-color: #9E9EA1;
+	display: block;
+	border-radius: 50%;
+	opacity: 0.4;
+}
+.typing-indicator span:nth-of-type(1) {
+	-webkit-animation: 1s blink infinite 0.3333s;
+	animation: 1s blink infinite 0.3333s;
+}
+.typing-indicator span:nth-of-type(2) {
+	-webkit-animation: 1s blink infinite 0.6666s;
+	animation: 1s blink infinite 0.6666s;
+}
+.typing-indicator span:nth-of-type(3) {
+	-webkit-animation: 1s blink infinite 0.9999s;
+	animation: 1s blink infinite 0.9999s;
+}
+
+@-webkit-keyframes blink {
+	50% {
+		opacity: 1;
+	}
+}
+
+@keyframes blink {
+	50% {
+		opacity: 1;
+	}
+}
 .camera {
 	position:fixed;
 	background-image:url(img/image.jpg);

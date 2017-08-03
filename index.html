@@ -164,6 +164,11 @@
 			<div class="screen">
 				<div class="conversation-container">
 					<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
+					<div class="app speech typing-indicator">
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
 				</div>
 			</div>
 		</script>
