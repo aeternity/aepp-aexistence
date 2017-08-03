@@ -172,6 +172,9 @@
 			},
 			identity : function() {
 				return this.$store.state.identity;
+			},
+			title : function() {
+				return this.$store.state.title;
 			}
 		},
 		watch: {
@@ -182,7 +185,6 @@
 		methods : {
 			toggleopen : function() {
 				this.navopen = !this.navopen;
-				console.log(this.$store.state.count) // -> 1
 			}
 		},
 	}
@@ -190,22 +192,9 @@
 	const Camera = {
 		template: '#camera',
 	}
-	const routes = [
-		{ path: '/', component: Intro },
-		{ path: '/intro', component: Intro },
-		{ path: '/home', component: Home },
-		{ path: '/new', component: New },
-		{ path: '/camera', component: Camera },
-		{ path: '/overview', component: Overview },
-	];
-
-	const router = new VueRouter({
-		routes: routes
-	});
-
 	const store = new Vuex.Store({
 		state: {
-			count: 0,
+			title : '',
 			proofs : [
 			],
 			identity : {
@@ -216,14 +205,29 @@
 			}
 		},
 		mutations: {
-			increment (state) {
-				state.count++
+			title (state, newtitle) {
+				state.title = newtitle;
 			}
 		}
 	});
 
-	store.commit('increment')
-	console.log(store.state.count) // -> 1
+	const routes = [
+		{ path: '/', component: Intro, meta : {title : 'Welcome'}},
+		{ path: '/intro', component: Intro, meta : {title : 'Title'}},
+		{ path: '/home', component: Home, meta : {title : 'Title'}},
+		{ path: '/new', component: New, meta : {title : 'Create Proof'}},
+		{ path: '/camera', component: Camera, meta : {title : 'Title'}},
+		{ path: '/overview', component: Overview, meta : {title : 'Your Proofs'}},
+	];
+
+	const router = new VueRouter({
+		routes: routes
+	});
+	router.beforeEach((to, from, next) => {
+		document.title = to.meta.title;
+		store.commit('title', to.meta.title);
+		next();
+	})
 
 	const app = new Vue({
 		el: '#app',
