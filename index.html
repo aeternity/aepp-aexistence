@@ -2,22 +2,24 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title></title>
 		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css" />
 		<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/js/swiper.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/vuex/2.3.1/vuex.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
 	</head>
 	<body>
 		<div id="app">
+			<topbar></topbar>
 			<router-view></router-view>
 		</div>
 
 		<script type="text/x-template" id="intro">
-			<div class="screen">
+			<div class="intro screen">
 				<div class="inner">
 					<div class='logo img' style="background-image:url(./img/logo.png);"></div>
 					<div class="swiper-container">
@@ -72,38 +74,135 @@
 			</div>
 		</script>
 
+		<script type="text/x-template" id="avatar">
+			<div :style='style' class="avatar"></div>
+		</script>
+
 		<script type="text/x-template" id="identity">
 			<div class="identity">
-
-			 <div class="balance">
-					<span class="amount">{{balance}}</span>
-					<span class="currency-symbol">AET</span>
-			 </div>
-
-			 <div :style='style' class="avatar"></div>
-			 <div class="account-info">
-			 <div class="name">{{name}}</div>
-			 <div class="address">{{address}}</div>
-			 </div>
-
+				<div class="left">
+					<avatar :image='identity.avatar'></avatar>
+					<div class="account-info">
+						<div class="name">{{identity.name}}</div>
+						<div class="address">{{identity.address}}</div>
+					</div>
+				</div>
+				<div class="right">
+					<div class="balance">
+						<span class="amount">{{identity.balance}}</span>
+						<span class="currency-symbol">AET</span>
+					</div>
+				</div>
 			</div>
 		</script>
-		<script type="text/x-template" id="header">
-			<header>
-				<div class="burger"></div>
-			</header>
+
+		<script type="text/x-template" id="speech">
+			<div class="speech-container">
+				<div :class="thisclass">
+					<p class='text' v-if='body.type === 0'>{{body.text}}</p>
+					<div class='image' :style='style' v-if='body.type === 1'></div>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="menu-entry">
+			<div class="menu-entry">
+				<router-link :to="link">
+					{{label}}
+				</router-link>
+			</div>
+		</script>
+		<script type="text/x-template" id="topbar">
+			<div :class="thisclass">
+				<header>
+					<div class="action left">
+						<button @click='toggleopen'>
+							<svg class='burger' width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
+								<path fill="#4A4A4A" fill-rule="evenodd" d="M0 0h20v2H0zM0 6h20v2H0zM0 12h20v2H0z"/>
+							</svg>
+						</button>
+						<!--<svg class='back' width="11" height="18" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg">-->
+							<!--<path d="M11 2L9 0 0 9l9 9 2-2-7-7z" fill="#4A4A4A" fill-rule="evenodd"/>-->
+						<!--</svg>-->
+					</div>
+
+					<div class="title center">{{title}}</div>
+
+					<div class="action right">
+						<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+						<g fill="#4A4A4A" fill-rule="evenodd"><path d="M0 9h20v2H0z"/><path d="M11 0v20H9V0z"/></g></svg>
+					</div>
+				</header>
+				<nav>
+					<div class="inner">
+						<div class="center">
+							<avatar :image='identity.avatar'></avatar>
+							<div class="name">
+								{{identity.name}}
+							</div>
+						</div>
+						<menu-entry :link='entry.link' :label='entry.label' v-for='entry in entris'></menu-entry>
+					</div>
+				</nav>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="camera">
+			<div class="screen">
+				<div class="camera">
+					<div class="image"></div>
+				</div>
+			</div>
+		</script>
+		<script type="text/x-template" id="proofs-list-entry">
+			<div class="proofs-list-entry">
+				<div class="left">
+					<div :style='"background-image:url(" +proof.image+ ")"' class="proof-image">
+					</div>
+				</div>
+				<div class="middle">
+					<div class="proof-title">{{proof.title}}</div>
+					<div class="proof-created">{{proof.created}}</div>
+				</div>
+				<div class="right">
+					<div class="proof-confirmations">{{proof.confirmations}} confirmed</div>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="proofs-list">
+			<div class="screen">
+				<div class="proofs-list">
+					<proofs-list-entry :proof='proof' v-for='proof in proofs'></proofs-list-entry>
+				</div>
+			</div>
+		</script>
+
+		<script type="text/x-template" id="new">
+			<div class="screen">
+				<div class="conversation-container">
+					<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
+					<div class="app speech typing-indicator">
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
+				</div>
+			</div>
 		</script>
 
 		<script type="text/x-template" id="home">
 			<div class="screen">
-								<h1 class='center'>Success</h1>
-								<p class="text center">
-									This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
-								</p>
-								<div class="pink next button">
-								Create first proof
-								</div>
-								<identity/>
+				<identity/>
+					<h1 class='center'>Success</h1>
+					<p class="text center">
+						This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
+					</p>
+					<div class="pink next button">
+						<router-link to="/new">
+							Create first proof
+						</router-link>
+					</div>
 			</div>
 		</script>
 

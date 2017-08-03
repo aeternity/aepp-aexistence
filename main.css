@@ -10,14 +10,23 @@ html, body {
 	transform:translate(-50%,-50%);
 	width:375px;
 	height:667px;
+	overflow:hidden;
+	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 }
 .screen {
 	/*padding:0 21px;*/
-	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 	min-height:100vh;
 }
 .screen >.inner {
-	margin-top:20px;
+	padding-top:80px;
+}
+.intro.screen {
+	position:relative;
+	z-index:10;
+	background:white;
+}
+.intro.screen .inner {
+	padding-top:21px;
 }
 .notice {
 	/* Skip: */
@@ -135,20 +144,33 @@ h1 {
 	background-position:center;
 	background-size:cover;
 }
+.identity .left {
+	float:left;
+}
+.identity .right {
+	float:right;
+}
+.identity .avatar ,
+.identity .account-info ,
+.identity .balance {
+}
 .identity .avatar {
-	position:absolute;
-	top:20px;
-	right:20px;
+	/*position:absolute;*/
+	/*top:20px;*/
+	/*right:20px;*/
 }
 .identity {
-	position:fixed;
-	bottom:8px;
+	/*position:fixed;*/
+	/*bottom:8px;*/
 	left:50%;
 	transform:translate(-50%,0);
 }
+.avatar ,
 .account-info {
-	position:absolute;
-	bottom:20px;
+	display:inline-block;
+	vertical-align:middle;
+	/*position:absolute;*/
+	/*bottom:20px;*/
 }
 .account-info .name {
 	font-family: Roboto-Regular;
@@ -183,4 +205,275 @@ h1 {
 	width:50px;
 	height:50px;
 	border:2px solid white;
+}
+header:before{
+/*.conversation-container:after {*/
+	content:"";
+	width:100%;
+	height:70px;
+	position:absolute;
+	left:0;
+	top:-1px;
+	background-image: linear-gradient( -180deg,
+		#FFFFFF 0%,
+		rgba(255,255,255,1.00) 20%,
+		rgba(255,255,255,0.00) 100%
+	);
+}
+header {
+	position:fixed;
+	width:100%;
+	z-index:2;
+	display: flex;
+	padding: 21px;
+	max-width: 100%;
+	box-sizing: border-box;
+}
+header > * {
+	position:relative;
+}
+/*nav:before {*/
+	/*content: "";*/
+	/*display:block;*/
+	/*position:absolute;*/
+	/*background:rgba(0,0,0,0.8);*/
+	/*width:100%;*/
+	/*height:100%;*/
+/*}*/
+nav {
+	position: fixed;
+	left: 0;
+	height: 100%;
+	width: 100%;
+	/*background: red;*/
+	z-index: 2;
+	display:none;
+}
+.open nav {
+	display:block;
+}
+nav > .inner {
+	position:relative;
+	width:65%;
+	z-index:10;
+	background: blue;
+	min-height:100%;
+	background-image: linear-gradient(-180deg, #1E1E1E 0%, #320A3C 100%);
+	color:white;
+}
+nav .name {
+	font-family: Roboto-Medium;
+	font-size: 19px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+}
+.conversation-container {
+	box-sizing:border-box;
+	top:0;
+	position:absolute;
+	height:100%;
+	overflow:auto;
+	padding:84px 0 42px 0;
+}
+.speech p {
+	color:inherit;
+	padding:0;
+	margin:0;
+
+}
+.speech-container + .speech-container {
+	margin-top:10px;
+}
+.app.speech {
+	display:inline-block;
+	/* message bg: */
+	background: #3C3C3C;
+	border-radius: 20px;
+	/* How about creating y: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+	line-height: 26px;
+	position: relative;
+	max-width:60%;
+	margin-left:21px;
+}
+.speech.body-type-text {
+	padding:15px 20px;
+}
+.app.speech:after {
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	left: 15px;
+	bottom: -24px;
+	border: 15px solid;
+	transform:rotate(14deg);
+	border-color: #3C3C3C transparent transparent #3c3c3c;
+}
+.speech-container {
+	padding-bottom:21px;
+	clear:both;
+}
+.speech-container:after {
+	content:'';
+	display:block;
+	clear:both;
+}
+.speech.body-type-image {
+	padding:5px 5px;
+}
+.speech.body-type-image .image {
+	width:35vw;
+	height:170px;
+	z-index:1;
+	position:relative;
+	border-radius:20px;
+	background-size:cover;
+}
+.me.speech {
+	float:right;
+	/* message bg: */
+	margin-right:21px;
+	background: #F03C6E;
+	border-radius: 20px;
+	/* How about creating y: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+	line-height: 26px;
+	position: relative;
+	max-width:60%;
+	/*padding:15px 20px;*/
+}
+.me.speech:after {
+	clear:both;
+	content: ' ';
+	position: absolute;
+	width: 0;
+	height: 0;
+	right: 15px;
+	bottom: -24px;
+	border: 15px solid;
+	transform:rotate(-100deg);
+	/*background: #3C3C3C;*/
+	border-color: transparent #F03C6E #F03C6E transparent;
+}
+.typing-indicator {
+	will-change: transform;
+	width: auto;
+	background: #3C3C3C;
+	border-radius: 20px;
+	padding: 20px;
+	display: table;
+	margin: 0 auto;
+	position: relative;
+}
+.typing-indicator span {
+	height: 12px;
+	width: 12px;
+	float: left;
+	margin: 0 1px;
+	background-color: #9E9EA1;
+	display: block;
+	border-radius: 50%;
+	opacity: 0.4;
+}
+.typing-indicator span:nth-of-type(1) {
+	-webkit-animation: 1s blink infinite 0.3333s;
+	animation: 1s blink infinite 0.3333s;
+}
+.typing-indicator span:nth-of-type(2) {
+	-webkit-animation: 1s blink infinite 0.6666s;
+	animation: 1s blink infinite 0.6666s;
+}
+.typing-indicator span:nth-of-type(3) {
+	-webkit-animation: 1s blink infinite 0.9999s;
+	animation: 1s blink infinite 0.9999s;
+}
+
+@-webkit-keyframes blink {
+	50% {
+		opacity: 1;
+	}
+}
+
+@keyframes blink {
+	50% {
+		opacity: 1;
+	}
+}
+.camera {
+	position:fixed;
+	background-image:url(img/image.jpg);
+}
+.camera ,
+.camera .image {
+	top:0;
+	background-size:contain;
+	width:100%;
+	height:100%;
+}
+.camera .image {
+	position:absolute;
+	background-image:url(img/camera.png);
+}
+.menu-entry {
+	/* My Proofs: */
+	opacity: 0.9;
+	font-family: Roboto-Regular;
+	font-size: 17px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+	padding:20px;
+	border-top: 1px solid rgba(255,255,255,0.2);
+	border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.menu-entry + .menu-entry {
+	border-top:none;
+}
+.proofs-list {
+	/*background:red;*/
+	margin-top:60px;
+}
+.proofs-list-entry {
+	display:flex;
+	padding:21px;
+	justify-content: space-between ;
+	align-items : center;
+}
+.proofs-list-entry .proof-image {
+	width:57px;
+	height:57px;
+	/* Background: */
+	border-radius:15px;
+}
+.proofs-list-entry .proof-title {
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #1C1C1C;
+	letter-spacing: 0;
+	line-height: 19.8px;
+}
+.proofs-list-entry .proof-created {
+	opacity: 0.4;
+	font-family: Roboto-Regular;
+	font-size: 12px;
+	color: #1C1C1C;
+	letter-spacing: 0;
+	line-height: 19.8px;
+}
+.proofs-list-entry .proof-confirmations {
+	/* Rectangle: */
+	background: #F03C6E;
+	border-radius: 30px;
+	/* 3 confirmed: */
+	font-family: Roboto-Medium;
+	font-size: 12px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+	padding:5px 10px;
 }
