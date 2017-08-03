@@ -154,8 +154,8 @@
 				</div>
 			</div>
 		</script>
-		<script type="text/x-template" id="proof">
-			<div class="proof">
+		<script type="text/x-template" id="proofs-list-entry">
+			<div class="proofs-list-entry">
 				<div class="left">
 					<div :style='"background-image:url(" +proof.image+ ")"' class="proof-image">
 					</div>
@@ -169,10 +169,11 @@
 				</div>
 			</div>
 		</script>
-		<script type="text/x-template" id="proofs">
+
+		<script type="text/x-template" id="proofs-list">
 			<div class="screen">
-				<div class="proof-list">
-					<proof :proof='proof' v-for='proof in proofs'></proof>
+				<div class="proofs-list">
+					<proofs-list-entry :proof='proof' v-for='proof in proofs'></proofs-list-entry>
 				</div>
 			</div>
 		</script>

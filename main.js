@@ -6,15 +6,18 @@
 
 	const Proof = {
 		template : '#proof',
+	};
+	const ProofsListEntry = {
+		template : '#proofs-list-entry',
 		props : [
 			'proof'
 		]
 	}
 
-	const Proofs = {
-		template : '#proofs',
+	const ProofsList = {
+		template : '#proofs-list',
 		components : {
-			'proof' : Proof,
+			'proofsListEntry' : ProofsListEntry,
 		},
 		computed : {
 			proofs : function() {
@@ -234,7 +237,8 @@
 		{ path: '/home', component: Home, meta : {title : 'Title'}},
 		{ path: '/new', component: New, meta : {title : 'Create Proof'}},
 		{ path: '/camera', component: Camera, meta : {title : 'Title'}},
-		{ path: '/proofs', component: Proofs, meta : {title : 'Your Proofs'}},
+		{ path: '/proofs', component: ProofsList, meta : {title : 'Your Proofs'}},
+		{ path: '/proofs/:id', component: Proof },
 	];
 
 	const router = new VueRouter({

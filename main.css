@@ -295,7 +295,7 @@ nav .name {
 	color: #FFFFFF;
 	letter-spacing: 0;
 	line-height: 26px;
-  position: relative;
+	position: relative;
 	max-width:60%;
 	margin-left:21px;
 }
@@ -435,30 +435,30 @@ nav .name {
 .menu-entry + .menu-entry {
 	border-top:none;
 }
-.proof-list {
+.proofs-list {
 	/*background:red;*/
 	margin-top:60px;
 }
-.proof{
+.proofs-list-entry {
 	display:flex;
 	padding:21px;
-	justify-content:  space-between ;
+	justify-content: space-between ;
 	align-items : center;
 }
-.proof .proof-image {
+.proofs-list-entry .proof-image {
 	width:57px;
 	height:57px;
 	/* Background: */
 	border-radius:15px;
 }
-.proof .proof-title {
+.proofs-list-entry .proof-title {
 	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #1C1C1C;
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proof .proof-created {
+.proofs-list-entry .proof-created {
 	opacity: 0.4;
 	font-family: Roboto-Regular;
 	font-size: 12px;
@@ -466,7 +466,7 @@ nav .name {
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proof .proof-confirmations {
+.proofs-list-entry .proof-confirmations {
 	/* Rectangle: */
 	background: #F03C6E;
 	border-radius: 30px;
