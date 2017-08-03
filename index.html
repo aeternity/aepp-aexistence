@@ -154,9 +154,26 @@
 				</div>
 			</div>
 		</script>
-		<script type="text/x-template" id="overview">
+		<script type="text/x-template" id="proof">
+			<div class="proof">
+				<div class="left">
+					<div :style='"background-image:url(" +proof.image+ ")"' class="proof-image">
+					</div>
+				</div>
+				<div class="middle">
+					<div class="proof-title">{{proof.title}}</div>
+					<div class="proof-created">{{proof.created}}</div>
+				</div>
+				<div class="right">
+					<div class="proof-confirmations">{{proof.confirmations}} confirmed</div>
+				</div>
+			</div>
+		</script>
+		<script type="text/x-template" id="proofs">
 			<div class="screen">
-			asdasd
+				<div class="proof-list">
+					<proof :proof='proof' v-for='proof in proofs'></proof>
+				</div>
 			</div>
 		</script>
 

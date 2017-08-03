@@ -435,3 +435,45 @@ nav .name {
 .menu-entry + .menu-entry {
 	border-top:none;
 }
+.proof-list {
+	/*background:red;*/
+	margin-top:60px;
+}
+.proof{
+	display:flex;
+	padding:21px;
+	justify-content:  space-between ;
+	align-items : center;
+}
+.proof .proof-image {
+	width:57px;
+	height:57px;
+	/* Background: */
+	border-radius:15px;
+}
+.proof .proof-title {
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #1C1C1C;
+	letter-spacing: 0;
+	line-height: 19.8px;
+}
+.proof .proof-created {
+	opacity: 0.4;
+	font-family: Roboto-Regular;
+	font-size: 12px;
+	color: #1C1C1C;
+	letter-spacing: 0;
+	line-height: 19.8px;
+}
+.proof .proof-confirmations {
+	/* Rectangle: */
+	background: #F03C6E;
+	border-radius: 30px;
+	/* 3 confirmed: */
+	font-family: Roboto-Medium;
+	font-size: 12px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+	padding:5px 10px;
+}

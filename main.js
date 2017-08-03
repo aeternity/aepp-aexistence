@@ -3,8 +3,19 @@
 (function(){
 
 	const Intro = { template: '#intro' };
-	const Overview = {
-		template : '#overview',
+
+	const Proof = {
+		template : '#proof',
+		props : [
+			'proof'
+		]
+	}
+
+	const Proofs = {
+		template : '#proofs',
+		components : {
+			'proof' : Proof,
+		},
 		computed : {
 			proofs : function() {
 				return this.$store.state.proofs;
@@ -147,7 +158,7 @@
 				entris : [
 					{
 						label : 'My Proofs',
-						link : '/overview',
+						link : '/proofs',
 					},
 					{
 						label : 'Create a Proof',
@@ -196,6 +207,12 @@
 		state: {
 			title : '',
 			proofs : [
+				{
+					title : 'Rental car damage',
+					created : '14.05.2017',
+					image : 'img/image.jpg',
+					confirmations : 9
+				}
 			],
 			identity : {
 				avatar: "img/avatar-1.jpg",
@@ -205,7 +222,7 @@
 			}
 		},
 		mutations: {
-			title (state, newtitle) {
+			title : function(state, newtitle) {
 				state.title = newtitle;
 			}
 		}
@@ -217,7 +234,7 @@
 		{ path: '/home', component: Home, meta : {title : 'Title'}},
 		{ path: '/new', component: New, meta : {title : 'Create Proof'}},
 		{ path: '/camera', component: Camera, meta : {title : 'Title'}},
-		{ path: '/overview', component: Overview, meta : {title : 'Your Proofs'}},
+		{ path: '/proofs', component: Proofs, meta : {title : 'Your Proofs'}},
 	];
 
 	const router = new VueRouter({
