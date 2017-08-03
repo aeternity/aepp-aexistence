@@ -20,6 +20,10 @@ html, body {
 .screen >.inner {
 	padding-top:80px;
 }
+.screen > :first-child:not(.inner) ,
+.screen >.inner > :first-child:not(.nomargin) {
+	margin-top:70px;
+}
 .intro.screen {
 	position:relative;
 	z-index:10;
@@ -450,15 +454,16 @@ nav .name {
 	height:57px;
 	/* Background: */
 	border-radius:15px;
+	background-size:cover;
 }
-.proofs-list-entry .proof-title {
+.proof-title {
 	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #1C1C1C;
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proofs-list-entry .proof-created {
+.proof-created {
 	opacity: 0.4;
 	font-family: Roboto-Regular;
 	font-size: 12px;
@@ -466,7 +471,7 @@ nav .name {
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proofs-list-entry .proof-confirmations {
+.proof-confirmations {
 	/* Rectangle: */
 	background: #F03C6E;
 	border-radius: 30px;
@@ -476,4 +481,40 @@ nav .name {
 	color: #FFFFFF;
 	letter-spacing: 0;
 	padding:5px 10px;
+}
+.proof .proof-image {
+	height:80vw;
+	margin:10px;
+	border-radius:10px;
+	background-size:cover
+	background-position:center center;
+}
+.proof .proof-image.fullscreen {
+	position:fixed;
+	top:0;
+	left:0;
+	z-index:4;
+	border-radius:0;
+	margin:0;
+	width:100%;
+	height:100%;
+}
+.columns {
+	display:flex;
+	padding:21px;
+	justify-content: space-between ;
+	align-items : top;
+}
+.proof table {
+	margin:11px 21px;
+	/* Contract: Created: V: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: rgba(0,0,0,0.87);
+	line-height: 24px;
+	width:calc(100% - 42px);
+}
+.proof table tr hr {
+	border:0;
+	border-top: 1px solid #CDCED3;
 }

@@ -6,6 +6,27 @@
 
 	const Proof = {
 		template : '#proof',
+		data : function() {
+			return {
+				cssClass : {
+					image : {
+						fullscreen : false,
+					}
+				}
+			}
+		},
+		computed : {
+			proof : function() {
+				return this.$store.getters.getProofById( this.$route.params.id );
+			}
+		},
+		methods : {
+			toggleImage : function() {
+				this.cssClass.image.fullscreen =
+					! this.cssClass.image.fullscreen;
+
+			}
+		}
 	};
 	const ProofsListEntry = {
 		template : '#proofs-list-entry',
@@ -153,7 +174,8 @@
 		template: '#topbar',
 		components : {
 			'avatar': Avatar,
-			'menu-entry': MenuEntry
+			'menu-entry': MenuEntry,
+			'identity' : Identity
 		},
 		data : function() {
 			return {
@@ -211,10 +233,18 @@
 			title : '',
 			proofs : [
 				{
+					id : '1',
 					title : 'Rental car damage',
 					created : '14.05.2017',
 					image : 'img/image.jpg',
-					confirmations : 9
+					confirmations : 9,
+					contract: '0x8a9c4bb2f2...',
+					verified : '14.05.2017',
+					block: '1133777',
+					fileSha256: 'd91ef0a24a9eb1c1...',
+					fileType: 'image/jpeg',
+					fileSize: '1.4 Mb',
+					fileLocation : 'Dropbox'
 				}
 			],
 			identity : {
@@ -223,6 +253,9 @@
 				name : 'Joan',
 				address : '0x7D154..',
 			}
+		},
+		getters: {
+			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
 		},
 		mutations: {
 			title : function(state, newtitle) {
