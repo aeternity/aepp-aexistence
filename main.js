@@ -3,6 +3,22 @@
 (function(){
 
 	const Intro = { template: '#intro' };
+	const Camera = {
+		template: '#camera',
+		props : [
+			'show'
+		],
+		data : function() {
+			return {
+				//show : false,
+			};
+		},
+		methods : {
+			close : function() {
+				this.$emit('picture');
+			}
+		}
+	}
 
 	const Proof = {
 		template : '#proof',
@@ -125,14 +141,24 @@
 	}
 	const New = {
 		template: '#new',
+		components: {
+			'speech' : Speech,
+			'camera' : Camera,
+		},
 		data : function() {
 			return {
+				showCamera : false,
+				showti : true,
+				showresp : false,
+				i : 0,
 				messages : [
+				],
+				f : [
 					{
 						sender : MessageSenderEnum.APP,
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
-							text :	"How about creating your first proof. You can 'proof' a pictute, file or conversation.",
+							text :	"How about creating your first proof. You can 'proof' a picture, file or conversation.",
 						},
 					},
 					{
@@ -163,11 +189,54 @@
 							text : "rental car damage",
 						},
 					},
+					{
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : "Got that! This proof will cost 0.1 AET.",
+						},
+					},
 				]
 			}
 		},
-		components: {
-			'speech' : Speech,
+		watch : {
+			i : function(val) {
+				if(val == 1) {
+					this.showCamera = true;
+				}
+			}
+		},
+		methods : {
+			scrollDown : function() {
+				var el = this.$el.getElementsByClassName('conversation-container')[0];
+
+				el.scrollTop = el.scrollHeight;
+			},
+			pictureTaken : function() {
+				this.showCamera = false;
+				this.resp(2);
+			},
+			resp : function(inc) {
+				this.showresp = false;
+				this.showti = true;
+				this.scrollDown();
+				setTimeout(()=>{
+					this.showti = false;
+					for (var x = 0; x < inc; x++) {
+						this.messages.push(this.f[++this.i]);
+					}
+					this.showresp = true;
+					this.scrollDown();
+				},1000);
+			}
+		},
+		mounted : function(){
+			setTimeout(()=>{
+				this.showti = false;
+				this.messages.push(this.f[this.i]);
+				this.showresp = true;
+				this.scrollDown();
+			},2000);
 		}
 	};
 
@@ -234,9 +303,6 @@
 		},
 	}
 
-	const Camera = {
-		template: '#camera',
-	}
 	const store = new Vuex.Store({
 		state: {
 			title : '',

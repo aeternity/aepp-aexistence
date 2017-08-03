@@ -13,6 +13,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
 	</head>
 	<body>
+
 		<div :class='appClass' id="app">
 			<topbar></topbar>
 			<router-view></router-view>
@@ -112,6 +113,7 @@
 				</router-link>
 			</div>
 		</script>
+
 		<script type="text/x-template" id="topbar">
 			<div :class="thisclass">
 				<header>
@@ -149,12 +151,11 @@
 		</script>
 
 		<script type="text/x-template" id="camera">
-			<div class="screen">
-				<div class="camera">
-					<div class="image"></div>
-				</div>
+			<div v-if='show' @click='close' class="camera">
+				<div class="image"></div>
 			</div>
 		</script>
+
 		<script type="text/x-template" id="proofs-list-entry">
 			<router-link :to='"/proofs/"+proof.id'>
 				<div class="proofs-list-entry">
@@ -234,14 +235,26 @@
 
 		<script type="text/x-template" id="new">
 			<div class="screen">
-				<div class="nomargin conversation-container">
+				<div id='conv' class="nomargin conversation-container">
 					<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
-					<div class="app speech typing-indicator">
+					<div v-show='showti' class="app speech typing-indicator">
 						<span></span>
 						<span></span>
 						<span></span>
 					</div>
 				</div>
+				<div v-show='showresp' @click='resp(1)' class="response">
+					<div v-if='i == 0' class="answer-group">
+						<button class='answer'><span class="e">🤔</span> Why?</button>
+						<button class='answer'><span class="e">📷</span> Picture</button>
+						<button class='answer'><span class="e">📄</span> File</button>
+					</div>
+					<div v-if='i == 3' class="answer-group">
+						<input value='rental car damage' type="text">
+						<button @click='resp(1)' class='send'>Send</button>
+					</div>
+				</div>
+				<camera @picture='pictureTaken' :show='showCamera'></camera>
 			</div>
 		</script>
 
