@@ -65,14 +65,23 @@
 		components : {
 			'avatar' : Avatar
 		},
+		//data : function() {
+		//},
 		computed : {
 			identity : function() {
 				return this.$store.state.identity;
+			},
+			collapsed : function() {
+				return this.$store.state.identityCollapsed;
 			}
 		},
-		data : function() {
-			return {};
-		},
+		methods: {
+			toggle : function() {
+				if(this.$store.state.appClass !== 'home') {
+					this.$store.commit('identityCollapsed', !this.$store.state.identityCollapsed);
+				}
+			}
+		}
 	};
 
 	const Home = {
@@ -231,6 +240,7 @@
 	const store = new Vuex.Store({
 		state: {
 			title : '',
+			appClass : '',
 			proofs : [
 				{
 					id : '1',
@@ -252,7 +262,8 @@
 				balance : 5,
 				name : 'Joan',
 				address : '0x7D154..',
-			}
+			},
+			identityCollapsed : false
 		},
 		getters: {
 			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
@@ -260,19 +271,44 @@
 		mutations: {
 			title : function(state, newtitle) {
 				state.title = newtitle;
+			},
+			appClass : function(state, newClass) {
+				state.appClass = newClass;
+			},
+			identityCollapsed : function(state, collapse) {
+				state.identityCollapsed = collapse;
 			}
 		}
 	});
 
 	const routes = [
-		{ path: '/', component: Intro, meta : {title : 'Welcome'}},
-		{ path: '/intro', component: Intro, meta : {title : 'Title'}},
-		{ path: '/home', component: Home, meta : {title : 'Title'}},
-		{ path: '/new', component: New, meta : {title : 'Create Proof'}},
-		{ path: '/camera', component: Camera, meta : {title : 'Title'}},
-		{ path: '/proofs', component: ProofsList, meta : {title : 'Your Proofs'}},
-		{ path: '/proofs/:id', component: Proof },
+		{ path: '/', component: Intro, meta : {
+			title : 'Welcome',
+			appClass : 'welcome'
+		}},
+		{ path: '/home', component: Home, meta : {
+			title : 'Æxistence',
+			appClass : 'home'
+		}},
+		{ path: '/new', component: New, meta : {
+			title : 'Create Proof',
+			appClass : 'new'
+		}},
+		{ path: '/camera', component: Camera, meta : {
+			title : 'Camer',
+			appClass : 'camera'
+		}},
+		{ path: '/proofs', component: ProofsList, meta : {
+			title : 'Your Proofs',
+			appClass : 'proofs'
+		}},
+		{ path: '/proofs/:id', component: Proof, meta : {
+			appClass : 'proof'
+		}},
 	];
+
+
+
 
 	const router = new VueRouter({
 		routes: routes
@@ -280,12 +316,23 @@
 	router.beforeEach((to, from, next) => {
 		document.title = to.meta.title;
 		store.commit('title', to.meta.title);
+		store.commit('appClass', to.meta.appClass);
+		if(to.meta.appClass === 'home') {
+			store.commit('identityCollapsed', false);
+		} else {
+			store.commit('identityCollapsed', true);
+		}
 		next();
 	})
 
 	const app = new Vue({
 		el: '#app',
 		store,
+		computed : {
+			appClass : function() {
+				return this.$store.state.appClass;
+			}
+		},
 		components : {
 			'topbar' : Topbar
 		},

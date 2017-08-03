@@ -13,7 +13,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
 	</head>
 	<body>
-		<div id="app">
+		<div :class='appClass' id="app">
 			<topbar></topbar>
 			<router-view></router-view>
 		</div>
@@ -79,7 +79,7 @@
 		</script>
 
 		<script type="text/x-template" id="identity">
-			<div class="identity">
+			<div @click='toggle' :class="{identity:true, collapsed : collapsed}">
 				<div class="left">
 					<avatar :image='identity.avatar'></avatar>
 					<div class="account-info">
@@ -133,6 +133,7 @@
 						<g fill="#4A4A4A" fill-rule="evenodd"><path d="M0 9h20v2H0z"/><path d="M11 0v20H9V0z"/></g></svg>
 					</div>
 				</header>
+				<identity/>
 				<nav>
 					<div class="inner">
 						<div class="center">
@@ -233,7 +234,7 @@
 
 		<script type="text/x-template" id="new">
 			<div class="screen">
-				<div class="conversation-container">
+				<div class="nomargin conversation-container">
 					<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
 					<div class="app speech typing-indicator">
 						<span></span>
@@ -245,17 +246,16 @@
 		</script>
 
 		<script type="text/x-template" id="home">
-			<div class="screen">
-				<identity/>
-					<h1 class='center'>Success</h1>
-					<p class="text center">
-						This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
-					</p>
-					<div class="pink next button">
-						<router-link to="/new">
-							Create first proof
-						</router-link>
-					</div>
+			<div class="home screen">
+				<h1 class='center'>Success</h1>
+				<p class="text center">
+					This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
+				</p>
+				<div class="pink next button">
+					<router-link to="/new">
+						Create first proof
+					</router-link>
+				</div>
 			</div>
 		</script>
 

@@ -13,6 +13,9 @@ html, body {
 	overflow:hidden;
 	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 }
+#app.welcome .topbar {
+	display:none;
+}
 .screen {
 	/*padding:0 21px;*/
 	min-height:100vh;
@@ -20,7 +23,7 @@ html, body {
 .screen >.inner {
 	padding-top:80px;
 }
-.screen > :first-child:not(.inner) ,
+.screen > :first-child:not(.nomargin) ,
 .screen >.inner > :first-child:not(.nomargin) {
 	margin-top:70px;
 }
@@ -31,6 +34,10 @@ html, body {
 }
 .intro.screen .inner {
 	padding-top:21px;
+}
+.home.screen  {
+	margin-top:300px;
+
 }
 .notice {
 	/* Skip: */
@@ -126,7 +133,9 @@ h1 {
 	padding-bottom:40px;
 }
 .identity {
-	position:relative;
+	position:fixed;
+	top:auto;
+	bottom:10px;
 	box-sizing:border-box;
 	/* Rectangle: */
 	background-image: linear-gradient(-180deg, #F03C6E 0%, #FF96A0 100%);
@@ -136,6 +145,16 @@ h1 {
 	height:200px;
 	padding:21px;
 	color:white;
+	z-index:5;
+}
+#app.home .identity {
+	top:70px;
+	bottom:auto
+}
+.identity.collapsed {
+	top:auto;
+	bottom:-145px;
+	padding:6px 21px;
 }
 .identity:after {
 	content:"";
@@ -189,6 +208,9 @@ h1 {
 	color: #FFFFFF;
 	letter-spacing: 0.6px;
 }
+.collapsed .account-info .address {
+	display:none;
+}
 .balance {
 }
 .balance .amount {
@@ -197,9 +219,12 @@ h1 {
 	color: #FFFFFF;
 	letter-spacing: 0;
 }
+.collapsed .balance .amount {
+	font-size: 35px;
+}
 .balance .currency-symbol {
 	font-family: Roboto-Regular;
-	font-size: 20px;
+	font-size: 0.8em;
 	color: #FFFFFF;
 	letter-spacing: 2.4px;
 }
@@ -209,6 +234,12 @@ h1 {
 	width:50px;
 	height:50px;
 	border:2px solid white;
+	background-position:center;
+	background-size:cover;
+}
+.identity.collapsed .avatar {
+	width:40px;
+	height:40px;
 }
 header:before{
 /*.conversation-container:after {*/
@@ -250,7 +281,7 @@ nav {
 	height: 100%;
 	width: 100%;
 	/*background: red;*/
-	z-index: 2;
+	z-index: 10;
 	display:none;
 }
 .open nav {
@@ -277,7 +308,7 @@ nav .name {
 	position:absolute;
 	height:100%;
 	overflow:auto;
-	padding:84px 0 42px 0;
+	padding:84px 0 82px 0;
 }
 .speech p {
 	color:inherit;
@@ -493,7 +524,7 @@ nav .name {
 	position:fixed;
 	top:0;
 	left:0;
-	z-index:4;
+	z-index:5;
 	border-radius:0;
 	margin:0;
 	width:100%;
