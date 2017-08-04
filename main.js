@@ -176,9 +176,23 @@
 		},
 		data : function() {
 			return {
+				proof : {
+					created : null,
+					verified : null,
+					title : '',
+					image : 'img/image.jpg',
+					confirmations : 0,
+					contract: '0x8a9c4bb2f2...',
+					block: '1133777',
+					fileSha256: 'd91ef0a24a9eb1c1...',
+					fileType: 'image/jpeg',
+					fileSize: '1.4 Mb',
+					fileLocation : 'Dropbox'
+				},
 				showCamera : false,
 				showti : true,
 				showresp : false,
+				userInput : 'rental car damage',
 				i : 0,
 				messages : [
 				],
@@ -274,6 +288,11 @@
 				setTimeout(()=>{
 					this.showti = false;
 					for (var x = 0; x < inc; x++) {
+						if(this.i === 8) {
+							var lastp = store.state.proofs[store.state.proofs.length - 1];
+							this.f[this.i].body.link = '/proofs/'+lastp.id;
+							this.f[this.i].body.linktext = lastp.title;
+						}
 						this.messages.push(this.f[this.i++]);
 					}
 					this.showresp = true;
@@ -283,6 +302,9 @@
 			user : function(inc) {
 				this.showresp = false;
 				for (var x = 0; x < inc; x++) {
+					if(this.i === 4) {
+						this.f[this.i].body.text = this.userInput;
+					}
 					this.messages.push(this.f[this.i++]);
 					if(this.i == 7) {
 						store.dispatch('paymentRequest', {
@@ -299,6 +321,25 @@
 				this.bot(1);
 			},
 			paymentSuccess : function() {
+
+				var today = new Date();
+				var dd = today.getDate();
+				var mm = today.getMonth()+1; //January is 0!
+				if(dd<10){
+					dd='0'+dd;
+				}
+				if(mm<10){
+					mm='0'+mm;
+				}
+				var yyyy = today.getFullYear();
+				var today = dd+'.'+mm+'.'+yyyy;
+
+				this.proof.created = today;
+				this.proof.verified = today;
+				this.proof.title = this.userInput;
+				this.proof.confirmations = Math.round(Math.random() * 10) + 1;
+
+				store.commit('addProof', this.proof);
 				this.bot(2);
 
 			}
@@ -339,10 +380,10 @@
 						label : 'Create a Proof',
 						link : '/new',
 					},
-					{
-						label : 'Shared with me',
-						link : '/new',
-					},
+					//{
+						//label : 'Shared with me',
+						//link : '/new',
+					//},
 					//{
 						//label : 'My Proofs',
 					//},
@@ -385,20 +426,6 @@
 			title : '',
 			appClass : '',
 			proofs : [
-				{
-					id : '1',
-					title : 'Rental car damage',
-					created : '14.05.2017',
-					image : 'img/image.jpg',
-					confirmations : 9,
-					contract: '0x8a9c4bb2f2...',
-					verified : '14.05.2017',
-					block: '1133777',
-					fileSha256: 'd91ef0a24a9eb1c1...',
-					fileType: 'image/jpeg',
-					fileSize: '1.4 Mb',
-					fileLocation : 'Dropbox'
-				}
 			],
 			identity : {
 				avatar: "img/avatar-1.jpg",
@@ -417,6 +444,10 @@
 		mutations: {
 			title : function(state, newtitle) {
 				state.title = newtitle;
+			},
+			addProof : function(state, newProof) {
+				newProof.id = state.proofs.length+1;
+				state.proofs.push(newProof);
 			},
 			appClass : function(state, newClass) {
 				state.appClass = newClass;
