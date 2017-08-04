@@ -278,17 +278,27 @@ nav {
 	position: fixed;
 	left: 0;
 	height: 100%;
-	width: 100%;
+	width: 65%;
 	/*background: red;*/
 	z-index: 10;
-	display:none;
+	transform:translate(-100%,0);
+	transition:transform 0.4s;
+	/*display:none;*/
 }
 .open nav {
-	display:block;
+	transform:translate(0,0);
+}
+header ,
+.topbar + * {
+	transition:transform 0.4s;
+}
+.open header ,
+.open + * {
+	transform:translate(65%, 0);
 }
 nav > .inner {
 	position:relative;
-	width:65%;
+	width:100%;
 	z-index:10;
 	background: blue;
 	min-height:100%;
