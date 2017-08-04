@@ -633,6 +633,11 @@ nav .avatar + .name{
 	/*background:red;*/
 	margin-top:60px;
 }
+.proofs-list .middle {
+	/*background:red;*/
+	width:100%;
+	margin:0 20px;
+}
 .proofs-list-entry {
 	display:flex;
 	padding:21px;
@@ -666,6 +671,7 @@ nav .avatar + .name{
 	background: #F03C6E;
 	border-radius: 30px;
 	/* 3 confirmed: */
+	white-space:nowrap;
 	font-family: Roboto-Medium;
 	font-size: 12px;
 	color: #FFFFFF;
