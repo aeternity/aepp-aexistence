@@ -258,7 +258,9 @@
 		data : function() {
 			return {
 				navopen : false,
-				addVisible : true,
+				showAdd : true,
+				showBurger : true,
+				showBack : false,
 				entris : [
 					{
 						label : 'My Proofs',
@@ -294,7 +296,11 @@
 		},
 		watch: {
 			'$route' : function(to, from) {
-				this.addVisible = to.path !== '/new';
+				var proofDetail = null !== to.path.match(/^\/proofs\/\d+/);
+
+				this.showAdd = to.path !== '/new';
+				this.showBurger = !proofDetail;
+				this.showBack = proofDetail;
 				this.navopen = false;
 			}
 		},
