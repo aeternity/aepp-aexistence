@@ -377,15 +377,21 @@ nav .avatar + .name{
 	/*top:0;*/
 	position:relative;
 	margin-top:0;
-	height:calc(100% - 130px);
 	overflow:auto;
+	/*padding:84px 0 182px 0;*/
+
 	padding:84px 0 82px 0;
+	height:calc(100% - 130px);
 }
 .response {
 	padding:9px 0;
 	height:51px;
-	/*background:red;*/
+	position:fixed;
+	width:100%;
+	z-index:2;
+	bottom:61px;
 	overflow:hidden;
+	/*background: rgba(0,0,0,0.2);*/
 }
 .response input[type=text] {
 /* Rectangle: */
@@ -398,6 +404,7 @@ nav .avatar + .name{
 	font-size: 16px;
 	color: #4A4A4A;
 	letter-spacing: 0;
+	width:100%;
 	padding:11px 20px 10px 20px;
 }
 .response .answer-group {
@@ -438,6 +445,8 @@ nav .avatar + .name{
 	color: #F03C6E;
 	letter-spacing: 0;
 	line-height: 25px;
+	margin-left:15px;
+	margin-right:25px;
 }
 .speech p {
 	color:inherit;
