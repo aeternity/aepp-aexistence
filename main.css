@@ -13,12 +13,19 @@ html, body {
 	overflow:hidden;
 	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 }
+#app.welcome .topbar {
+	display:none;
+}
 .screen {
-	/*padding:0 21px;*/
-	min-height:100vh;
+	height:100%;
+	overflow:auto;
 }
 .screen >.inner {
 	padding-top:80px;
+}
+.screen > :first-child:not(.nomargin) ,
+.screen >.inner > :first-child:not(.nomargin) {
+	margin-top:70px;
 }
 .intro.screen {
 	position:relative;
@@ -27,6 +34,10 @@ html, body {
 }
 .intro.screen .inner {
 	padding-top:21px;
+}
+.home.screen  {
+	margin-top:300px;
+
 }
 .notice {
 	/* Skip: */
@@ -122,7 +133,9 @@ h1 {
 	padding-bottom:40px;
 }
 .identity {
-	position:relative;
+	position:fixed;
+	top:auto;
+	bottom:10px;
 	box-sizing:border-box;
 	/* Rectangle: */
 	background-image: linear-gradient(-180deg, #F03C6E 0%, #FF96A0 100%);
@@ -132,6 +145,16 @@ h1 {
 	height:200px;
 	padding:21px;
 	color:white;
+	z-index:5;
+}
+#app.home .identity {
+	top:70px;
+	bottom:auto
+}
+.identity.collapsed {
+	top:auto;
+	bottom:-145px;
+	padding:6px 21px;
 }
 .identity:after {
 	content:"";
@@ -185,6 +208,9 @@ h1 {
 	color: #FFFFFF;
 	letter-spacing: 0.6px;
 }
+.collapsed .account-info .address {
+	display:none;
+}
 .balance {
 }
 .balance .amount {
@@ -193,9 +219,12 @@ h1 {
 	color: #FFFFFF;
 	letter-spacing: 0;
 }
+.collapsed .balance .amount {
+	font-size: 35px;
+}
 .balance .currency-symbol {
 	font-family: Roboto-Regular;
-	font-size: 20px;
+	font-size: 0.8em;
 	color: #FFFFFF;
 	letter-spacing: 2.4px;
 }
@@ -205,9 +234,14 @@ h1 {
 	width:50px;
 	height:50px;
 	border:2px solid white;
+	background-position:center;
+	background-size:cover;
+}
+.identity.collapsed .avatar {
+	width:40px;
+	height:40px;
 }
 header:before{
-/*.conversation-container:after {*/
 	content:"";
 	width:100%;
 	height:70px;
@@ -246,7 +280,7 @@ nav {
 	height: 100%;
 	width: 100%;
 	/*background: red;*/
-	z-index: 2;
+	z-index: 10;
 	display:none;
 }
 .open nav {
@@ -269,11 +303,70 @@ nav .name {
 }
 .conversation-container {
 	box-sizing:border-box;
-	top:0;
-	position:absolute;
-	height:100%;
+	/*top:0;*/
+	position:relative;
+	margin-top:0;
+	height:calc(100% - 130px);
 	overflow:auto;
-	padding:84px 0 42px 0;
+	padding:84px 0 82px 0;
+}
+.response {
+	padding:9px 0;
+	height:51px;
+	/*background:red;*/
+	overflow:hidden;
+}
+.response input[type=text] {
+/* Rectangle: */
+	border:none;
+	background: #FFFFFF;
+	box-shadow: 0 0 10px 0 rgba(0,0,0,0.11);
+	border-radius: 20px;
+	/* My Green Bike: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #4A4A4A;
+	letter-spacing: 0;
+	padding:11px 20px 10px 20px;
+}
+.response .answer-group {
+	display:flex;
+	overflow:auto;
+	padding-left:21px;
+	padding-top:7px;
+	padding-bottom:201px;
+}
+.response .answer {
+	border:none;
+	background: #FFFFFF;
+	box-shadow: 0 0 10px 0 rgba(0,0,0,0.11);
+	border-radius: 20px;
+	/* My Green Bike: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: #4A4A4A;
+	letter-spacing: 0;
+	height:40px;
+	line-height:20px;
+	padding:11px 20px 10px 20px;
+	white-space:nowrap;
+}
+.response .answer .e {
+	margin-right:5px;
+}
+.response .answer + .answer {
+	margin-left:15px;
+}
+.response .answer:last-child{
+	margin-right:21px;
+}
+.response .send {
+	/* Send: */
+	font-family: Roboto-Medium;
+	font-size: 17px;
+	color: #F03C6E;
+	letter-spacing: 0;
+	line-height: 25px;
 }
 .speech p {
 	color:inherit;
@@ -409,6 +502,7 @@ nav .name {
 .camera {
 	position:fixed;
 	background-image:url(img/image.jpg);
+	z-index:5;
 }
 .camera ,
 .camera .image {
@@ -450,15 +544,16 @@ nav .name {
 	height:57px;
 	/* Background: */
 	border-radius:15px;
+	background-size:cover;
 }
-.proofs-list-entry .proof-title {
+.proof-title {
 	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #1C1C1C;
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proofs-list-entry .proof-created {
+.proof-created {
 	opacity: 0.4;
 	font-family: Roboto-Regular;
 	font-size: 12px;
@@ -466,7 +561,7 @@ nav .name {
 	letter-spacing: 0;
 	line-height: 19.8px;
 }
-.proofs-list-entry .proof-confirmations {
+.proof-confirmations {
 	/* Rectangle: */
 	background: #F03C6E;
 	border-radius: 30px;
@@ -476,4 +571,40 @@ nav .name {
 	color: #FFFFFF;
 	letter-spacing: 0;
 	padding:5px 10px;
+}
+.proof .proof-image {
+	height:80vw;
+	margin:10px;
+	border-radius:10px;
+	background-size:cover
+	background-position:center center;
+}
+.proof .proof-image.fullscreen {
+	position:fixed;
+	top:0;
+	left:0;
+	z-index:5;
+	border-radius:0;
+	margin:0;
+	width:100%;
+	height:100%;
+}
+.columns {
+	display:flex;
+	padding:21px;
+	justify-content: space-between ;
+	align-items : top;
+}
+.proof table {
+	margin:11px 21px;
+	/* Contract: Created: V: */
+	font-family: Roboto-Regular;
+	font-size: 16px;
+	color: rgba(0,0,0,0.87);
+	line-height: 24px;
+	width:calc(100% - 42px);
+}
+.proof table tr hr {
+	border:0;
+	border-top: 1px solid #CDCED3;
 }

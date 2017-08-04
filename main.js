@@ -3,9 +3,46 @@
 (function(){
 
 	const Intro = { template: '#intro' };
+	const Camera = {
+		template: '#camera',
+		props : [
+			'show'
+		],
+		data : function() {
+			return {
+				//show : false,
+			};
+		},
+		methods : {
+			close : function() {
+				this.$emit('picture');
+			}
+		}
+	}
 
 	const Proof = {
 		template : '#proof',
+		data : function() {
+			return {
+				cssClass : {
+					image : {
+						fullscreen : false,
+					}
+				}
+			}
+		},
+		computed : {
+			proof : function() {
+				return this.$store.getters.getProofById( this.$route.params.id );
+			}
+		},
+		methods : {
+			toggleImage : function() {
+				this.cssClass.image.fullscreen =
+					! this.cssClass.image.fullscreen;
+
+			}
+		}
 	};
 	const ProofsListEntry = {
 		template : '#proofs-list-entry',
@@ -44,14 +81,23 @@
 		components : {
 			'avatar' : Avatar
 		},
+		//data : function() {
+		//},
 		computed : {
 			identity : function() {
 				return this.$store.state.identity;
+			},
+			collapsed : function() {
+				return this.$store.state.identityCollapsed;
 			}
 		},
-		data : function() {
-			return {};
-		},
+		methods: {
+			toggle : function() {
+				if(this.$store.state.appClass !== 'home') {
+					this.$store.commit('identityCollapsed', !this.$store.state.identityCollapsed);
+				}
+			}
+		}
 	};
 
 	const Home = {
@@ -95,14 +141,24 @@
 	}
 	const New = {
 		template: '#new',
+		components: {
+			'speech' : Speech,
+			'camera' : Camera,
+		},
 		data : function() {
 			return {
+				showCamera : false,
+				showti : true,
+				showresp : false,
+				i : 0,
 				messages : [
+				],
+				f : [
 					{
 						sender : MessageSenderEnum.APP,
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
-							text :	"How about creating your first proof. You can 'proof' a pictute, file or conversation.",
+							text :	"How about creating your first proof. You can 'proof' a picture, file or conversation.",
 						},
 					},
 					{
@@ -133,11 +189,54 @@
 							text : "rental car damage",
 						},
 					},
+					{
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : "Got that! This proof will cost 0.1 AET.",
+						},
+					},
 				]
 			}
 		},
-		components: {
-			'speech' : Speech,
+		watch : {
+			i : function(val) {
+				if(val == 1) {
+					this.showCamera = true;
+				}
+			}
+		},
+		methods : {
+			scrollDown : function() {
+				var el = this.$el.getElementsByClassName('conversation-container')[0];
+
+				el.scrollTop = el.scrollHeight;
+			},
+			pictureTaken : function() {
+				this.showCamera = false;
+				this.resp(2);
+			},
+			resp : function(inc) {
+				this.showresp = false;
+				this.showti = true;
+				this.scrollDown();
+				setTimeout(()=>{
+					this.showti = false;
+					for (var x = 0; x < inc; x++) {
+						this.messages.push(this.f[++this.i]);
+					}
+					this.showresp = true;
+					this.scrollDown();
+				},1000);
+			}
+		},
+		mounted : function(){
+			setTimeout(()=>{
+				this.showti = false;
+				this.messages.push(this.f[this.i]);
+				this.showresp = true;
+				this.scrollDown();
+			},2000);
 		}
 	};
 
@@ -153,7 +252,8 @@
 		template: '#topbar',
 		components : {
 			'avatar': Avatar,
-			'menu-entry': MenuEntry
+			'menu-entry': MenuEntry,
+			'identity' : Identity
 		},
 		data : function() {
 			return {
@@ -203,18 +303,24 @@
 		},
 	}
 
-	const Camera = {
-		template: '#camera',
-	}
 	const store = new Vuex.Store({
 		state: {
 			title : '',
+			appClass : '',
 			proofs : [
 				{
+					id : '1',
 					title : 'Rental car damage',
 					created : '14.05.2017',
 					image : 'img/image.jpg',
-					confirmations : 9
+					confirmations : 9,
+					contract: '0x8a9c4bb2f2...',
+					verified : '14.05.2017',
+					block: '1133777',
+					fileSha256: 'd91ef0a24a9eb1c1...',
+					fileType: 'image/jpeg',
+					fileSize: '1.4 Mb',
+					fileLocation : 'Dropbox'
 				}
 			],
 			identity : {
@@ -222,24 +328,53 @@
 				balance : 5,
 				name : 'Joan',
 				address : '0x7D154..',
-			}
+			},
+			identityCollapsed : false
+		},
+		getters: {
+			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
 		},
 		mutations: {
 			title : function(state, newtitle) {
 				state.title = newtitle;
+			},
+			appClass : function(state, newClass) {
+				state.appClass = newClass;
+			},
+			identityCollapsed : function(state, collapse) {
+				state.identityCollapsed = collapse;
 			}
 		}
 	});
 
 	const routes = [
-		{ path: '/', component: Intro, meta : {title : 'Welcome'}},
-		{ path: '/intro', component: Intro, meta : {title : 'Title'}},
-		{ path: '/home', component: Home, meta : {title : 'Title'}},
-		{ path: '/new', component: New, meta : {title : 'Create Proof'}},
-		{ path: '/camera', component: Camera, meta : {title : 'Title'}},
-		{ path: '/proofs', component: ProofsList, meta : {title : 'Your Proofs'}},
-		{ path: '/proofs/:id', component: Proof },
+		{ path: '/', component: Intro, meta : {
+			title : 'Welcome',
+			appClass : 'welcome'
+		}},
+		{ path: '/home', component: Home, meta : {
+			title : 'Æxistence',
+			appClass : 'home'
+		}},
+		{ path: '/new', component: New, meta : {
+			title : 'Create Proof',
+			appClass : 'new'
+		}},
+		{ path: '/camera', component: Camera, meta : {
+			title : 'Camer',
+			appClass : 'camera'
+		}},
+		{ path: '/proofs', component: ProofsList, meta : {
+			title : 'Your Proofs',
+			appClass : 'proofs'
+		}},
+		{ path: '/proofs/:id', component: Proof, meta : {
+			appClass : 'proof'
+		}},
 	];
+
+
+
 
 	const router = new VueRouter({
 		routes: routes
@@ -247,12 +382,23 @@
 	router.beforeEach((to, from, next) => {
 		document.title = to.meta.title;
 		store.commit('title', to.meta.title);
+		store.commit('appClass', to.meta.appClass);
+		if(to.meta.appClass === 'home') {
+			store.commit('identityCollapsed', false);
+		} else {
+			store.commit('identityCollapsed', true);
+		}
 		next();
 	})
 
 	const app = new Vue({
 		el: '#app',
 		store,
+		computed : {
+			appClass : function() {
+				return this.$store.state.appClass;
+			}
+		},
 		components : {
 			'topbar' : Topbar
 		},
