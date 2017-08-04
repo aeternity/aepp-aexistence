@@ -80,18 +80,34 @@
 		</script>
 
 		<script type="text/x-template" id="identity">
-			<div @click='toggle' :class="{identity:true, collapsed : collapsed}">
-				<div class="left">
-					<avatar :image='identity.avatar'></avatar>
-					<div class="account-info">
-						<div class="name">{{identity.name}}</div>
-						<div class="address">{{identity.address}}</div>
+			<div :class="{ 'identity-wrap' : true, 'show-payment-ui' : showPaymentUi }">
+
+				<div v-if='showPaymentUi' class="payment">
+					<p class="center">
+						Please verify your transaction of {{paymentRequest.amount}} AET.
+					</p>
+					<div @click='pay' class="pink button pay">
+						Pay {{paymentRequest.amount}} AET
+					</div>
+					<div @click='cancel' class="button">
+						cancel
 					</div>
 				</div>
-				<div class="right">
-					<div class="balance">
-						<span class="amount">{{identity.balance}}</span>
-						<span class="currency-symbol">AET</span>
+
+				<div @click='toggle' :class="{identity:true, collapsed : collapsed, 'show-payment-ui' : showPaymentUi }">
+					<div class="left">
+						<avatar :image='identity.avatar'></avatar>
+						<div class="account-info">
+							<div class="name">{{identity.name}}</div>
+							<div class="address">{{identity.address}}</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="balance">
+							<span class="amount">{{identity.balance}}</span>
+							<span class="currency-symbol">AET</span>
+						</div>
+					</div>
 					</div>
 				</div>
 			</div>
@@ -101,7 +117,14 @@
 			<div class="speech-container">
 				<div :class="thisclass">
 					<p class='text' v-if='body.type === 0'>{{body.text}}</p>
-					<div class='image' :style='style' v-if='body.type === 1'></div>
+
+					<div class='image' :style='style' v-if='body.type === 1'>
+					<div class='linkwrap' v-if='body.link'>
+						<router-link :to='body.link'>
+						{{ body.linktext }} 
+						</router-link>
+					</div>
+					</div>
 				</div>
 			</div>
 		</script>
@@ -252,14 +275,20 @@
 				<div v-show='showresp' class="response">
 
 					<div v-if='i == 1' @click='user(1)' class="answer-group">
-						<button class='answer'><span class="e">🤔</span> Why?</button>
 						<button class='answer'><span class="e">📷</span> Picture</button>
 						<button class='answer'><span class="e">📄</span> File</button>
+						<button class='answer'><span class="e">🤔</span> Why?</button>
 					</div>
 
 					<div v-if='i == 4' class="answer-group">
 						<input value='rental car damage' type="text">
 						<button @click='user(1)' class='send'>Send</button>
+					</div>
+
+					<div v-if='i == 6' @click='user(1)' class="answer-group">
+						<button class='answer'><span class="e">💸</span> Yes, I pay 0.1 AET</button>
+						<button class='answer'><span class="e">❌</span> Nope!</button>
+						<button class='answer'><span class="e">🤔</span> Why?</button>
 					</div>
 
 				</div>

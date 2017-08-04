@@ -1,8 +1,8 @@
 /* global Vue */
 
 (function(){
-
 	const Intro = { template: '#intro' };
+
 	const Camera = {
 		template: '#camera',
 		props : [
@@ -76,19 +76,36 @@
 			}
 		}
 	};
+
 	const Identity = {
 		template: '#identity',
 		components : {
 			'avatar' : Avatar
 		},
-		//data : function() {
-		//},
+		data : function() {
+			return {
+				showPaymentUi : false
+			};
+		},
 		computed : {
 			identity : function() {
 				return this.$store.state.identity;
 			},
 			collapsed : function() {
-				return this.$store.state.identityCollapsed;
+				return (!this.showPaymentUi) && this.$store.state.identityCollapsed;
+			},
+			paymentRequest : function() {
+				return this.$store.state.identity.paymentRequest;
+			},
+		},
+		watch : {
+			paymentRequest : function(req) {
+				console.log(req);
+				if(req) {
+				this.showPaymentUi = true;
+				} else {
+					this.showPaymentUi = false;
+				}
 			}
 		},
 		methods: {
@@ -96,6 +113,15 @@
 				if(this.$store.state.appClass !== 'home') {
 					this.$store.commit('identityCollapsed', !this.$store.state.identityCollapsed);
 				}
+			},
+			pay : function() {
+				store.dispatch('approvePayment');
+				setTimeout(()=>{
+					this.showPaymentUi = false;
+				}, 200);
+			},
+			cancel : function() {
+				this.showPaymentUi = false;
 			}
 		}
 	};
@@ -111,11 +137,13 @@
 		ME : 0,
 		APP : 1,
 	};
+
 	const MessageBodyTypeEnum = {
 		TEXT : 0,
 		IMAGE : 1,
 		PAYMENT : 2,
 	}
+
 	const Speech = {
 		template : '#speech',
 		props : [
@@ -139,6 +167,7 @@
 			}
 		}
 	}
+
 	const New = {
 		template: '#new',
 		components: {
@@ -158,7 +187,7 @@
 						sender : MessageSenderEnum.APP,
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
-							text :	"How about creating your first proof. You can 'proof' a picture, file or conversation.",
+							text :	"How about creating your first proof. You can 'proof' a picture or any other file.",
 						},
 					},
 					{
@@ -172,7 +201,8 @@
 						sender : MessageSenderEnum.ME,
 						body : {
 							type : MessageBodyTypeEnum.IMAGE,
-							image : 'image.jpg'
+							image : 'image.jpg',
+							link : false
 						},
 					},
 					{
@@ -194,6 +224,29 @@
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
 							text : "Got that! This proof will cost 0.1 AET.",
+						},
+					},
+					{
+						sender : MessageSenderEnum.ME,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : "Yes, I pay 0.1 AET",
+						},
+					},
+					{
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : "Success! Your proof has been created.",
+						},
+					},
+					{
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.IMAGE,
+							image : 'image.jpg',
+							link : '/proofs/1',
+							linktext : 'rental car damage'
 						},
 					},
 				]
@@ -231,9 +284,23 @@
 				this.showresp = false;
 				for (var x = 0; x < inc; x++) {
 					this.messages.push(this.f[this.i++]);
+					if(this.i == 7) {
+						store.dispatch('paymentRequest', {
+							success : () => {
+								this.paymentSuccess();
+							},
+							amount : 0.1
+						});
+						this.scrollDown();
+						return;
+					}
 				}
 				this.scrollDown();
 				this.bot(1);
+			},
+			paymentSuccess : function() {
+				this.bot(2);
+
 			}
 		},
 		mounted : function(){
@@ -242,7 +309,6 @@
 			},1000);
 		}
 	};
-
 
 	const MenuEntry = {
 		template : '#menu-entry',
@@ -336,9 +402,12 @@
 			],
 			identity : {
 				avatar: "img/avatar-1.jpg",
-				balance : 5,
+				balance : '5.00',
 				name : 'Joan',
 				address : '0x7D154..',
+				paymentRequest : null,
+				approvedPayments: [],
+				declinedPayments: [],
 			},
 			identityCollapsed : false
 		},
@@ -354,6 +423,23 @@
 			},
 			identityCollapsed : function(state, collapse) {
 				state.identityCollapsed = collapse;
+			},
+			addPaymentRequest : function(state, payment) {
+				state.identity.paymentRequest = payment;
+			},
+			pay : function(state) {
+				var paymentRequest = state.identity.paymentRequest;
+				state.identity.balance = (state.identity.balance - paymentRequest.amount).toFixed(2);
+				state.identity.approvedPayments.push(paymentRequest);
+				paymentRequest.success();
+			}
+		},
+		actions : {
+			paymentRequest : function(context, payment) {
+				context.commit('addPaymentRequest', payment);
+			},
+			approvePayment : function(context) {
+				context.commit('pay');
 			}
 		}
 	});
@@ -384,12 +470,10 @@
 		}},
 	];
 
-
-
-
 	const router = new VueRouter({
 		routes: routes
 	});
+
 	router.beforeEach((to, from, next) => {
 		document.title = to.meta.title;
 		store.commit('title', to.meta.title);
@@ -415,8 +499,6 @@
 		},
 		router
 	});
-
-
 })();
 
 var mySwiper = new Swiper ('.swiper-container', {
