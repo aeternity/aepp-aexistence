@@ -39,6 +39,10 @@ html, body {
 .intro.screen .inner {
 	padding-top:21px;
 }
+.intro.screen .notice{
+	margin-top:20px;
+	margin-bottom:5px;
+}
 .home.screen  {
 	margin-top:300px;
 
