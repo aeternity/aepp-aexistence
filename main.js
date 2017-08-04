@@ -258,6 +258,7 @@
 		data : function() {
 			return {
 				navopen : false,
+				addVisible : true,
 				entris : [
 					{
 						label : 'My Proofs',
@@ -293,6 +294,7 @@
 		},
 		watch: {
 			'$route' : function(to, from) {
+				this.addVisible = to.path !== '/new';
 				this.navopen = false;
 			}
 		},
