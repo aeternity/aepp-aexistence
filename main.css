@@ -181,6 +181,7 @@ h1 {
 	height:100%;
 	position:absolute;
 	top:0;
+	left:0;
 	background-image:url(img/identity-background.svg);
 	background-repeat:no-repeat;
 	background-position:center;
@@ -199,7 +200,7 @@ h1 {
 .identity .avatar {
 	/*position:absolute;*/
 	/*top:20px;*/
-	/*right:20px;*/
+	margin-right:10px;
 }
 .identity {
 	/*position:fixed;*/
