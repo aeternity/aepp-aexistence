@@ -1,15 +1,16 @@
 html, body {
 	font-family: 'Roboto', sans-serif;
+	margin:0;
 }
 #app {
-	box-shadow: 0 0 24px 0 rgba(0,0,0,0.22), 0 24px 24px 0 rgba(0,0,0,0.30);
+	/*box-shadow: 0 0 24px 0 rgba(0,0,0,0.22), 0 24px 24px 0 rgba(0,0,0,0.30);*/
 	/* wallet: */
 	position:absolute;
-	top:50%;
-	left:50%;
-	transform:translate(-50%,-50%);
-	width:375px;
-	height:667px;
+	/*top:50%;*/
+	/*left:50%;*/
+	/*transform:translate(-50%,-50%);*/
+	width:100%;
+	height:100%;
 	overflow:hidden;
 	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 }
@@ -32,6 +33,9 @@ html, body {
 	z-index:10;
 	background:white;
 }
+.proof.screen > :last-child{
+	margin-bottom:100px;
+}
 .intro.screen .inner {
 	padding-top:21px;
 }
@@ -50,6 +54,10 @@ a {
 	color:inherit;
 	text-decoration:inherit;
 }
+button {
+	border: none;
+	background: transparent;
+}
 .button {
 	/* Rectangle: */
 	border-radius: 76px;
@@ -61,6 +69,7 @@ a {
 	text-align:center;
 	max-width:75%;
 	margin:0 auto;
+	max-width:250px;
 }
 .img {
 	width:100%;
@@ -92,7 +101,9 @@ background-size:contain;
 	color: #000000;
 	letter-spacing: 0.4px;
 	line-height: 24px;
+	max-width:400px;
 }
+
 h1, p {
 	max-width:calc(100% - 42px);
 	margin-left:21px;
@@ -146,6 +157,10 @@ h1 {
 	padding:21px;
 	color:white;
 	z-index:5;
+}
+.identity ,
+.identity * {
+	transition:0.4s;
 }
 #app.home .identity {
 	top:70px;
@@ -590,11 +605,15 @@ nav .avatar + .name{
 	padding:5px 10px;
 }
 .proof .proof-image {
-	height:80vw;
+	height:80vmin;
 	margin:10px;
 	border-radius:10px;
-	background-size:cover
+	background-size:contain;
 	background-position:center center;
+	background-position:center center;
+	background-repeat:no-repeat;
+	background-color:rgba(0,0,0,0.8);
+	transition:0.5s;
 }
 .proof .proof-image.fullscreen {
 	position:fixed;
@@ -605,6 +624,8 @@ nav .avatar + .name{
 	margin:0;
 	width:100%;
 	height:100%;
+	background-size:contain;
+	background-color:rgba(0,0,0,0.8);
 }
 .columns {
 	display:flex;
