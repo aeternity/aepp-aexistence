@@ -44,7 +44,7 @@ html, body {
 	margin-bottom:5px;
 }
 .home.screen  {
-	margin-top:300px;
+	margin-top:225px;
 
 }
 .notice {
@@ -236,7 +236,7 @@ h1 {
 }
 .identity-wrap.show-payment-ui:after {
 	content:"";
-	background:rgba(255,255,255,.7);
+	background:rgba(255,255,255,.8);
 	width:100%;
 	height:100%;
 	position:absolute;
@@ -245,14 +245,14 @@ h1 {
 	top:-1px;
 }
 .identity-wrap.show-payment-ui .identity {
-	top:30vh;
+	top:23vh;
 }
 .identity-wrap.show-payment-ui .payment {
 	left:50%;
 	transform:translate(-50%,0);
 	width:100%;
 	max-width:400px;
-	top:calc(30vh - 100px);
+	top:calc(23vh - 100px);
 	padding:21px;
 	position:fixed;
 	color:black;
