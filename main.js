@@ -201,42 +201,45 @@
 		},
 		watch : {
 			i : function(val) {
-				if(val == 1) {
+				if(val == 2) {
 					this.showCamera = true;
 				}
 			}
 		},
 		methods : {
 			scrollDown : function() {
-				var el = this.$el.getElementsByClassName('conversation-container')[0];
-
-				el.scrollTop = el.scrollHeight;
+				setTimeout(function(){
+					document.getElementsByClassName('conversation-container')[0].scrollTop = 100000000
+				},100);
 			},
 			pictureTaken : function() {
 				this.showCamera = false;
-				this.resp(2);
+				this.bot(1);
 			},
-			resp : function(inc) {
-				this.showresp = false;
+			bot : function(inc) {
 				this.showti = true;
-				this.scrollDown();
 				setTimeout(()=>{
 					this.showti = false;
 					for (var x = 0; x < inc; x++) {
-						this.messages.push(this.f[++this.i]);
+						this.messages.push(this.f[this.i++]);
 					}
 					this.showresp = true;
 					this.scrollDown();
 				},1000);
+			},
+			user : function(inc) {
+				this.showresp = false;
+				for (var x = 0; x < inc; x++) {
+					this.messages.push(this.f[this.i++]);
+				}
+				this.scrollDown();
+				this.bot(1);
 			}
 		},
 		mounted : function(){
 			setTimeout(()=>{
-				this.showti = false;
-				this.messages.push(this.f[this.i]);
-				this.showresp = true;
-				this.scrollDown();
-			},2000);
+				this.bot(1);
+			},1000);
 		}
 	};
 

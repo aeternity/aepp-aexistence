@@ -248,16 +248,20 @@
 						<span></span>
 					</div>
 				</div>
-				<div v-show='showresp' @click='resp(1)' class="response">
-					<div v-if='i == 0' class="answer-group">
+
+				<div v-show='showresp' class="response">
+
+					<div v-if='i == 1' @click='user(1)' class="answer-group">
 						<button class='answer'><span class="e">🤔</span> Why?</button>
 						<button class='answer'><span class="e">📷</span> Picture</button>
 						<button class='answer'><span class="e">📄</span> File</button>
 					</div>
-					<div v-if='i == 3' class="answer-group">
+
+					<div v-if='i == 4' class="answer-group">
 						<input value='rental car damage' type="text">
-						<button @click='resp(1)' class='send'>Send</button>
+						<button @click='user(1)' class='send'>Send</button>
 					</div>
+
 				</div>
 				<camera @picture='pictureTaken' :show='showCamera'></camera>
 			</div>
