@@ -121,6 +121,7 @@
 				}, 200);
 			},
 			cancel : function() {
+				store.dispatch('cancelPayment');
 				this.showPaymentUi = false;
 			}
 		}
@@ -299,6 +300,59 @@
 					this.scrollDown();
 				},1000);
 			},
+			why : function(i) {
+				this.messages.push({
+						sender : MessageSenderEnum.ME,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text :	"Why?",
+						},
+					});
+				this.showti = true;
+				setTimeout(()=>{
+					this.showti = false;
+					this.messages.push({
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text :	i == 0 ? "More explanation soon1" : "More explanation soon2",
+						},
+					}
+					);
+					this.showresp = true;
+					this.scrollDown();
+				},1000);
+			},
+			start : function() {
+				this.i = 0;
+				setTimeout(()=>{
+					this.bot(1);
+				},1000);
+			},
+			cancel : function() {
+				this.messages.push({
+						sender : MessageSenderEnum.ME,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text :	"Cancel",
+						},
+					});
+				this.showti = true;
+				setTimeout(()=>{
+					this.showti = false;
+					this.messages.push({
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text :	"As you wish! You can now start over or leave the app",
+						},
+					}
+					);
+					this.showresp = true;
+					this.scrollDown();
+					this.start();
+				},1000);
+			},
 			user : function(inc) {
 				this.showresp = false;
 				for (var x = 0; x < inc; x++) {
@@ -310,6 +364,9 @@
 						store.dispatch('paymentRequest', {
 							success : () => {
 								this.paymentSuccess();
+							},
+							canceled : () => {
+								this.paymentCanceled();
 							},
 							amount : 0.1
 						});
@@ -342,12 +399,14 @@
 				store.commit('addProof', this.proof);
 				this.bot(2);
 
-			}
+			},
+			paymentCanceled : function() {
+				this.cancel();
+			},
+
 		},
 		mounted : function(){
-			setTimeout(()=>{
-				this.bot(1);
-			},1000);
+			this.start();
 		}
 	};
 
@@ -463,6 +522,10 @@
 				state.identity.balance = (state.identity.balance - paymentRequest.amount).toFixed(2);
 				state.identity.approvedPayments.push(paymentRequest);
 				paymentRequest.success();
+			},
+			cancel : function(state) {
+				state.identity.paymentRequest.canceled();
+				state.identity.paymentRequest = null;
 			}
 		},
 		actions : {
@@ -471,6 +534,9 @@
 			},
 			approvePayment : function(context) {
 				context.commit('pay');
+			},
+			cancelPayment : function(context) {
+				context.commit('cancel');
 			}
 		}
 	});
