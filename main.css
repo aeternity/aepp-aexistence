@@ -606,8 +606,17 @@ nav .avatar + .name{
 	position:absolute;
 	background-image:url(img/camera.png);
 }
-.menu-entry {
+.menu-entry svg {
+.menu-entry a ,
+}
+.menu-entry svg {
+	margin-right:10px;
+}
+.menu-entry a {
 	/* My Proofs: */
+	position:relative;
+	display:block;
+	/*background:blue;*/
 	opacity: 0.9;
 	font-size: 17px;
 	color: #FFFFFF;
@@ -616,8 +625,19 @@ nav .avatar + .name{
 	border-top: 1px solid rgba(255,255,255,0.2);
 	border-bottom: 1px solid rgba(255,255,255,0.2);
 }
-.menu-entry + .menu-entry {
+.menu-entry a + .menu-entry a{
 	border-top:none;
+}
+.menu-entry .router-link-active:before{
+	content:"";
+	display:block;
+	position:absolute;
+	width:100%;
+	top:0;
+	left:0;
+	opacity:0.2;
+	height:100%;
+	background-image: linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.14) 100%);
 }
 .proofs-list {
 	/*background:red;*/
