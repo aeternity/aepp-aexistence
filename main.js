@@ -202,7 +202,7 @@
 						sender : MessageSenderEnum.APP,
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
-							text :	"How about creating your first proof. You can 'proof' a picture or any other file.",
+							text :	"How about creating your first proof? You can prove the existence of a picture or a file.",
 						},
 					},
 					{
@@ -224,7 +224,7 @@
 						sender : MessageSenderEnum.APP,
 						body : {
 							type : MessageBodyTypeEnum.TEXT,
-							text :	"OK! Now you should give your proof a reasonable name. Try to explain what it is!",
+							text :	"OK! Now you want to give your proof a reasonable name. Make it descriptive!",
 						},
 					},
 					{
@@ -325,9 +325,9 @@
 			},
 			start : function() {
 				this.i = 0;
-				setTimeout(()=>{
-					this.bot(1);
-				},1000);
+				this.bot(1);
+				//setTimeout(()=>{
+				//},500);
 			},
 			cancel : function() {
 				this.messages.push({
