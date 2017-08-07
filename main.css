@@ -1,15 +1,16 @@
 html, body {
 	font-family: 'Roboto', sans-serif;
+	margin:0;
 }
 #app {
-	box-shadow: 0 0 24px 0 rgba(0,0,0,0.22), 0 24px 24px 0 rgba(0,0,0,0.30);
+	/*box-shadow: 0 0 24px 0 rgba(0,0,0,0.22), 0 24px 24px 0 rgba(0,0,0,0.30);*/
 	/* wallet: */
 	position:absolute;
-	top:50%;
-	left:50%;
-	transform:translate(-50%,-50%);
-	width:375px;
-	height:667px;
+	/*top:50%;*/
+	/*left:50%;*/
+	/*transform:translate(-50%,-50%);*/
+	width:100%;
+	height:100%;
 	overflow:hidden;
 	background-image: linear-gradient(0deg, #F1F4F7 0%, #FFFFFF 100%);
 }
@@ -32,16 +33,22 @@ html, body {
 	z-index:10;
 	background:white;
 }
+.proof.screen > :last-child{
+	margin-bottom:100px;
+}
 .intro.screen .inner {
 	padding-top:21px;
 }
+.intro.screen .notice{
+	margin-top:20px;
+	margin-bottom:5px;
+}
 .home.screen  {
-	margin-top:300px;
+	margin-top:225px;
 
 }
 .notice {
 	/* Skip: */
-	font-family: Roboto-Regular;
 	font-size: 14px;
 	color: #4A4A4A;
 	letter-spacing: 0.35px;
@@ -50,17 +57,21 @@ a {
 	color:inherit;
 	text-decoration:inherit;
 }
+button {
+	border: none;
+	background: transparent;
+}
 .button {
 	/* Rectangle: */
 	border-radius: 76px;
 	/* Create First Proof: */
-	font-family: Roboto-Regular;
 	font-size: 18px;
 	letter-spacing: 0.45px;
 	padding:10px;
 	text-align:center;
 	max-width:75%;
 	margin:0 auto;
+	max-width:250px;
 }
 .img {
 	width:100%;
@@ -87,18 +98,19 @@ background-size:contain;
 .text {
 
 	/* This is the æxistenc: */
-	font-family: Roboto-Light;
+	font-weight:300;
 	font-size: 16px;
 	color: #000000;
 	letter-spacing: 0.4px;
 	line-height: 24px;
+	max-width:400px;
 }
+
 h1, p {
 	max-width:calc(100% - 42px);
 	margin-left:21px;
 }
 h1 {
-	font-family: Roboto-Regular;
 	font-size: 26px;
 	color: #000000;
 	letter-spacing: 0.65px;
@@ -147,6 +159,10 @@ h1 {
 	color:white;
 	z-index:5;
 }
+.identity ,
+.identity * {
+	transition:0.4s;
+}
 #app.home .identity {
 	top:70px;
 	bottom:auto
@@ -162,6 +178,7 @@ h1 {
 	height:100%;
 	position:absolute;
 	top:0;
+	left:0;
 	background-image:url(img/identity-background.svg);
 	background-repeat:no-repeat;
 	background-position:center;
@@ -180,7 +197,7 @@ h1 {
 .identity .avatar {
 	/*position:absolute;*/
 	/*top:20px;*/
-	/*right:20px;*/
+	margin-right:10px;
 }
 .identity {
 	/*position:fixed;*/
@@ -196,17 +213,64 @@ h1 {
 	/*bottom:20px;*/
 }
 .account-info .name {
-	font-family: Roboto-Regular;
 	font-size: 20px;
 	color: #FFFFFF;
 	letter-spacing: 0;
 }
 .account-info .address {
 	opacity: 0.5;
-	font-family: Roboto-Light;
+	font-weight:300;
 	font-size: 15px;
 	color: #FFFFFF;
 	letter-spacing: 0.6px;
+}
+.identity-wrap.show-payment-ui {
+	position:fixed;
+	width:100%;
+	height:100%;
+	z-index:1000;
+}
+.identity-wrap.show-payment-ui:after {
+	content:"";
+	background:rgba(255,255,255,.85);
+	width:100%;
+	height:100%;
+	position:absolute;
+	left:0;
+	z-index:-1;
+	top:-1px;
+}
+.identity-wrap.show-payment-ui .identity {
+	top:30vh;
+}
+.identity-wrap.show-payment-ui .payment {
+	left:50%;
+	transform:translate(-50%,0);
+	width:100%;
+	max-width:400px;
+	top:calc(30vh - 180px);
+	padding:21px;
+	position:fixed;
+	color:black;
+}
+.payment .price {
+	display:block;
+	margin-top:10px;
+	font-size: 80px;
+	font-weight:300;
+	color: #4A4A4A;
+}
+.payment .price .amount {
+	/*background:red;*/
+	/* 1,00: */
+	letter-spacing: -2px;
+}
+.payment .price .currency-symbol {
+	font-size:0.4em;
+}
+.identity-wrap.show-payment-ui .payment .pay.button {
+	margin-top:250px;
+	margin-bottom:10px;
 }
 .collapsed .account-info .address {
 	display:none;
@@ -214,7 +278,7 @@ h1 {
 .balance {
 }
 .balance .amount {
-	font-family: Roboto-Light;
+	font-weight:300;
 	font-size: 60px;
 	color: #FFFFFF;
 	letter-spacing: 0;
@@ -223,7 +287,6 @@ h1 {
 	font-size: 35px;
 }
 .balance .currency-symbol {
-	font-family: Roboto-Regular;
 	font-size: 0.8em;
 	color: #FFFFFF;
 	letter-spacing: 2.4px;
@@ -278,17 +341,27 @@ nav {
 	position: fixed;
 	left: 0;
 	height: 100%;
-	width: 100%;
+	width: 65%;
 	/*background: red;*/
 	z-index: 10;
-	display:none;
+	transform:translate(-100%,0);
+	transition:transform 0.4s;
+	/*display:none;*/
 }
 .open nav {
-	display:block;
+	transform:translate(0,0);
+}
+header ,
+.topbar + * {
+	transition:transform 0.4s;
+}
+.open header ,
+.open + * {
+	transform:translate(65%, 0);
 }
 nav > .inner {
 	position:relative;
-	width:65%;
+	width:100%;
 	z-index:10;
 	background: blue;
 	min-height:100%;
@@ -296,25 +369,38 @@ nav > .inner {
 	color:white;
 }
 nav .name {
-	font-family: Roboto-Medium;
+	font-weight:500;
 	font-size: 19px;
 	color: #FFFFFF;
 	letter-spacing: 0;
+}
+nav .avatar {
+	margin-top:40px;
+	margin-bottom:8px;
+}
+nav .avatar + .name{
+	margin-bottom:30px;
 }
 .conversation-container {
 	box-sizing:border-box;
 	/*top:0;*/
 	position:relative;
 	margin-top:0;
-	height:calc(100% - 130px);
 	overflow:auto;
+	/*padding:84px 0 182px 0;*/
+
 	padding:84px 0 82px 0;
+	height:calc(100% - 130px);
 }
 .response {
 	padding:9px 0;
 	height:51px;
-	/*background:red;*/
+	position:fixed;
+	width:100%;
+	z-index:2;
+	bottom:61px;
 	overflow:hidden;
+	/*background: rgba(0,0,0,0.2);*/
 }
 .response input[type=text] {
 /* Rectangle: */
@@ -323,10 +409,10 @@ nav .name {
 	box-shadow: 0 0 10px 0 rgba(0,0,0,0.11);
 	border-radius: 20px;
 	/* My Green Bike: */
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #4A4A4A;
 	letter-spacing: 0;
+	width:100%;
 	padding:11px 20px 10px 20px;
 }
 .response .answer-group {
@@ -342,7 +428,6 @@ nav .name {
 	box-shadow: 0 0 10px 0 rgba(0,0,0,0.11);
 	border-radius: 20px;
 	/* My Green Bike: */
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #4A4A4A;
 	letter-spacing: 0;
@@ -362,11 +447,13 @@ nav .name {
 }
 .response .send {
 	/* Send: */
-	font-family: Roboto-Medium;
+	font-weight:500;
 	font-size: 17px;
 	color: #F03C6E;
 	letter-spacing: 0;
 	line-height: 25px;
+	margin-left:15px;
+	margin-right:25px;
 }
 .speech p {
 	color:inherit;
@@ -383,7 +470,6 @@ nav .name {
 	background: #3C3C3C;
 	border-radius: 20px;
 	/* How about creating y: */
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #FFFFFF;
 	letter-spacing: 0;
@@ -419,12 +505,29 @@ nav .name {
 	padding:5px 5px;
 }
 .speech.body-type-image .image {
-	width:35vw;
-	height:170px;
+	width:35vmin;
+	height:45vmin;
 	z-index:1;
 	position:relative;
 	border-radius:20px;
 	background-size:cover;
+}
+.speech.body-type-image .image .linkwrap {
+	background:red;
+	position:absolute;
+	box-sizing:border-box;
+	background: rgba(0,0,0,0.5);
+	width:100%;
+	top:0;
+	height:100%;
+	border-radius:15px;
+	text-align:center;
+	/*margin:10px;*/
+	padding:10px;
+}
+.speech.body-type-image .image .linkwrap a {
+	display:block;
+	height:100%;
 }
 .me.speech {
 	float:right;
@@ -433,7 +536,6 @@ nav .name {
 	background: #F03C6E;
 	border-radius: 20px;
 	/* How about creating y: */
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #FFFFFF;
 	letter-spacing: 0;
@@ -503,6 +605,7 @@ nav .name {
 	position:fixed;
 	background-image:url(img/image.jpg);
 	z-index:5;
+	background-color:black;
 }
 .camera ,
 .camera .image {
@@ -510,15 +613,25 @@ nav .name {
 	background-size:contain;
 	width:100%;
 	height:100%;
+	background-position:center;
+	background-repeat:no-repeat;
 }
 .camera .image {
 	position:absolute;
 	background-image:url(img/camera.png);
 }
-.menu-entry {
+.menu-entry svg {
+.menu-entry a ,
+}
+.menu-entry svg {
+	margin-right:10px;
+}
+.menu-entry a {
 	/* My Proofs: */
+	position:relative;
+	display:block;
+	/*background:blue;*/
 	opacity: 0.9;
-	font-family: Roboto-Regular;
 	font-size: 17px;
 	color: #FFFFFF;
 	letter-spacing: 0;
@@ -526,12 +639,28 @@ nav .name {
 	border-top: 1px solid rgba(255,255,255,0.2);
 	border-bottom: 1px solid rgba(255,255,255,0.2);
 }
-.menu-entry + .menu-entry {
+.menu-entry a + .menu-entry a{
 	border-top:none;
+}
+.menu-entry .router-link-active:before{
+	content:"";
+	display:block;
+	position:absolute;
+	width:100%;
+	top:0;
+	left:0;
+	opacity:0.2;
+	height:100%;
+	background-image: linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.14) 100%);
 }
 .proofs-list {
 	/*background:red;*/
 	margin-top:60px;
+}
+.proofs-list .middle {
+	/*background:red;*/
+	width:100%;
+	margin:0 20px;
 }
 .proofs-list-entry {
 	display:flex;
@@ -547,7 +676,6 @@ nav .name {
 	background-size:cover;
 }
 .proof-title {
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: #1C1C1C;
 	letter-spacing: 0;
@@ -555,7 +683,6 @@ nav .name {
 }
 .proof-created {
 	opacity: 0.4;
-	font-family: Roboto-Regular;
 	font-size: 12px;
 	color: #1C1C1C;
 	letter-spacing: 0;
@@ -566,18 +693,23 @@ nav .name {
 	background: #F03C6E;
 	border-radius: 30px;
 	/* 3 confirmed: */
-	font-family: Roboto-Medium;
+	white-space:nowrap;
+	font-weight:500;
 	font-size: 12px;
 	color: #FFFFFF;
 	letter-spacing: 0;
 	padding:5px 10px;
 }
 .proof .proof-image {
-	height:80vw;
+	height:80vmin;
 	margin:10px;
 	border-radius:10px;
-	background-size:cover
+	background-size:contain;
 	background-position:center center;
+	background-position:center center;
+	background-repeat:no-repeat;
+	background-color:rgba(0,0,0,0.8);
+	transition:0.5s;
 }
 .proof .proof-image.fullscreen {
 	position:fixed;
@@ -588,6 +720,8 @@ nav .name {
 	margin:0;
 	width:100%;
 	height:100%;
+	background-size:contain;
+	background-color:rgba(0,0,0,0.8);
 }
 .columns {
 	display:flex;
@@ -598,7 +732,6 @@ nav .name {
 .proof table {
 	margin:11px 21px;
 	/* Contract: Created: V: */
-	font-family: Roboto-Regular;
 	font-size: 16px;
 	color: rgba(0,0,0,0.87);
 	line-height: 24px;

@@ -4,7 +4,7 @@
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 		<title></title>
-		<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+		<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
 		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css" />
 		<link rel="stylesheet" href="main.css" type="text/css" media="screen" title="no title" charset="utf-8">
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/js/swiper.min.js"></script>
@@ -80,18 +80,40 @@
 		</script>
 
 		<script type="text/x-template" id="identity">
-			<div @click='toggle' :class="{identity:true, collapsed : collapsed}">
-				<div class="left">
-					<avatar :image='identity.avatar'></avatar>
-					<div class="account-info">
-						<div class="name">{{identity.name}}</div>
-						<div class="address">{{identity.address}}</div>
+			<div :class="{ 'identity-wrap' : true, 'show-payment-ui' : showPaymentUi }">
+
+				<div v-if='showPaymentUi' class="payment">
+					<p class="center">
+						Please confirm the transaction of
+						<br>
+						<span class="price">
+							<span class="amount">{{paymentRequest.amount}}</span>
+							<span class="currency-symbol">AET</span>
+						</span>
+						<br>
+					</p>
+					<div @click='pay' class="pink button pay">
+						Pay {{paymentRequest.amount}} AET
+					</div>
+					<div @click='cancel' class="button">
+						cancel
 					</div>
 				</div>
-				<div class="right">
-					<div class="balance">
-						<span class="amount">{{identity.balance}}</span>
-						<span class="currency-symbol">AET</span>
+
+				<div @click='toggle' :class="{identity:true, collapsed : collapsed, 'show-payment-ui' : showPaymentUi }">
+					<div class="left">
+						<avatar :image='identity.avatar'></avatar>
+						<div class="account-info">
+							<div class="name">{{identity.name}}</div>
+							<div class="address">{{identity.address}}</div>
+						</div>
+					</div>
+					<div class="right">
+						<div class="balance">
+							<span class="amount">{{identity.balance}}</span>
+							<span class="currency-symbol">AET</span>
+						</div>
+					</div>
 					</div>
 				</div>
 			</div>
@@ -101,7 +123,14 @@
 			<div class="speech-container">
 				<div :class="thisclass">
 					<p class='text' v-if='body.type === 0'>{{body.text}}</p>
-					<div class='image' :style='style' v-if='body.type === 1'></div>
+
+					<div class='image' :style='style' v-if='body.type === 1'>
+					<div class='linkwrap' v-if='body.link'>
+						<router-link :to='body.link'>
+						{{ body.linktext }} 
+						</router-link>
+					</div>
+					</div>
 				</div>
 			</div>
 		</script>
@@ -109,6 +138,13 @@
 		<script type="text/x-template" id="menu-entry">
 			<div class="menu-entry">
 				<router-link :to="link">
+					<svg width="24" height="18" viewBox="0 0 24 18" xmlns="http://www.w3.org/2000/svg">
+						<g stroke-width=".7" transform="translate(1)" stroke="#F03C6E" fill="none" fill-rule="evenodd">
+							<path d="M8.615 7.653L11.371 6.5c.525-.219 1.32-.219 1.841 0l2.012.841c.295.125.84.125 1.14 0l2.01-.84c.523-.22 1.315-.22 1.837 0l2.752 1.152M8.615 9.702l2.756-1.152c.525-.22 1.32-.22 1.841 0l2.012.84c.295.126.84.126 1.14 0l2.01-.84c.523-.22 1.315-.22 1.837 0l2.752 1.152M8.615 11.547l2.756-1.152c.525-.22 1.32-.22 1.841 0l2.012.84c.295.126.84.126 1.14 0l2.01-.84c.523-.22 1.315-.22 1.837 0l2.752 1.152" stroke-linecap="round"/>
+							<circle cx="8.404" cy="9" r="8.404"/>
+							<circle cx="8.404" cy="9" r="6.751"/>
+						</g>
+					</svg>
 					{{label}}
 				</router-link>
 			</div>
@@ -118,21 +154,26 @@
 			<div :class="thisclass">
 				<header>
 					<div class="action left">
-						<button @click='toggleopen'>
+						<button v-show='showBurger' @click='toggleopen'>
 							<svg class='burger' width="20" height="14" viewBox="0 0 20 14" xmlns="http://www.w3.org/2000/svg">
 								<path fill="#4A4A4A" fill-rule="evenodd" d="M0 0h20v2H0zM0 6h20v2H0zM0 12h20v2H0z"/>
 							</svg>
 						</button>
-						<!--<svg class='back' width="11" height="18" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg">-->
-							<!--<path d="M11 2L9 0 0 9l9 9 2-2-7-7z" fill="#4A4A4A" fill-rule="evenodd"/>-->
-						<!--</svg>-->
+						<button v-show='showBack' @click='$router.push("/proofs")'>
+							<svg class='back' width="11" height="18" viewBox="0 0 11 18" xmlns="http://www.w3.org/2000/svg">
+								<path d="M11 2L9 0 0 9l9 9 2-2-7-7z" fill="#4A4A4A" fill-rule="evenodd"/>
+							</svg>
+						</button>
 					</div>
 
 					<div class="title center">{{title}}</div>
 
 					<div class="action right">
-						<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-						<g fill="#4A4A4A" fill-rule="evenodd"><path d="M0 9h20v2H0z"/><path d="M11 0v20H9V0z"/></g></svg>
+						<router-link v-show='showAdd' to='/new'>
+							<svg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+								<g fill="#4A4A4A" fill-rule="evenodd"><path d="M0 9h20v2H0z"/><path d="M11 0v20H9V0z"/></g>
+							</svg>
+						</router-link>
 					</div>
 				</header>
 				<identity/>
@@ -243,16 +284,27 @@
 						<span></span>
 					</div>
 				</div>
-				<div v-show='showresp' @click='resp(1)' class="response">
-					<div v-if='i == 0' class="answer-group">
-						<button class='answer'><span class="e">🤔</span> Why?</button>
-						<button class='answer'><span class="e">📷</span> Picture</button>
-						<button class='answer'><span class="e">📄</span> File</button>
+
+				<div v-show='showresp' class="response">
+
+					<div v-if='i == 1'  class="answer-group">
+						<button @click='user(1)' class='answer'><span class="e">📷</span> Picture</button>
+						<button class='answer'><span class="e">💿</span> File</button>
+						<button @click='why(0)' class='answer'><span class="e">🤔</span> Why?</button>
 					</div>
-					<div v-if='i == 3' class="answer-group">
-						<input value='rental car damage' type="text">
-						<button @click='resp(1)' class='send'>Send</button>
+
+					<div v-if='i == 4' class="answer-group">
+						<input v-model='userInput' type="text">
+						<button @click='user(1)' class='send'>Send</button>
 					</div>
+
+					<div v-if='i == 6' class="answer-group">
+						<button @click='user(1)' class='answer'><span class="e">🤑
+						</span> Make Payment</button>
+						<button @click='cancel()' class='answer'><span class="e">👎</span></button>
+						<button @click='why(1)' class='answer'><span class="e">🤔</span> Why?</button>
+					</div>
+
 				</div>
 				<camera @picture='pictureTaken' :show='showCamera'></camera>
 			</div>
