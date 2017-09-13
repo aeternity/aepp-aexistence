@@ -1,5 +1,10 @@
 /* global Vue */
 
+const machine = require('./machine');
+
+let globalWeb3 = null;
+let globalContract = null;
+
 (function(){
 	const Intro = { template: '#intro' };
 
@@ -168,6 +173,123 @@
 			}
 		}
 	}
+
+	const Chat = {
+		template: '#chat',
+		components: {
+			'speech' : Speech,
+			'camera' : Camera,
+		},
+		data: function() {
+			return {
+				machine: machine(),
+				messages: [],
+				showti : false,
+				showresp : false,
+				showCamera : false,
+				userInput: '',
+				contract: null
+			}
+		},
+		computed: {
+			answers: function() {
+				return this.machine.getCurrentQuestion().getPossibleAnswers();
+			},
+			hasAnswers: function() {
+				return this.answers && this.answers.length > 0;
+			}
+		},
+		methods: {
+			scrollDown : function() {
+				setTimeout(function(){
+					document.getElementsByClassName('conversation-container')[0].scrollTop = 100000000
+				},100);
+			},
+			handleAnswer: function(givenAnswer) {
+				this.messages.push({
+					sender : MessageSenderEnum.ME,
+					body : {
+						type : MessageBodyTypeEnum.TEXT,
+						text : givenAnswer,
+					},
+				});
+				this.scrollDown();
+				this.machine.setAnswer(givenAnswer);
+			},
+			handleFreetextInput: function() {
+				this.handleAnswer(this.userInput);
+				this.userInput = '';
+			},
+			showQuestionDelayed: function(text) {
+				let app = this;
+				this.showti = true;
+				setTimeout(function() {
+					app.showti = false;
+					app.messages.push({
+						sender: MessageSenderEnum.APP,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: text,
+						},
+					});
+					app.scrollDown();
+				}, 1000);
+			},
+			startProof: function(textToProof) {
+				let contract = globalContract;
+				if (contract) {
+					let transactionOptions = {
+						gas: 200000
+					};
+					contract.notarize(textToProof, transactionOptions, (err, data) => {
+						console.log(err, data);
+					});
+				}
+			}
+		},
+		mounted: function() {
+			let app = this;
+
+			this.machine.on("transition", data => {
+				let fromState = data.fromState;
+				let toState = data.toState;
+				console.log("we just transitioned from " + fromState + " to " + toState);
+				this.showQuestionDelayed(this.machine.getCurrentQuestion().getQuestionText())
+			});
+
+			this.machine.on("startProof", data => {
+				console.log('startProof', data);
+				let text = data.text;
+				app.startProof(text);
+			});
+
+			this.machine.setAnswer('go');
+
+			setTimeout(function() {
+				let web3 = globalWeb3;
+				let contract = globalContract;
+				if (web3) {
+					let account = web3.eth.accounts[0];
+					console.log('web3', web3, contract);
+					// if (account) {
+					// 	let transaction = {
+					// 		gas: 200000
+					// 	};
+					// 	contract.notarize("hurr", transaction, (err, data) => {
+					// 		console.log(err, data);
+					// 	});
+					// }
+					// contract.checkDocument(web3.fromAscii('lol', 32), (err, data) => {
+					// 	console.log(err, data);
+					// });
+					//
+				} else {
+					console.log('no web3');
+				}
+			}, 2000);
+
+		}
+	};
 
 	const New = {
 		template: '#new',
@@ -495,7 +617,9 @@
 				approvedPayments: [],
 				declinedPayments: [],
 			},
-			identityCollapsed : false
+			identityCollapsed : false,
+			web3: null,
+			poeContract: null
 		},
 		getters: {
 			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
@@ -526,7 +650,7 @@
 			cancel : function(state) {
 				state.identity.paymentRequest.canceled();
 				state.identity.paymentRequest = null;
-			}
+			},
 		},
 		actions : {
 			paymentRequest : function(context, payment) {
@@ -549,6 +673,10 @@
 		{ path: '/home', component: Home, meta : {
 			title : 'Æxistence',
 			appClass : 'home'
+		}},
+		{ path: '/chat', component: Chat, meta : {
+			title : 'Create Proof',
+			appClass : 'new'
 		}},
 		{ path: '/new', component: New, meta : {
 			title : 'Create Proof',
@@ -594,7 +722,90 @@
 		components : {
 			'topbar' : Topbar
 		},
-		router
+		router,
+		created: function() {
+			if (typeof web3 !== 'undefined') {
+				web3 = new Web3(web3.currentProvider);
+			} else {
+				// set the provider you want from Web3.providers
+				// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			}
+			// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+			// console.log(web3);
+			if (web3) {
+				globalWeb3 = web3;
+
+				let abi = [{
+					"constant": true,
+					"inputs": [{
+						"name": "document",
+						"type": "string"
+					}],
+					"name": "checkDocument",
+					"outputs": [{
+						"name": "",
+						"type": "bool"
+					}],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": false,
+					"inputs": [{
+						"name": "document",
+						"type": "string"
+					}],
+					"name": "notarize",
+					"outputs": [],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": true,
+					"inputs": [{
+						"name": "document",
+						"type": "string"
+					}],
+					"name": "calculateProof",
+					"outputs": [{
+						"name": "",
+						"type": "bytes32"
+					}],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": false,
+					"inputs": [{
+						"name": "proof",
+						"type": "bytes32"
+					}],
+					"name": "storeProof",
+					"outputs": [],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": true,
+					"inputs": [{
+						"name": "proof",
+						"type": "bytes32"
+					}],
+					"name": "hasProof",
+					"outputs": [{
+						"name": "",
+						"type": "bool"
+					}],
+					"payable": false,
+					"type": "function"
+				}];
+				let PoEContract = web3.eth.contract(abi);
+				PoEContract.at('0x32095e4d72eea0949351282f8da9e2dae6af9bbe', function (err, contract) {
+					globalContract = contract;
+				});
+			}
+
+		}
 	});
 })();
 

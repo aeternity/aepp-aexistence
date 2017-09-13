@@ -11,6 +11,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vuex/2.3.1/vuex.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
+		<script src="js/web3.min.js"></script>
 	</head>
 	<body>
 
@@ -127,7 +128,7 @@
 					<div class='image' :style='style' v-if='body.type === 1'>
 					<div class='linkwrap' v-if='body.link'>
 						<router-link :to='body.link'>
-						{{ body.linktext }} 
+						{{ body.linktext }}
 						</router-link>
 					</div>
 					</div>
@@ -274,6 +275,29 @@
 			</div>
 		</script>
 
+		<script type="text/x-template" id="chat">
+			<div class="screen">
+				<div id='conv' class="nomargin conversation-container">
+					<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
+					<div v-show='showti' class="app speech typing-indicator">
+						<span></span>
+						<span></span>
+						<span></span>
+					</div>
+				</div>
+
+				<div class="response">
+
+					<div class="answer-group">
+						<button v-for="(answer, index) in answers" class='answer' @click='handleAnswer(answer)'>{{answer}}</button>
+						<input v-model='userInput' type="text">
+						<button @click='handleFreetextInput()' class='send'>Send</button>
+					</div>
+				</div>
+				<!-- <camera @picture='pictureTaken' :show='showCamera'></camera> -->
+			</div>
+		</script>
+
 		<script type="text/x-template" id="new">
 			<div class="screen">
 				<div id='conv' class="nomargin conversation-container">
@@ -325,5 +349,6 @@
 		</script>
 
 	</body>
-	<script src="main.js"></script>
+	<!-- <script src="main.js"></script> -->
+	<script src="js/bundle.js"></script>
 </html>

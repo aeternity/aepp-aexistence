@@ -1,0 +1,29 @@
+{
+  "name": "aepp-aexistence",
+  "version": "0.0.1",
+  "description": "This is a click dummy for the Proof of Æxistence æpp.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify src/main.js -o public/js/bundle.js",
+    "watch": "watchify src/main.js -o public/js/bundle.js",
+    "server": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/muxe/aepp-aexistence.git"
+  },
+  "author": "Max Dörfler <max@apeunit.com> (https://github.com/muxe)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/muxe/aepp-aexistence/issues"
+  },
+  "homepage": "https://github.com/muxe/aepp-aexistence#readme",
+  "dependencies": {
+    "conversational-machine": "0.0.4"
+  },
+  "devDependencies": {
+    "exact": "^0.8.0",
+    "watchify": "^3.9.0"
+  }
+}
