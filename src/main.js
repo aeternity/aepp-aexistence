@@ -308,16 +308,22 @@ let globalContract = null;
 			startProof: function(textToProof, comment) {
 				let contract = globalContract;
 				if (contract) {
-					let transactionOptions = {
-						gas: 200000
-					};
-					contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
-						console.log(err, txId);
+					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
 						if (err) {
 							this.machine.transition('transactionError');
 						} else {
-							this.proof.txId = txId;
-							this.machine.transition('summary');
+							let transactionOptions = {
+								gas: estimate + 1000
+							};
+							contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
+								console.log(err, txId);
+								if (err) {
+									this.machine.transition('transactionError');
+								} else {
+									this.proof.txId = txId;
+									this.machine.transition('summary');
+								}
+							});
 						}
 					});
 				}
@@ -760,13 +766,14 @@ let globalContract = null;
 				avatar: "img/avatar-1.jpg",
 				balance : '5.00',
 				name : 'Joan',
-				address : '0x7D154..',
+				address : null,
 				paymentRequest : null,
 				approvedPayments: [],
 				declinedPayments: [],
 			},
 			identityCollapsed : false,
-			hasWeb3: false
+			hasWeb3: false,
+			contractReady: false
 		},
 		getters: {
 			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
@@ -800,6 +807,9 @@ let globalContract = null;
 			},
 			setHasWeb3: function(state, hasWeb3) {
 				state.hasWeb3 = hasWeb3;
+			},
+			setContractReady: function(state, contractReady) {
+				state.contractReady = contractReady;
 			},
 			setAccount: function(state, account) {
 				state.identity.address= account;
@@ -882,7 +892,37 @@ let globalContract = null;
 			'topbar' : Topbar
 		},
 		router,
+		methods: {
+			loadAllProofs: function() {
+				if (globalContract) {
+					globalContract.getProofsByOwner(store.state.identity.address, function(err, hashes) {
+						if (!err) {
+							for (let hash of hashes) {
+								globalContract.getProofByHash(hash, function(err, rawProof) {
+									console.log("getProofByHash", err, rawProof);
+									let data = {
+										image: '/img/uploads/' + rawProof[5],
+										title: rawProof[4],
+										fileSha256: rawProof[5],
+										created : rawProof[2],
+										verified : rawProof[2],
+										confirmations : 0,
+										contract: rawProof[0],
+										block: rawProof[3],
+										fileType: 'image/jpeg',
+										fileSize: '1.4 Mb',
+										fileLocation : 'Dropbox'
+									};
+									store.commit('addProof', data);
+								});
+							}
+						}
+					});
+				}
+			}
+		},
 		created: function() {
+			let app = this;
 			if (typeof web3 !== 'undefined') {
 				web3 = new Web3(web3.currentProvider);
 			} else {
@@ -897,6 +937,20 @@ let globalContract = null;
 				let abi = [{
 					"constant": true,
 					"inputs": [{
+						"name": "owner",
+						"type": "address"
+					}],
+					"name": "getProofsByOwner",
+					"outputs": [{
+						"name": "",
+						"type": "bytes32[]"
+					}],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": true,
+					"inputs": [{
 						"name": "document",
 						"type": "string"
 					}],
@@ -905,6 +959,41 @@ let globalContract = null;
 						"name": "",
 						"type": "bytes32"
 					}],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": true,
+					"inputs": [{
+						"name": "hash",
+						"type": "bytes32"
+					}],
+					"name": "getProofByHash",
+					"outputs": [{
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"name": "proofHash",
+							"type": "bytes32"
+						},
+						{
+							"name": "timestamp",
+							"type": "uint256"
+						},
+						{
+							"name": "proofBlock",
+							"type": "uint256"
+						},
+						{
+							"name": "comment",
+							"type": "string"
+						},
+						{
+							"name": "storedDocument",
+							"type": "string"
+						}
+					],
 					"payable": false,
 					"type": "function"
 				},
@@ -933,6 +1022,10 @@ let globalContract = null;
 						},
 						{
 							"name": "comment",
+							"type": "string"
+						},
+						{
+							"name": "storedDocument",
 							"type": "string"
 						}
 					],
@@ -970,8 +1063,10 @@ let globalContract = null;
 					"type": "function"
 				}];
 				let PoEContract = web3.eth.contract(abi);
-				PoEContract.at('0x1e05977cef988329a3bb1e5342b088bc5d8e9d69', function (err, contract) {
+				PoEContract.at('0xcbaa1afa8bd967eb093b8da83c0cad905a82e905', function (err, contract) {
 					globalContract = contract;
+					store.commit('setContractReady', true);
+					// app.loadAllProofs();
 				});
 
 				// let account = web3.eth.accounts[0];
@@ -989,8 +1084,11 @@ let globalContract = null;
 						}
 					}
 				}, 1000);
-			}
 
+				setTimeout(function() {
+					app.loadAllProofs();
+				}, 1000);
+			}
 		}
 	});
 })();
