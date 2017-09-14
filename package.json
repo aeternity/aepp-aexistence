@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/muxe/aepp-aexistence#readme",
   "dependencies": {
+    "async": "2.5.0",
+    "connect-multiparty": "2.0.0",
     "conversational-machine": "0.0.4"
   },
   "devDependencies": {

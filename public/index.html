@@ -11,6 +11,7 @@
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.4.2/vue.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vuex/2.3.1/vuex.min.js"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/vue-router/2.7.0/vue-router.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.4"></script>
 		<script src="js/web3.min.js"></script>
 	</head>
 	<body>
@@ -267,6 +268,57 @@
 			</div>
 		</script>
 
+		<script type="text/x-template" id="proof2">
+			<div class="screen proof">
+
+				<div :class="{'proof-image' :true, image: true, fullscreen : cssClass.image.fullscreen}" @click='toggleImage' :style='"background-image:url(" +proof.image+ ")"'></div>
+
+				<div class="columns">
+					<div class="column">
+						<div class="proof-title">{{ proof.title}}</div>
+						<!-- <div class="proof-created">{{ proof.created}}</div> -->
+					</div>
+					<!-- <div class="column">
+						<div class='proof-confirmations'>{{ proof.confirmations }} confirmations</div>
+					</div> -->
+				</div>
+
+				<table>
+					<tr>
+						<td>Contract</td>
+						<td class='proof-contract'>{{ proof.contract }}</td>
+					</tr>
+					<tr>
+						<td>Verified</td>
+						<td class='proof-verified'>{{ proof.verified }}</td>
+					</tr>
+					<tr>
+						<td>Block</td>
+						<td class='proof-block'>{{ proof.block }}</td>
+					</tr>
+					<tr class='sep'>
+						<td colspan=2><hr></td>
+					</tr>
+					<tr>
+						<td>File Sha256</td>
+						<td class='proof-fileSha256'>{{ proof.fileSha256 }}</td>
+					</tr>
+					<tr>
+						<td>File Type</td>
+						<td class='proof-fileType'>{{ proof.fileType }}</td>
+					</tr>
+					<tr>
+						<td>File Size</td>
+						<td class='proof-fileSize'>{{ proof.fileSize }}</td>
+					</tr>
+					<tr>
+						<td>File Location</td>
+						<td class='proof-fileLocation'>{{ proof.fileLocation }}</td>
+					</tr>
+				</table>
+			</div>
+		</script>
+
 		<script type="text/x-template" id="proofs-list">
 			<div class="screen">
 				<div class="proofs-list">
@@ -290,8 +342,15 @@
 
 					<div class="answer-group">
 						<button v-for="(answer, index) in answers" class='answer' @click='handleAnswer(answer)'>{{answer}}</button>
-						<input v-model='userInput' type="text">
-						<button @click='handleFreetextInput()' class='send'>Send</button>
+
+						<form  enctype='multipart/form-data' action="#" v-show='showFileUpload' @submit='preventSubmit'>
+							<input id="selectedFile" class='answer' type="file" accept="image/*" @change="onFileChange" style="display: none;">
+							<button class="answer" onclick="document.getElementById('selectedFile').click();">Choose File</button>
+						</form>
+
+						<input v-model='userInput' type="text" v-show='showFreetext'>
+						<button @click='handleFreetextInput()' class='send' v-show='showFreetext'>Send</button>
+
 					</div>
 				</div>
 				<!-- <camera @picture='pictureTaken' :show='showCamera'></camera> -->

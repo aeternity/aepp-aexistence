@@ -25,6 +25,71 @@ let globalContract = null;
 		}
 	}
 
+	const Proof2 = {
+		template : '#proof2',
+		data : function() {
+			return {
+				cssClass : {
+					image : {
+						fullscreen : false,
+					}
+				},
+				rawProof: null
+			}
+		},
+		computed : {
+			hash: function() {
+				return this.$route.params.id;
+			},
+			proof : function() {
+				let hash = this.$route.params.id;
+				let data = {
+					image: '/img/uploads/' + hash,
+					title: '?',
+					fileSha256: hash,
+					created : null,
+					verified : null,
+					confirmations : 0,
+					contract: '0x8a9c4bb2f2...',
+					block: '1133777',
+					fileType: 'image/jpeg',
+					fileSize: '1.4 Mb',
+					fileLocation : 'Dropbox'
+				};
+
+				if (this.rawProof) {
+					data.contract = this.rawProof[0];
+					data.created = this.rawProof[2];
+					data.block = this.rawProof[3];
+					data.title = this.rawProof[4];
+				}
+
+				return data;
+			}
+		},
+		methods : {
+			toggleImage : function() {
+				this.cssClass.image.fullscreen =
+					! this.cssClass.image.fullscreen;
+
+			},
+			getProof: function(text) {
+				let contract = globalContract;
+				if (contract) {
+					contract.getProof(text, (err, proof) => {
+						this.rawProof = proof;
+						console.log('getProof', err, proof);
+					});
+				}
+			},
+		},
+		mounted: function() {
+			let app = this;
+
+			app.getProof(app.hash);
+		}
+	};
+
 	const Proof = {
 		template : '#proof',
 		data : function() {
@@ -187,8 +252,15 @@ let globalContract = null;
 				showti : false,
 				showresp : false,
 				showCamera : false,
+				showFileUpload: false,
+				showFreetext: false,
 				userInput: '',
-				contract: null
+				fileUploadFormData: new FormData(),
+				proof: {
+					hash: null,
+					description: '',
+					txId: null
+				}
 			}
 		},
 		computed: {
@@ -206,14 +278,13 @@ let globalContract = null;
 				},100);
 			},
 			handleAnswer: function(givenAnswer) {
-				this.messages.push({
+				this.addMessage({
 					sender : MessageSenderEnum.ME,
 					body : {
 						type : MessageBodyTypeEnum.TEXT,
 						text : givenAnswer,
 					},
 				});
-				this.scrollDown();
 				this.machine.setAnswer(givenAnswer);
 			},
 			handleFreetextInput: function() {
@@ -225,26 +296,83 @@ let globalContract = null;
 				this.showti = true;
 				setTimeout(function() {
 					app.showti = false;
-					app.messages.push({
+					app.addMessage({
 						sender: MessageSenderEnum.APP,
 						body: {
 							type: MessageBodyTypeEnum.TEXT,
 							text: text,
 						},
 					});
-					app.scrollDown();
 				}, 1000);
 			},
-			startProof: function(textToProof) {
+			startProof: function(textToProof, comment) {
 				let contract = globalContract;
 				if (contract) {
 					let transactionOptions = {
 						gas: 200000
 					};
-					contract.notarize(textToProof, transactionOptions, (err, data) => {
-						console.log(err, data);
+					contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
+						console.log(err, txId);
+						if (err) {
+							this.machine.transition('transactionError');
+						} else {
+							this.proof.txId = txId;
+							this.machine.transition('summary');
+						}
 					});
 				}
+			},
+			onFileChange: function(event) {
+				console.log('onFileChange', event.target.files);
+				this.fileUploadFormData.set('file', event.target.files[0]);
+
+				this.sendFile();
+			},
+			preventSubmit: function(event) {
+				event.preventDefault();
+			},
+			sendFile: function(event) {
+				if (event) {
+					event.preventDefault();
+				}
+
+				this.$http.post('/upload', this.fileUploadFormData).then(response => {
+					console.log('yay', response);
+					let hash = response.body.hash;
+					this.proof.hash = hash;
+					this.addMessage({
+						sender : MessageSenderEnum.ME,
+						body : {
+							type : MessageBodyTypeEnum.IMAGE,
+							image : 'uploads/' + hash
+						}
+					});
+					this.machine.setAnswer('pay');
+				}, response => {
+					console.log('nay', response);
+					this.addMessage({
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : 'Something went wrong D: ',
+						},
+					});
+				});
+			},
+			addMessage: function(message) {
+				this.messages.push(message);
+				this.scrollDown();
+			},
+			showSummary: function() {
+				this.addMessage({
+					sender : MessageSenderEnum.APP,
+					body : {
+						type : MessageBodyTypeEnum.IMAGE,
+						image : '/uploads/' + this.proof.hash,
+						link : '/proofs/' + this.proof.hash,
+						linktext : this.proof.description
+					},
+				});
 			}
 		},
 		mounted: function() {
@@ -257,10 +385,30 @@ let globalContract = null;
 				this.showQuestionDelayed(this.machine.getCurrentQuestion().getQuestionText())
 			});
 
-			this.machine.on("startProof", data => {
-				console.log('startProof', data);
-				let text = data.text;
-				app.startProof(text);
+			this.machine.on("startProof", () => {
+				console.log('startProof');
+				let text = app.proof.hash;
+				let comment = app.proof.description;
+				app.startProof(text, comment);
+			});
+
+			this.machine.on("showFileUpload", (showFileUpload) => {
+				console.log('showFileUpload');
+				app.showFileUpload = showFileUpload;
+			});
+
+			this.machine.on("showFreetext", (showFreetext) => {
+				console.log('showFreetext');
+				app.showFreetext = showFreetext;
+			});
+
+			this.machine.on("proofDescriptionGiven", (givenDescription) => {
+				console.log('proofDescriptionGiven');
+				app.proof.description = givenDescription;
+			});
+
+			this.machine.on("showSummary", () => {
+				app.showSummary();
 			});
 
 			this.machine.setAnswer('go');
@@ -618,8 +766,7 @@ let globalContract = null;
 				declinedPayments: [],
 			},
 			identityCollapsed : false,
-			web3: null,
-			poeContract: null
+			hasWeb3: false
 		},
 		getters: {
 			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
@@ -651,6 +798,18 @@ let globalContract = null;
 				state.identity.paymentRequest.canceled();
 				state.identity.paymentRequest = null;
 			},
+			setHasWeb3: function(state, hasWeb3) {
+				state.hasWeb3 = hasWeb3;
+			},
+			setAccount: function(state, account) {
+				state.identity.address= account;
+			},
+			setBalance: function(state, balance) {
+				state.identity.balance = balance;
+			},
+			setName: function(state, name) {
+				state.identity.name = name;
+			}
 		},
 		actions : {
 			paymentRequest : function(context, payment) {
@@ -690,7 +849,7 @@ let globalContract = null;
 			title : 'Your Proofs',
 			appClass : 'proofs'
 		}},
-		{ path: '/proofs/:id', component: Proof, meta : {
+		{ path: '/proofs/:id', component: Proof2, meta : {
 			appClass : 'proof'
 		}},
 	];
@@ -741,20 +900,56 @@ let globalContract = null;
 						"name": "document",
 						"type": "string"
 					}],
-					"name": "checkDocument",
+					"name": "calculateHash",
 					"outputs": [{
 						"name": "",
-						"type": "bool"
+						"type": "bytes32"
 					}],
+					"payable": false,
+					"type": "function"
+				},
+				{
+					"constant": true,
+					"inputs": [{
+						"name": "document",
+						"type": "string"
+					}],
+					"name": "getProof",
+					"outputs": [{
+							"name": "owner",
+							"type": "address"
+						},
+						{
+							"name": "proofHash",
+							"type": "bytes32"
+						},
+						{
+							"name": "timestamp",
+							"type": "uint256"
+						},
+						{
+							"name": "proofBlock",
+							"type": "uint256"
+						},
+						{
+							"name": "comment",
+							"type": "string"
+						}
+					],
 					"payable": false,
 					"type": "function"
 				},
 				{
 					"constant": false,
 					"inputs": [{
-						"name": "document",
-						"type": "string"
-					}],
+							"name": "document",
+							"type": "string"
+						},
+						{
+							"name": "comment",
+							"type": "string"
+						}
+					],
 					"name": "notarize",
 					"outputs": [],
 					"payable": false,
@@ -766,31 +961,6 @@ let globalContract = null;
 						"name": "document",
 						"type": "string"
 					}],
-					"name": "calculateProof",
-					"outputs": [{
-						"name": "",
-						"type": "bytes32"
-					}],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": false,
-					"inputs": [{
-						"name": "proof",
-						"type": "bytes32"
-					}],
-					"name": "storeProof",
-					"outputs": [],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": true,
-					"inputs": [{
-						"name": "proof",
-						"type": "bytes32"
-					}],
 					"name": "hasProof",
 					"outputs": [{
 						"name": "",
@@ -800,9 +970,25 @@ let globalContract = null;
 					"type": "function"
 				}];
 				let PoEContract = web3.eth.contract(abi);
-				PoEContract.at('0x32095e4d72eea0949351282f8da9e2dae6af9bbe', function (err, contract) {
+				PoEContract.at('0x1e05977cef988329a3bb1e5342b088bc5d8e9d69', function (err, contract) {
 					globalContract = contract;
 				});
+
+				// let account = web3.eth.accounts[0];
+				var accountInterval = setInterval(function() {
+					if (web3) {
+						let address = web3.eth.accounts[0];
+						if (address) {
+							store.commit('setAccount', address);
+							store.commit('setName', address.substr(0, 6));
+							web3.eth.getBalance(address, (err, balance) => {
+								let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
+								console.log(err, readable);
+								store.commit('setBalance', readable);
+							});
+						}
+					}
+				}, 1000);
 			}
 
 		}
