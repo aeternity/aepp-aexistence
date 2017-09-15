@@ -65,6 +65,9 @@ let globalContract = null;
 			hash: function() {
 				return this.$route.params.id;
 			},
+			contractReady: function() {
+				return store.state.contractReady;
+			},
 			proof : function() {
 				let hash = this.$route.params.id;
 				let data = {
@@ -108,8 +111,17 @@ let globalContract = null;
 		},
 		mounted: function() {
 			let app = this;
-
-			app.getProof(app.hash);
+			if (app.contractReady) {
+				app.getProof(app.hash);
+			}
+		},
+		watch: {
+			contractReady: function(val) {
+				let app = this;
+				if (val === true) {
+					app.getProof(app.hash);
+				}
+			}
 		}
 	};
 
@@ -421,7 +433,7 @@ let globalContract = null;
 				this.scrollDown();
 			},
 			showSummary: function() {
-				app.addMessageDelayed({
+				this.addMessageDelayed({
 					sender : MessageSenderEnum.APP,
 					body : {
 						type : MessageBodyTypeEnum.IMAGE,
@@ -628,8 +640,10 @@ let globalContract = null;
 				state.title = newtitle;
 			},
 			addProof : function(state, newProof) {
-				newProof.id = state.proofs.length+1;
 				state.proofs.push(newProof);
+				state.proofs.sort((a, b) => {
+					return b.created - a.created;
+				});
 			},
 			appClass : function(state, newClass) {
 				state.appClass = newClass;
@@ -664,6 +678,9 @@ let globalContract = null;
 			},
 			setName: function(state, name) {
 				state.identity.name = name;
+			},
+			clearProofs: function(state) {
+				state.proofs = [];
 			}
 		},
 		actions : {
@@ -728,6 +745,9 @@ let globalContract = null;
 		computed : {
 			appClass : function() {
 				return this.$store.state.appClass;
+			},
+			contractReady: function() {
+				return store.state.contractReady;
 			}
 		},
 		components : {
@@ -741,19 +761,15 @@ let globalContract = null;
 						if (!err) {
 							for (let hash of hashes) {
 								globalContract.getProofByHash(hash, function(err, rawProof) {
-									console.log("getProofByHash", err, rawProof);
 									let data = {
 										image: '/img/uploads/' + rawProof[5],
 										title: rawProof[4],
 										fileSha256: rawProof[5],
 										created : rawProof[2],
-										verified : rawProof[2],
 										confirmations : 0,
-										contract: rawProof[0],
+										owner: rawProof[0],
+										contract: store.state.contractAddress,
 										block: rawProof[3],
-										fileType: 'image/jpeg',
-										fileSize: '1.4 Mb',
-										fileLocation : 'Dropbox'
 									};
 									store.commit('addProof', data);
 								});
@@ -761,6 +777,33 @@ let globalContract = null;
 						}
 					});
 				}
+			},
+			changeUser: function(address) {
+				store.commit('setAccount', address);
+				store.commit('setName', address.substr(0, 6));
+				store.commit('clearProofs');
+				this.loadAllProofs();
+			},
+			setAcountInterval: function(web3) {
+				let app = this;
+				setInterval(function() {
+					if (web3) {
+						let address = web3.eth.accounts[0];
+						if (address) {
+							let currentAddress = store.state.identity.address;
+							if (address != currentAddress) {
+								console.log('address changed');
+								app.changeUser(address);
+							}
+
+							web3.eth.getBalance(address, (err, balance) => {
+								let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
+								console.log(err, readable);
+								store.commit('setBalance', readable);
+							});
+						}
+					}
+				}, 1000);
 			},
 			initWeb3: function() {
 				if (typeof web3 !== 'undefined') {
@@ -774,25 +817,7 @@ let globalContract = null;
 
 					app.initContract(web3);
 
-					// let account = web3.eth.accounts[0];
-					var accountInterval = setInterval(function() {
-						if (web3) {
-							let address = web3.eth.accounts[0];
-							if (address) {
-								store.commit('setAccount', address);
-								store.commit('setName', address.substr(0, 6));
-								web3.eth.getBalance(address, (err, balance) => {
-									let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
-									console.log(err, readable);
-									store.commit('setBalance', readable);
-								});
-							}
-						}
-					}, 1000);
-
-					setTimeout(function() {
-						app.loadAllProofs();
-					}, 1000);
+					app.setAcountInterval(web3);
 				}
 			},
 			initContract: function(web) {
@@ -938,6 +963,13 @@ let globalContract = null;
 			window.addEventListener('load', function() {
 				app.initWeb3();
 			});
+		},
+		watch: {
+			contractReady: function(val) {
+				if (val === true) {
+					app.loadAllProofs();
+				}
+			}
 		}
 	});
 })();
