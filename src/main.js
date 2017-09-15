@@ -6,6 +6,27 @@ let globalWeb3 = null;
 let globalContract = null;
 
 (function(){
+	const helperMixin = Vue.mixin({
+		methods: {
+			readableTimestamp: function(timestamp) {
+				if (timestamp) {
+					let momentTime = moment.unix(timestamp.toString());
+					return momentTime.format("YYYY-MM-DD HH:mm");
+				} else {
+					return '';
+				}
+			},
+			etherscanLink: function(value, type) {
+				//type tx, address, block
+				let baseurl = "https://ropsten.etherscan.io/";
+				baseurl += type;
+				baseurl += '/';
+				baseurl += value;
+				return baseurl;
+			}
+		}
+	});
+
 	const Intro = { template: '#intro' };
 
 	const Camera = {
@@ -25,8 +46,8 @@ let globalContract = null;
 		}
 	}
 
-	const Proof2 = {
-		template : '#proof2',
+	const Proof = {
+		template : '#proof',
 		data : function() {
 			return {
 				cssClass : {
@@ -37,6 +58,9 @@ let globalContract = null;
 				rawProof: null
 			}
 		},
+		mixins: [
+			helperMixin
+		],
 		computed : {
 			hash: function() {
 				return this.$route.params.id;
@@ -50,15 +74,14 @@ let globalContract = null;
 					created : null,
 					verified : null,
 					confirmations : 0,
-					contract: '0x8a9c4bb2f2...',
-					block: '1133777',
-					fileType: 'image/jpeg',
-					fileSize: '1.4 Mb',
-					fileLocation : 'Dropbox'
+					contract: '',
+					owner: '',
+					block: ''
 				};
 
 				if (this.rawProof) {
-					data.contract = this.rawProof[0];
+					data.contract = store.state.contractAddress;
+					data.owner = this.rawProof[0];
 					data.created = this.rawProof[2];
 					data.block = this.rawProof[3];
 					data.title = this.rawProof[4];
@@ -90,32 +113,9 @@ let globalContract = null;
 		}
 	};
 
-	const Proof = {
-		template : '#proof',
-		data : function() {
-			return {
-				cssClass : {
-					image : {
-						fullscreen : false,
-					}
-				}
-			}
-		},
-		computed : {
-			proof : function() {
-				return this.$store.getters.getProofById( this.$route.params.id );
-			}
-		},
-		methods : {
-			toggleImage : function() {
-				this.cssClass.image.fullscreen =
-					! this.cssClass.image.fullscreen;
-
-			}
-		}
-	};
 	const ProofsListEntry = {
 		template : '#proofs-list-entry',
+		mixins: [helperMixin],
 		props : [
 			'proof'
 		]
@@ -218,6 +218,7 @@ let globalContract = null;
 		TEXT : 0,
 		IMAGE : 1,
 		PAYMENT : 2,
+		LINK : 3,
 	}
 
 	const Speech = {
@@ -232,7 +233,7 @@ let globalContract = null;
 					'app' : this.sender === MessageSenderEnum.APP,
 					'me' : this.sender === MessageSenderEnum.ME,
 					'body-type-image ' : this.body.type === MessageBodyTypeEnum.IMAGE,
-					'body-type-text' : this.body.type === MessageBodyTypeEnum.TEXT,
+					'body-type-text' : this.body.type === MessageBodyTypeEnum.TEXT || this.body.type === MessageBodyTypeEnum.LINK,
 					'speech': true,
 				};
 			},
@@ -306,6 +307,7 @@ let globalContract = null;
 				}, 1000, true);
 			},
 			addMessageDelayed: function(message, delay, showThinkingBubble) {
+				console.log('addMessageDelayed');
 				let app = this;
 				if (showThinkingBubble) {
 					app.showti = true;
@@ -318,27 +320,64 @@ let globalContract = null;
 				}, delay);
 			},
 			startProof: function(textToProof, comment) {
+				let app = this;
 				let contract = globalContract;
 				if (contract) {
-					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
-						if (err) {
-							this.machine.transition('transactionError');
-						} else {
+					async.waterfall([
+						function(callback) {
+							contract.hasProof(textToProof, function(err, hasProof) {
+								if (hasProof) {
+									app.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.LINK,
+											description: "This file has already been notarized",
+											title: textToProof,
+											url: router.resolve('/proofs/' + textToProof).href
+										},
+									}, 1000, true);
+									app.machine.transition('clear');
+									return callback(new Error('Already notarized'));
+								} else {
+									return callback(null);
+								}
+							});
+						},
+						function(callback) {
+							contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
+								return callback(err, estimate);
+							});
+						},
+						function(estimate, callback) {
 							let transactionOptions = {
 								gas: estimate + 1000
 							};
 							contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
-								console.log(err, txId);
-								if (err) {
-									this.machine.transition('transactionError');
-								} else {
-									this.proof.txId = txId;
-									this.machine.transition('summary');
-								}
+								return callback(err, txId);
 							});
+						}
+					], function(err, txId) {
+						if (err) {
+							app.machine.transition('transactionError');
+						} else {
+							app.proof.txId = txId;
+							app.showTransactionId(txId);
+							app.machine.transition('summary');
 						}
 					});
 				}
+			},
+			showTransactionId: function(txId) {
+				let app = this;
+				app.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					body: {
+						type: MessageBodyTypeEnum.LINK,
+						description: "This is the Transaction ID",
+						title: txId,
+						url: app.etherscanLink(txId, 'tx')
+					},
+				}, 1000, true);
 			},
 			onFileChange: function(event) {
 				console.log('onFileChange', event.target.files);
@@ -382,7 +421,7 @@ let globalContract = null;
 				this.scrollDown();
 			},
 			showSummary: function() {
-				this.addMessage({
+				app.addMessageDelayed({
 					sender : MessageSenderEnum.APP,
 					body : {
 						type : MessageBodyTypeEnum.IMAGE,
@@ -390,7 +429,7 @@ let globalContract = null;
 						link : '/proofs/' + this.proof.hash,
 						linktext : this.proof.description
 					},
-				});
+				}, 1000, true);
 			},
 			showGasEstimate: function(textToProof, comment) {
 				let app = this;
@@ -423,7 +462,10 @@ let globalContract = null;
 				let fromState = data.fromState;
 				let toState = data.toState;
 				console.log("we just transitioned from " + fromState + " to " + toState);
-				this.showQuestionDelayed(this.machine.getCurrentQuestion().getQuestionText())
+				let questionText = this.machine.getCurrentQuestion().getQuestionText();
+				if (questionText && questionText != '') {
+					this.showQuestionDelayed(questionText)
+				}
 			});
 
 			this.machine.on("startProof", () => {
@@ -488,247 +530,6 @@ let globalContract = null;
 		}
 	};
 
-	const New = {
-		template: '#new',
-		components: {
-			'speech' : Speech,
-			'camera' : Camera,
-		},
-		data : function() {
-			return {
-				proof : {
-					created : null,
-					verified : null,
-					title : '',
-					image : 'img/image.jpg',
-					confirmations : 0,
-					contract: '0x8a9c4bb2f2...',
-					block: '1133777',
-					fileSha256: 'd91ef0a24a9eb1c1...',
-					fileType: 'image/jpeg',
-					fileSize: '1.4 Mb',
-					fileLocation : 'Dropbox'
-				},
-				showCamera : false,
-				showti : true,
-				showresp : false,
-				userInput : 'rental car damage',
-				i : 0,
-				messages : [
-				],
-				f : [
-					{
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	"How about creating your first proof? You can prove the existence of a picture or a file.",
-						},
-					},
-					{
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text : "Camera",
-						},
-					},
-					{
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.IMAGE,
-							image : 'image.jpg',
-							link : false
-						},
-					},
-					{
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	"OK! Now you want to give your proof a reasonable name. Make it descriptive!",
-						},
-					},
-					{
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text : "rental car damage",
-						},
-					},
-					{
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text : "Got that! This proof will cost 0.1 AET.",
-						},
-					},
-					{
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text : "Yes, I pay 0.1 AET",
-						},
-					},
-					{
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text : "Success! Your proof has been created.",
-						},
-					},
-					{
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.IMAGE,
-							image : 'image.jpg',
-							link : '/proofs/1',
-							linktext : 'rental car damage'
-						},
-					},
-				]
-			}
-		},
-		watch : {
-			i : function(val) {
-				if(val == 2) {
-					this.showCamera = true;
-				}
-			}
-		},
-		methods : {
-			scrollDown : function() {
-				setTimeout(function(){
-					document.getElementsByClassName('conversation-container')[0].scrollTop = 100000000
-				},100);
-			},
-			pictureTaken : function() {
-				this.showCamera = false;
-				this.bot(1);
-			},
-			bot : function(inc) {
-				this.showti = true;
-				setTimeout(()=>{
-					this.showti = false;
-					for (var x = 0; x < inc; x++) {
-						if(this.i === 8) {
-							var lastp = store.state.proofs[store.state.proofs.length - 1];
-							this.f[this.i].body.link = '/proofs/'+lastp.id;
-							this.f[this.i].body.linktext = lastp.title;
-						}
-						this.messages.push(this.f[this.i++]);
-					}
-					this.showresp = true;
-					this.scrollDown();
-				},1000);
-			},
-			why : function(i) {
-				this.messages.push({
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	"Why?",
-						},
-					});
-				this.showti = true;
-				setTimeout(()=>{
-					this.showti = false;
-					this.messages.push({
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	i == 0 ? "More explanation soon1" : "More explanation soon2",
-						},
-					}
-					);
-					this.showresp = true;
-					this.scrollDown();
-				},1000);
-			},
-			start : function() {
-				this.i = 0;
-				this.bot(1);
-				//setTimeout(()=>{
-				//},500);
-			},
-			cancel : function() {
-				this.messages.push({
-						sender : MessageSenderEnum.ME,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	"Cancel",
-						},
-					});
-				this.showti = true;
-				setTimeout(()=>{
-					this.showti = false;
-					this.messages.push({
-						sender : MessageSenderEnum.APP,
-						body : {
-							type : MessageBodyTypeEnum.TEXT,
-							text :	"As you wish! You can now start over or leave the app",
-						},
-					}
-					);
-					this.showresp = true;
-					this.scrollDown();
-					this.start();
-				},1000);
-			},
-			user : function(inc) {
-				this.showresp = false;
-				for (var x = 0; x < inc; x++) {
-					if(this.i === 4) {
-						this.f[this.i].body.text = this.userInput;
-					}
-					this.messages.push(this.f[this.i++]);
-					if(this.i == 7) {
-						store.dispatch('paymentRequest', {
-							success : () => {
-								this.paymentSuccess();
-							},
-							canceled : () => {
-								this.paymentCanceled();
-							},
-							amount : 0.1
-						});
-						this.scrollDown();
-						return;
-					}
-				}
-				this.scrollDown();
-				this.bot(1);
-			},
-			paymentSuccess : function() {
-
-				var today = new Date();
-				var dd = today.getDate();
-				var mm = today.getMonth()+1; //January is 0!
-				if(dd<10){
-					dd='0'+dd;
-				}
-				if(mm<10){
-					mm='0'+mm;
-				}
-				var yyyy = today.getFullYear();
-				var today = dd+'.'+mm+'.'+yyyy;
-
-				this.proof.created = today;
-				this.proof.verified = today;
-				this.proof.title = this.userInput;
-				this.proof.confirmations = Math.round(Math.random() * 10) + 1;
-
-				store.commit('addProof', this.proof);
-				this.bot(2);
-
-			},
-			paymentCanceled : function() {
-				this.cancel();
-			},
-
-		},
-		mounted : function(){
-			this.start();
-		}
-	};
-
 	const MenuEntry = {
 		template : '#menu-entry',
 		props : [
@@ -756,7 +557,7 @@ let globalContract = null;
 					},
 					{
 						label : 'Create a Proof',
-						link : '/new',
+						link : '/chat',
 					},
 					//{
 						//label : 'Shared with me',
@@ -786,7 +587,7 @@ let globalContract = null;
 			'$route' : function(to, from) {
 				var proofDetail = null !== to.path.match(/^\/proofs\/\d+/);
 
-				this.showAdd = to.path !== '/new';
+				this.showAdd = to.path !== '/chat';
 				this.showBurger = !proofDetail;
 				this.showBack = proofDetail;
 				this.navopen = false;
@@ -891,19 +692,16 @@ let globalContract = null;
 			title : 'Create Proof',
 			appClass : 'new'
 		}},
-		{ path: '/new', component: New, meta : {
-			title : 'Create Proof',
-			appClass : 'new'
-		}},
 		{ path: '/camera', component: Camera, meta : {
-			title : 'Camer',
+			title : 'Camera',
 			appClass : 'camera'
 		}},
 		{ path: '/proofs', component: ProofsList, meta : {
 			title : 'Your Proofs',
 			appClass : 'proofs'
 		}},
-		{ path: '/proofs/:id', component: Proof2, meta : {
+		{ path: '/proofs/:id', component: Proof, meta : {
+			title : 'Proof Details',
 			appClass : 'proof'
 		}},
 	];

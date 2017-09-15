@@ -79,9 +79,7 @@ module.exports = function() {
 						fsm.emit('startProof');
 					}),
 					AnswerFactory.answer('Why?', 'whyPay', /why/i),
-					AnswerFactory.answer('Cancel', 'welcome', /cancel/i, function() {
-						fsm.emit('clearProof');
-					}),
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i),
 				]
 			}),
 
@@ -98,6 +96,7 @@ module.exports = function() {
 				answers: [
 					AnswerFactory.freetext('', 'summary', /^.*$/i),
 					AnswerFactory.freetext('', 'transactionError', /^.*$/i),
+					AnswerFactory.freetext('', 'clear', /^.*$/i),
 				]
 			}),
 
@@ -110,11 +109,21 @@ module.exports = function() {
 				]
 			}),
 
-			summary: new Question("Success! Your proof has been issued.", {
+			summary: new Question("Success! Your proof has been issued. It may take a while until its written to the blockchain.", {
 				onEnter: function() {
 					fsm.emit('showSummary');
 				}
 			}),
+
+			clear: new Question("", {
+				onEnter: function() {
+					fsm.emit('clearProof');
+					fsm.transition('welcome');
+				},
+				answers: [
+					AnswerFactory.freetext('', 'welcome', /^.*$/i),
+				]
+			})
 		}
 	});
 

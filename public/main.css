@@ -461,6 +461,12 @@ nav .avatar + .name{
 	margin:0;
 
 }
+.speech a {
+	color:inherit;
+	padding:0;
+	margin:0;
+	text-decoration: underline;
+}
 .speech-container + .speech-container {
 	margin-top:10px;
 }
