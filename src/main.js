@@ -761,21 +761,41 @@ let globalContract = null;
 						}
 					});
 				}
-			}
-		},
-		created: function() {
-			let app = this;
-			if (typeof web3 !== 'undefined') {
-				web3 = new Web3(web3.currentProvider);
-			} else {
-				// set the provider you want from Web3.providers
-				// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-			}
-			// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
-			// console.log(web3);
-			if (web3) {
-				globalWeb3 = web3;
+			},
+			initWeb3: function() {
+				if (typeof web3 !== 'undefined') {
+					web3 = new Web3(web3.currentProvider);
+				} else {
+					web3 = null;
+					// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+				}
+				if (web3) {
+					globalWeb3 = web3;
 
+					app.initContract(web3);
+
+					// let account = web3.eth.accounts[0];
+					var accountInterval = setInterval(function() {
+						if (web3) {
+							let address = web3.eth.accounts[0];
+							if (address) {
+								store.commit('setAccount', address);
+								store.commit('setName', address.substr(0, 6));
+								web3.eth.getBalance(address, (err, balance) => {
+									let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
+									console.log(err, readable);
+									store.commit('setBalance', readable);
+								});
+							}
+						}
+					}, 1000);
+
+					setTimeout(function() {
+						app.loadAllProofs();
+					}, 1000);
+				}
+			},
+			initContract: function(web) {
 				let abi = [{
 					"constant": true,
 					"inputs": [{
@@ -910,27 +930,14 @@ let globalContract = null;
 					store.commit('setContractReady', true);
 					// app.loadAllProofs();
 				});
-
-				// let account = web3.eth.accounts[0];
-				var accountInterval = setInterval(function() {
-					if (web3) {
-						let address = web3.eth.accounts[0];
-						if (address) {
-							store.commit('setAccount', address);
-							store.commit('setName', address.substr(0, 6));
-							web3.eth.getBalance(address, (err, balance) => {
-								let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
-								console.log(err, readable);
-								store.commit('setBalance', readable);
-							});
-						}
-					}
-				}, 1000);
-
-				setTimeout(function() {
-					app.loadAllProofs();
-				}, 1000);
 			}
+		},
+		mounted: function() {
+			let app = this;
+			console.log('mounted');
+			window.addEventListener('load', function() {
+				app.initWeb3();
+			});
 		}
 	});
 })();
