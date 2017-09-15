@@ -70,13 +70,18 @@ module.exports = function() {
 				]
 			}),
 
-			pay: new Question("The transaction will cost approx... 12 AE.", {
+			pay: new Question("I will now calculate the estimated Gas usage.", {
+				onEnter: function() {
+					fsm.emit('showGasEstimate');
+				},
 				answers: [
 					AnswerFactory.answer('Okay', 'explainPaymentRequest', /okay/i, function(answerText) {
 						fsm.emit('startProof');
 					}),
 					AnswerFactory.answer('Why?', 'whyPay', /why/i),
-					AnswerFactory.answer('Cancel', 'welcome', /cancel/i),
+					AnswerFactory.answer('Cancel', 'welcome', /cancel/i, function() {
+						fsm.emit('clearProof');
+					}),
 				]
 			}),
 
@@ -105,7 +110,7 @@ module.exports = function() {
 				]
 			}),
 
-			summary: new Question("Success! Your proof has been created.", {
+			summary: new Question("Success! Your proof has been issued.", {
 				onEnter: function() {
 					fsm.emit('showSummary');
 				}

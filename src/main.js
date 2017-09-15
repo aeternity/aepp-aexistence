@@ -136,12 +136,14 @@ let globalContract = null;
 	const Avatar = {
 		template : '#avatar',
 		props : [
-			'image'
+			'image',
+			'blockie'
 		],
 		computed : {
 			style : function() {
 				return {
-					backgroundImage: "url('"+this.image+"')"
+					// backgroundImage: "url('"+this.image+"')",
+					backgroundColor: '#d1d1d1'
 				}
 			}
 		}
@@ -167,6 +169,9 @@ let globalContract = null;
 			paymentRequest : function() {
 				return this.$store.state.identity.paymentRequest;
 			},
+			blockie: function() {
+				return blockies.create();
+			}
 		},
 		watch : {
 			paymentRequest : function(req) {
@@ -251,7 +256,6 @@ let globalContract = null;
 				messages: [],
 				showti : false,
 				showresp : false,
-				showCamera : false,
 				showFileUpload: false,
 				showFreetext: false,
 				userInput: '',
@@ -293,17 +297,25 @@ let globalContract = null;
 			},
 			showQuestionDelayed: function(text) {
 				let app = this;
-				this.showti = true;
+				this.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					body: {
+						type: MessageBodyTypeEnum.TEXT,
+						text: text,
+					},
+				}, 1000, true);
+			},
+			addMessageDelayed: function(message, delay, showThinkingBubble) {
+				let app = this;
+				if (showThinkingBubble) {
+					app.showti = true;
+				}
 				setTimeout(function() {
-					app.showti = false;
-					app.addMessage({
-						sender: MessageSenderEnum.APP,
-						body: {
-							type: MessageBodyTypeEnum.TEXT,
-							text: text,
-						},
-					});
-				}, 1000);
+					if (showThinkingBubble) {
+						app.showti = false;
+					}
+					app.addMessage(message);
+				}, delay);
 			},
 			startProof: function(textToProof, comment) {
 				let contract = globalContract;
@@ -379,6 +391,29 @@ let globalContract = null;
 						linktext : this.proof.description
 					},
 				});
+			},
+			showGasEstimate: function(textToProof, comment) {
+				let app = this;
+				let contract = globalContract;
+				if (contract) {
+					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
+						let ethtimate = 0.00000002 * estimate;
+						if (!err) {
+							app.addMessageDelayed({
+								sender : MessageSenderEnum.APP,
+								body : {
+									type : MessageBodyTypeEnum.TEXT,
+									text : 'The transaction will use approximately ' + estimate + ' gas (' + ethtimate + ' eth)',
+								},
+							}, 1000, true);
+						}
+					});
+				}
+			},
+			clearProof: function() {
+				this.proof.hash = null;
+				this.proof.description = '';
+				this.proof.txId = null;
 			}
 		},
 		mounted: function() {
@@ -415,6 +450,14 @@ let globalContract = null;
 
 			this.machine.on("showSummary", () => {
 				app.showSummary();
+			});
+
+			this.machine.on("showGasEstimate", () => {
+				app.showGasEstimate(app.proof.hash, app.proof.description);
+			});
+
+			this.machine.on("clearProof", () => {
+				app.clearProof();
 			});
 
 			this.machine.setAnswer('go');
@@ -764,8 +807,8 @@ let globalContract = null;
 			],
 			identity : {
 				avatar: "img/avatar-1.jpg",
-				balance : '5.00',
-				name : 'Joan',
+				balance : '0.00',
+				name : '',
 				address : null,
 				paymentRequest : null,
 				approvedPayments: [],
@@ -773,7 +816,8 @@ let globalContract = null;
 			},
 			identityCollapsed : false,
 			hasWeb3: false,
-			contractReady: false
+			contractReady: false,
+			contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		},
 		getters: {
 			getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id == id)
@@ -1063,7 +1107,7 @@ let globalContract = null;
 					"type": "function"
 				}];
 				let PoEContract = web3.eth.contract(abi);
-				PoEContract.at('0xcbaa1afa8bd967eb093b8da83c0cad905a82e905', function (err, contract) {
+				PoEContract.at(store.state.contractAddress, function (err, contract) {
 					globalContract = contract;
 					store.commit('setContractReady', true);
 					// app.loadAllProofs();
