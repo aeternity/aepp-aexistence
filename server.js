@@ -7,6 +7,12 @@ const path = require('path');
 const async = require('async');
 const fs = require('fs');
 
+app.use(function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+	next();
+});
+
 app.post('/upload', multipartMiddleware, function(req, res) {
 	console.log(req.body, req.files);
 	if (!req.files.file) {
@@ -20,7 +26,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
 			});
 		},
 		function(hash, callback) {
-			let newPath = path.join(__dirname, 'public/img/uploads', hash);
+			let newPath = path.join(__dirname, 'static/uploads', hash);
 			tools.moveFile(file.path, newPath, (err, data) => {
 				return callback(err, hash);
 			});

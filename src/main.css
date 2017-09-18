@@ -179,7 +179,7 @@ h1 {
 	position:absolute;
 	top:0;
 	left:0;
-	background-image:url(img/identity-background.svg);
+	background-image:url(assets/identity-background.svg);
 	background-repeat:no-repeat;
 	background-position:center;
 	background-size:cover;
@@ -609,7 +609,7 @@ nav .avatar + .name{
 }
 .camera {
 	position:fixed;
-	background-image:url(img/image.jpg);
+	background-image:url(assets/image.jpg);
 	z-index:5;
 	background-color:black;
 }
@@ -624,10 +624,10 @@ nav .avatar + .name{
 }
 .camera .image {
 	position:absolute;
-	background-image:url(img/camera.png);
+	background-image:url(assets/camera.png);
 }
-.menu-entry svg {
 .menu-entry a ,
+.menu-entry svg {
 }
 .menu-entry svg {
 	margin-right:10px;
