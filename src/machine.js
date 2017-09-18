@@ -12,17 +12,13 @@ module.exports = function() {
 			uninitialized: new Question(null, {
 				answers: [
 					AnswerFactory.answer('Start', 'welcome', /^.*$/i),
-					AnswerFactory.answer('No Web3', 'noWeb3', /^.*$/i),
 				]
-			}),
-
-			noWeb3: new Question("Please install and unlock metamask and choose a wallet.", {
-
 			}),
 
 			welcome: new Question("How about creating your first proof? You can prove the existence of a picture or a file.", {
 				answers: [
 					AnswerFactory.answer('Picture', 'picture', /picture/i),
+					AnswerFactory.answer('Check Image', 'checkImage', /check/i),
 					AnswerFactory.answer('File', 'file', /file/i),
 					AnswerFactory.answer('Why', 'why', /why/i),
 				]
@@ -123,7 +119,19 @@ module.exports = function() {
 				answers: [
 					AnswerFactory.freetext('', 'welcome', /^.*$/i),
 				]
-			})
+			}),
+
+			checkImage: new Question("Choose an image to check for existing proofs.", {
+				onEnter: function() {
+					fsm.emit('showFileUpload', true);
+				},
+				onLeave: function() {
+					fsm.emit('showFileUpload', false);
+				},
+				answers: [
+					AnswerFactory.answer('Cancel', 'clear', /^.*$/i),
+				]
+			}),
 		}
 	});
 

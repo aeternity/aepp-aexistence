@@ -5,6 +5,7 @@ const multipartMiddleware = multipart();
 const tools = require('./tools');
 const path = require('path');
 const async = require('async');
+const fs = require('fs');
 
 app.post('/upload', multipartMiddleware, function(req, res) {
 	console.log(req.body, req.files);
@@ -34,7 +35,23 @@ app.post('/upload', multipartMiddleware, function(req, res) {
 		});
 	});
 	//TODO: don't forget to delete all req.files when done
+});
 
+app.post('/hash', multipartMiddleware, function(req, res) {
+	if (!req.files.file) {
+		return tools.sendErr(res);
+	}
+	let file = req.files.file;
+	tools.fileSha(file.path, (err, hash) => {
+		if (err) {
+			return tools.sendErr(res, err);
+		}
+		fs.unlink(file.path);
+		return res.json({
+			success: true,
+			hash: hash
+		});
+	});
 });
 
 app.use(express.static('public'));

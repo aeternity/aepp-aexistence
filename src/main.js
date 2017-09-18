@@ -72,7 +72,7 @@ let globalContract = null;
 				let hash = this.$route.params.id;
 				let data = {
 					image: '/img/uploads/' + hash,
-					title: '?',
+					title: '',
 					fileSha256: hash,
 					created : null,
 					verified : null,
@@ -260,8 +260,7 @@ let globalContract = null;
 	const Chat = {
 		template: '#chat',
 		components: {
-			'speech' : Speech,
-			'camera' : Camera,
+			'speech' : Speech
 		},
 		data: function() {
 			return {
@@ -286,6 +285,9 @@ let globalContract = null;
 			},
 			hasAnswers: function() {
 				return this.answers && this.answers.length > 0;
+			},
+			contractReady: function() {
+				return store.state.contractReady;
 			}
 		},
 		methods: {
@@ -392,13 +394,63 @@ let globalContract = null;
 				}, 1000, true);
 			},
 			onFileChange: function(event) {
-				console.log('onFileChange', event.target.files);
+				console.log('onFileChange', event.target.files, this.machine);
 				this.fileUploadFormData.set('file', event.target.files[0]);
 
-				this.sendFile();
+				if (this.machine.currentState == 'checkImage') {
+					this.checkImage();
+				} else {
+					this.sendFile();
+				}
 			},
 			preventSubmit: function(event) {
 				event.preventDefault();
+			},
+			checkImage: function() {
+				let app = this;
+				this.$http.post('/hash', this.fileUploadFormData).then(response => {
+					console.log('yay', response);
+					let hash = response.body.hash;
+					if (app.contractReady) {
+						globalContract.hasProof(hash, function(err, hasProof) {
+							if (err) {
+								//TODO: handle
+								console.log(err);
+							} else {
+								if (hasProof) {
+									app.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.LINK,
+											description: "This file has already been notarized",
+											title: hash,
+											url: router.resolve('/proofs/' + hash).href
+										},
+									}, 1000, true);
+								} else {
+									app.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.TEXT,
+											text: "No proof found for this file! " + hash
+										},
+									}, 1000, true);
+								}
+							}
+						});
+					} else {
+						console.log('contract not ready');
+					}
+				}, response => {
+					console.log('nay', response);
+					this.addMessage({
+						sender : MessageSenderEnum.APP,
+						body : {
+							type : MessageBodyTypeEnum.TEXT,
+							text : 'Something went wrong D: ',
+						},
+					});
+				});
 			},
 			sendFile: function(event) {
 				if (event) {
