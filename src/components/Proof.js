@@ -24,7 +24,7 @@ export default {
 		proof : function() {
 			let hash = this.$route.params.id;
 			let data = {
-				image: 'http://localhost:3000/uploads/' + hash,
+				image: '/uploads/' + hash,
 				title: '',
 				fileSha256: hash,
 				created: null,
