@@ -1,6 +1,6 @@
 pragma solidity ^0.4.4;
 
-contract ApeUnitProof2 {
+contract AEProof {
 
 	mapping (bytes32 => Proof) private proofs;
 	mapping (address => bytes32[]) private proofsByOwner;
