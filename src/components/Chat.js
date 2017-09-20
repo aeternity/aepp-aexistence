@@ -91,7 +91,7 @@ export default {
 				}
 
 				async.waterfall([
-					function(callback) {
+					(callback) => {
 						contract.hasProof(textToProof, (err, hasProof) => {
 							if (hasProof) {
 								this.addMessageDelayed({
@@ -100,7 +100,7 @@ export default {
 										type: MessageBodyTypeEnum.LINK,
 										description: "This file has already been notarized",
 										title: textToProof,
-										url: router.resolve('/proofs/' + textToProof).href
+										url: this.$router.resolve('/proofs/' + textToProof).href
 									},
 								}, 1000, true);
 								this.machine.transition('clear');
@@ -110,12 +110,12 @@ export default {
 							}
 						});
 					},
-					function(callback) {
+					(callback) => {
 						contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
 							return callback(err, estimate);
 						});
 					},
-					function(estimate, callback) {
+					(estimate, callback) => {
 						let transactionOptions = {
 							from : window.globalWeb3.eth.accounts[0],
 							gas: estimate + 1000
@@ -216,7 +216,7 @@ export default {
 						sender: MessageSenderEnum.ME,
 						body: {
 							type: MessageBodyTypeEnum.IMAGE,
-							image: 'uploads/' + hash
+							image: 'http://localhost:3000/uploads/' + hash
 						}
 					});
 					this.machine.setAnswer('pay');
@@ -240,7 +240,7 @@ export default {
 					sender: MessageSenderEnum.APP,
 					body: {
 						type: MessageBodyTypeEnum.IMAGE,
-						image: '/uploads/' + this.proof.hash,
+						image: 'http://localhost:3000/uploads/' + this.proof.hash,
 						link: '/proofs/' + this.proof.hash,
 						linktext: this.proof.description
 					},

@@ -18,7 +18,7 @@ export default {
 		},
 		style : function() {
 			return {
-				backgroundImage: this.body.type === MessageBodyTypeEnum.IMAGE ? "url('img/"+this.body.image+"')" : null,
+				backgroundImage: this.body.type === MessageBodyTypeEnum.IMAGE ? "url('"+this.body.image+"')" : null,
 			};
 		}
 	}

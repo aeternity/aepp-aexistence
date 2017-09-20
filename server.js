@@ -26,7 +26,7 @@ app.post('/upload', multipartMiddleware, function(req, res) {
 			});
 		},
 		function(hash, callback) {
-			let newPath = path.join(__dirname, 'static/uploads', hash);
+			let newPath = path.join(__dirname, '/uploads', hash);
 			tools.moveFile(file.path, newPath, (err, data) => {
 				return callback(err, hash);
 			});
@@ -60,7 +60,8 @@ app.post('/hash', multipartMiddleware, function(req, res) {
 	});
 });
 
-app.use(express.static('public'));
+app.use(express.static('dist'));
+app.use('/uploads', express.static(__dirname + '/uploads'));
 
 app.listen(3000, function () {
 	console.log('Example app listening on port 3000!');

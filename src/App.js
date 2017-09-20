@@ -16,10 +16,10 @@ export default {
 	methods: {
 		loadAllProofs: function() {
 			if (window.globalContract) {
-				window.globalContract.getProofsByOwner(this.$store.state.identity.address, function(err, hashes) {
+				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
 					if (!err) {
 						for (let hash of hashes) {
-							window.globalContract.getProofByHash(hash, function(err, rawProof) {
+							window.globalContract.getProofByHash(hash, (err, rawProof) => {
 								let data = {
 									image: '/img/uploads/' + rawProof[5],
 									title: rawProof[4],
