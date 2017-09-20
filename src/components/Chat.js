@@ -40,7 +40,7 @@ export default {
 				return this.answers && this.answers.length > 0;
 			},
 			contractReady: function() {
-				return store.state.contractReady;
+				return this.$store.state.contractReady;
 			}
 		},
 		methods: {
@@ -118,7 +118,7 @@ export default {
 					(estimate, callback) => {
 						let transactionOptions = {
 							from : window.globalWeb3.eth.accounts[0],
-							gas: estimate + 1000
+							gas: estimate
 						};
 						contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
 							return callback(err, txId);
@@ -149,7 +149,7 @@ export default {
 				console.log('onFileChange', event.target.files, this.machine);
 				this.fileUploadFormData.set('file', event.target.files[0]);
 
-				if (this.machine.currentState == 'checkImage') {
+				if (this.machine.currentState == 'checkPicture') {
 					this.checkImage();
 				} else {
 					this.sendFile();
@@ -163,7 +163,7 @@ export default {
 					console.log('yay', response);
 					let hash = response.body.hash;
 					if (this.contractReady) {
-						window.globalContract.hasProof(hash, function(err, hasProof) {
+						window.globalContract.hasProof(hash, (err, hasProof) => {
 							if (err) {
 								//TODO: handle
 								console.log(err);

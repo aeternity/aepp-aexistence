@@ -19,7 +19,7 @@
 					<button class="answer" onclick="document.getElementById('selectedFile').click();">Choose File</button>
 				</form>
 
-				<input v-model='userInput' type="text" v-show='showFreetext'>
+				<input @keyup.enter='handleFreetextInput()' v-model='userInput' type="text" v-show='showFreetext'>
 				<button @click='handleFreetextInput()' class='send' v-show='showFreetext'>Send</button>
 
 			</div>

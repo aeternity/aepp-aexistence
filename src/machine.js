@@ -14,16 +14,16 @@ export default function () {
 				]
 			}),
 
-			welcome: new Question('How about creating your first proof? You can prove the existence of a picture or a file.', {
+			welcome: new Question('How about creating your first proof? You can prove the existence of a picture.', {
 				answers: [
-					AnswerFactory.answer('Picture', 'picture', /picture/i),
-					AnswerFactory.answer('Check Image', 'checkImage', /check/i),
-					AnswerFactory.answer('File', 'file', /file/i),
+					AnswerFactory.answer('Picture', 'picture', /^picture/i),
+					AnswerFactory.answer('Check Picture', 'checkPicture', /^check/i),
+					// AnswerFactory.answer('File', 'file', /file/i),
 					AnswerFactory.answer('Why', 'why', /why/i)
 				]
 			}),
 
-			picture: new Question('Choose an image to create a proof for', {
+			picture: new Question('Choose a Picture to create a proof for', {
 				onEnter: function () {
 					fsm.emit('showFileUpload', true)
 				},
@@ -44,14 +44,14 @@ export default function () {
 				]
 			}),
 
-			why: new Question('More explanation soon1', {
+			why: new Question('Proof of Existence is an online service that verifies the existence of computer files as of a specific time via timestamped transactions in the ethereum blockchain. A Hash of the uploaded Picture together with a short description will be stored in the contract.', {
 				answers: [
-					AnswerFactory.answer('Picture', 'picture', /picture/i),
-					AnswerFactory.answer('File', 'file', /file/i)
+					AnswerFactory.answer('Picture', 'picture', /picture/i)
+					// AnswerFactory.answer('File', 'file', /file/i)
 				]
 			}),
 
-			name: new Question('OK! Now you want to give your proof a reasonable name. Make it descriptive!', {
+			name: new Question('OK! Now you want to give your proof a reasonable name. Make it descriptive! Remember: The longer the description the higher the gas costs.', {
 				onEnter: function () {
 					fsm.emit('showFreetext', true)
 				},
@@ -78,7 +78,7 @@ export default function () {
 				]
 			}),
 
-			whyPay: new Question('Transaction Fees explained', {
+			whyPay: new Question('TODO: Transaction Fees explained', {
 				onEnter: function () {
 					fsm.transition('pay')
 				},
@@ -120,7 +120,7 @@ export default function () {
 				]
 			}),
 
-			checkImage: new Question('Choose an image to check for existing proofs.', {
+			checkPicture: new Question('Choose an image to check for existing proofs.', {
 				onEnter: function () {
 					fsm.emit('showFileUpload', true)
 				},
