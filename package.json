@@ -21,14 +21,15 @@
     "unit": "cross-env BABEL_ENV=test karma start test/unit/karma.conf.js --single-run",
     "e2e": "node test/e2e/runner.js",
     "test": "npm run unit && npm run e2e",
-    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs"
+    "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
+    "stat": "./node_modules/webpack/bin/webpack.js --json --config build/webpack.prod.conf.js > stat.json"
   },
   "dependencies": {
     "async": "^2.5.0",
     "connect-multiparty": "2.0.0",
     "conversational-machine": "0.0.4",
     "moment": "^2.18.1",
-    "swiper": "^4.0.0-beta.3",
+    "swiper": "^3.4.0",
     "vue": "^2.4.2",
     "vue-resource": "^1.3.4",
     "vue-router": "^2.7.0",

@@ -56,5 +56,5 @@
 
 <script src='./Intro.js'/>
 
-<style scoped>
+<style src="swiper/dist/css/swiper.css">
 </style>
