@@ -1,6 +1,6 @@
 import machine from './../machine.js'
 import Speech from './Speech.vue'
-import async from 'async'
+import waterfall from 'async/waterfall'
 
 import helperMixin from '../mixins/helper.js';
 
@@ -90,7 +90,7 @@ export default {
 					return
 				}
 
-				async.waterfall([
+				waterfall([
 					(callback) => {
 						contract.hasProof(textToProof, (err, hasProof) => {
 							if (hasProof) {

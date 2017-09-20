@@ -24,7 +24,7 @@ const store = new Vuex.Store({
 			approvedPayments: [],
 			declinedPayments: []
 		},
-		identityCollapsed: false,
+		identityCollapsed: true,
 		hasWeb3: false,
 		contractReady: false,
 		contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
@@ -100,4 +100,3 @@ new Vue({
 	router,
 	render: h => h(App)
 })
-
