@@ -118,7 +118,7 @@ export default {
 					(estimate, callback) => {
 						let transactionOptions = {
 							from : window.globalWeb3.eth.accounts[0],
-							gas: estimate
+							gas: parseInt(parseInt(estimate) * 1.1) + ''
 						};
 						contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
 							return callback(err, txId);
@@ -208,7 +208,7 @@ export default {
 					event.preventDefault();
 				}
 
-				this.$http.post('/upload', this.fileUploadFormData).then(response => {
+				this.$http.post('http://localhost:3000/upload', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
 					let hash = response.body.hash;
 					this.proof.hash = hash;
@@ -216,7 +216,7 @@ export default {
 						sender: MessageSenderEnum.ME,
 						body: {
 							type: MessageBodyTypeEnum.IMAGE,
-							image: '/uploads/' + hash
+							image: 'http://localhost:3000/uploads/' + hash
 						}
 					});
 					this.machine.setAnswer('pay');
@@ -250,7 +250,7 @@ export default {
 				let contract = window.globalContract;
 				if (contract) {
 					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
-						let ethtimate = 0.000000021 * estimate;
+						let ethtimate = 0.00000002 * estimate;
 						if (!err) {
 							this.addMessageDelayed({
 								sender: MessageSenderEnum.APP,
