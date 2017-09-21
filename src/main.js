@@ -27,7 +27,10 @@ const store = new Vuex.Store({
 		identityCollapsed: true,
 		hasWeb3: false,
 		contractReady: false,
-		contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
+		// Ropsten
+		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
+		// Kovan
+		contractAddress: '0x4d987d358d66bbcf4f8f59cf0521b6138ee6cc3d'
 	},
 	getters: {
 		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id)

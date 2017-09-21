@@ -250,7 +250,7 @@ export default {
 				let contract = window.globalContract;
 				if (contract) {
 					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
-						let ethtimate = 0.00000002 * estimate;
+						let ethtimate = 0.000000021 * estimate;
 						if (!err) {
 							this.addMessageDelayed({
 								sender: MessageSenderEnum.APP,
