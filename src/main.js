@@ -16,7 +16,7 @@ const store = new Vuex.Store({
 		proofs: [
 		],
 		identity: {
-			avatar: 'img/avatar-1.jpg',
+			avatar: '/static/avatar-1.jpg',
 			balance: '0.00',
 			name: '',
 			address: null,
