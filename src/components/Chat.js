@@ -175,7 +175,7 @@ export default {
 											type: MessageBodyTypeEnum.LINK,
 											description: "This file has already been notarized",
 											title: hash,
-											url: router.resolve('/proofs/' + hash).href
+											url: this.$router.resolve('/proofs/' + hash).href
 										},
 									}, 1000, true);
 								} else {
