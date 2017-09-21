@@ -208,7 +208,7 @@ export default {
 					event.preventDefault();
 				}
 
-				this.$http.post('http://localhost:3000/upload', this.fileUploadFormData).then(response => {
+				this.$http.post('/upload', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
 					let hash = response.body.hash;
 					this.proof.hash = hash;
@@ -216,7 +216,7 @@ export default {
 						sender: MessageSenderEnum.ME,
 						body: {
 							type: MessageBodyTypeEnum.IMAGE,
-							image: 'http://localhost:3000/uploads/' + hash
+							image: '/uploads/' + hash
 						}
 					});
 					this.machine.setAnswer('pay');
