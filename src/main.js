@@ -18,6 +18,8 @@ const store = new Vuex.Store({
 		identity: {
 			avatar: '/static/avatar-1.jpg',
 			balance: '0.00',
+			tokenBalance: 0,
+			hasTokens: false,
 			name: '',
 			address: null,
 			paymentRequest: null,
@@ -30,7 +32,8 @@ const store = new Vuex.Store({
 		// Ropsten
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
-		contractAddress: '0x4d987d358d66bbcf4f8f59cf0521b6138ee6cc3d'
+		contractAddress: '0x6500d6fdedf8ee9b151aac852ff7ee3ce84f3b48',
+		tokenAddress: '0xad2757044ee8c351c16fe2bd5cae38da1fc3c6bd'
 	},
 	getters: {
 		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id)
@@ -70,11 +73,17 @@ const store = new Vuex.Store({
 		setContractReady: function (state, contractReady) {
 			state.contractReady = contractReady
 		},
+		setHasTokens: function (state, hasTokens) {
+			state.identity.hasTokens = hasTokens
+		},
 		setAccount: function (state, account) {
 			state.identity.address = account
 		},
 		setBalance: function (state, balance) {
 			state.identity.balance = balance
+		},
+		setTokenBalance: function (state, balance) {
+			state.identity.tokenBalance = balance
 		},
 		setName: function (state, name) {
 			state.identity.name = name
