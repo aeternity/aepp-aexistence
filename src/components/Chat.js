@@ -287,25 +287,30 @@ export default {
 			},
 			checkRequirements: function () {
 				this.showti = true;
-				setTimeout(() => {
-					//	check web3
-					if (!window.globalWeb3) {
-						return this.machine.transition('noWeb3');
-					}
-					// check unlocked
-					if (this.$store.state.identity.address == null) {
-						return this.machine.transition('notUnlocked');
-					}
-					// check ether balance TODO: get real balance
-					if (this.$store.state.identity.balance <= 0) {
-						return this.machine.transition('noEther');
-					}
-					// check token balance
-					if (this.$store.state.identity.tokenBalance <= 0) {
-						return this.machine.transition('noToken');
-					}
+				if (window.globalWeb3 && this.$store.state.identity.address && this.$store.state.identity.balance > 0 && this.$store.state.identity.tokenBalance > 0) {
 					return this.machine.transition('welcome');
-				}, 1300);
+				} else {
+					//delay the check because of slow initialisation
+					setTimeout(() => {
+						//	check web3
+						if (!window.globalWeb3) {
+							return this.machine.transition('noWeb3');
+						}
+						// check unlocked
+						if (this.$store.state.identity.address == null) {
+							return this.machine.transition('notUnlocked');
+						}
+						// check ether balance TODO: get real balance
+						if (this.$store.state.identity.balance <= 0) {
+							return this.machine.transition('noEther');
+						}
+						// check token balance
+						if (this.$store.state.identity.tokenBalance <= 0) {
+							return this.machine.transition('noToken');
+						}
+						return this.machine.transition('welcome');
+					}, 1300);
+				}
 			},
 			clearProof: function() {
 				this.proof.hash = null;
