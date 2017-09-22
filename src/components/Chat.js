@@ -86,11 +86,31 @@ export default {
 			},
 			startProof: function(textToProof, comment) {
 				let contract = window.globalContract;
-				if (!contract) {
+				let tokenContract = window.globalTokenContract;
+				if (!contract || !tokenContract) {
 					return
 				}
 
 				waterfall([
+					(callback) => {
+						tokenContract.balanceOf(window.globalWeb3.eth.accounts[0], {}, (err, balance) => {
+							if (err) {
+								return callback(err);
+							}
+							if (balance <= 0) {
+								this.addMessageDelayed({
+									sender: MessageSenderEnum.APP,
+									body: {
+										type: MessageBodyTypeEnum.TEXT,
+										text: "You don't have any AE Tokens. The contract will fail without tokens."
+									},
+								}, 1000, true);
+								this.machine.transition('clear');
+								return callback(new Error('No AE Token'));
+							}
+							return callback(null);
+						});
+					},
 					(callback) => {
 						contract.hasProof(textToProof, (err, hasProof) => {
 							if (hasProof) {
@@ -111,7 +131,7 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
+						contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 							return callback(err, estimate);
 						});
 					},
@@ -247,11 +267,13 @@ export default {
 				}, 1000, true);
 			},
 			showGasEstimate: function(textToProof, comment) {
+				console.log("showGasEstimate");
 				let contract = window.globalContract;
 				if (contract) {
-					contract.notarize.estimateGas(textToProof, comment, {}, (err, estimate) => {
-						let ethtimate = 0.00000002 * estimate;
+					contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
+						console.log("showGasEstimate", err, estimate);
 						if (!err) {
+							let ethtimate = 0.00000002 * estimate;
 							this.addMessageDelayed({
 								sender: MessageSenderEnum.APP,
 								body: {
@@ -262,6 +284,28 @@ export default {
 						}
 					});
 				}
+			},
+			checkRequirements: function () {
+				this.showti = true;
+				setTimeout(() => {
+					//	check web3
+					if (!window.globalWeb3) {
+						return this.machine.transition('noWeb3');
+					}
+					// check unlocked
+					if (this.$store.state.identity.address == null) {
+						return this.machine.transition('notUnlocked');
+					}
+					// check ether balance TODO: get real balance
+					if (this.$store.state.identity.balance <= 0) {
+						return this.machine.transition('noEther');
+					}
+					// check token balance
+					if (this.$store.state.identity.tokenBalance <= 0) {
+						return this.machine.transition('noToken');
+					}
+					return this.machine.transition('welcome');
+				}, 1300);
 			},
 			clearProof: function() {
 				this.proof.hash = null;
@@ -315,30 +359,17 @@ export default {
 				this.clearProof();
 			});
 
-			this.machine.setAnswer('go');
+			this.machine.on("checkRequirements", () => {
+				this.checkRequirements();
+			});
 
-			setTimeout(function() {
-				let web3 = window.globalWeb3;
-				let contract = window.globalContract;
-				if (web3) {
-					let account = web3.eth.accounts[0];
-					console.log('web3', web3, contract);
-					// if (account) {
-					// 	let transaction = {
-					// 		gas: 200000
-					// 	};
-					// 	contract.notarize("hurr", transaction, (err, data) => {
-					// 		console.log(err, data);
-					// 	});
-					// }
-					// contract.checkDocument(web3.fromAscii('lol', 32), (err, data) => {
-					// 	console.log(err, data);
-					// });
-					//
-				} else {
-					console.log('no web3');
-				}
-			}, 2000);
-
+			if (this.contractReady) {
+				this.machine.setAnswer('go');
+			}
+		},
+		watch: {
+			contractReady: function() {
+				this.machine.setAnswer('go');
+			}
 		}
 	}

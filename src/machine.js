@@ -10,7 +10,44 @@ export default function () {
 		states: {
 			uninitialized: new Question(null, {
 				answers: [
-					AnswerFactory.answer('Start', 'welcome', /^.*$/i)
+					AnswerFactory.answer('Start', 'checkRequirements', /^.*$/i)
+				]
+			}),
+
+			checkRequirements: new Question('', {
+				onEnter: function () {
+					fsm.emit('checkRequirements')
+				},
+				answers: [
+					AnswerFactory.freetext('', 'welcome', /^.*$/i),
+					AnswerFactory.freetext('', 'noWeb3', /^.*$/i),
+					AnswerFactory.freetext('', 'notUnlocked', /^.*$/i),
+					AnswerFactory.freetext('', 'noEther', /^.*$/i),
+					AnswerFactory.freetext('', 'noToken', /^.*$/i)
+				]
+			}),
+
+			noWeb3: new Question('To use this service you need a web3 provider like metamask installed.', {
+				answers: [
+					AnswerFactory.answer('Check again', 'checkRequirements', /^.*$/i)
+				]
+			}),
+
+			notUnlocked: new Question('To use this service you need to unlock metamask. Please unlock metamask and check again.', {
+				answers: [
+					AnswerFactory.answer('Check again', 'checkRequirements', /^.*$/i)
+				]
+			}),
+
+			noEther: new Question('To use this service you need some ether to pay the transaction fees aka gas. Please get some ether or change accounts and check again.', {
+				answers: [
+					AnswerFactory.answer('Check again', 'checkRequirements', /^.*$/i)
+				]
+			}),
+
+			noToken: new Question('For now this service is just for the Æternity community. This is why you need some AE-Tokens in your account. Please get some AE-Tokens or change accounts and check again.', {
+				answers: [
+					AnswerFactory.answer('Check again', 'checkRequirements', /^.*$/i)
 				]
 			}),
 
