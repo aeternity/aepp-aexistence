@@ -73,7 +73,7 @@ contract AEProof2 {
 	}
 
 	modifier onlyTokenHolder() {
-		AeToken aeToken = AeToken(0x973555E78C6e394ed83238dCBBf2645FA4e0cA33);
+		AeToken aeToken = AeToken(0xad2757044eE8C351C16Fe2Bd5cAe38Da1Fc3C6BD);
 		uint balance = aeToken.balanceOf(msg.sender);
 		require(balance > 0);
 		_;

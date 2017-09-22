@@ -118,7 +118,7 @@ export default {
 					(estimate, callback) => {
 						let transactionOptions = {
 							from : window.globalWeb3.eth.accounts[0],
-							gas: estimate
+							gas: parseInt(parseInt(estimate) * 1.1) + ''
 						};
 						contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
 							return callback(err, txId);
@@ -175,7 +175,7 @@ export default {
 											type: MessageBodyTypeEnum.LINK,
 											description: "This file has already been notarized",
 											title: hash,
-											url: router.resolve('/proofs/' + hash).href
+											url: this.$router.resolve('/proofs/' + hash).href
 										},
 									}, 1000, true);
 								} else {
