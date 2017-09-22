@@ -13,9 +13,30 @@ All features are subject to improvement and change. Feel free to leave suggestio
 
 You can find a online version [here](https://aeternity.github.io/aepp-aexistence)
 
-## Build
+## Build Setup
 
-No build required at the moment, just put the files in the root folder of a webserver.
+``` bash
+# install dependencies
+npm install
+
+# serve with hot reload at localhost:8080
+npm run dev
+
+# build for production with minification
+npm run build
+
+# build for production and view the bundle analyzer report
+npm run build --report
+
+# run unit tests
+npm run unit
+
+# run e2e tests
+npm run e2e
+
+# run all tests
+npm test
+```
 
 ## Screen design
 
