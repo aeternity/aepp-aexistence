@@ -51,16 +51,25 @@ export default function () {
 				]
 			}),
 
-			welcome: new Question('How about creating your first proof? You can prove the existence of a picture.', {
+			welcome: new Question('You can create a proof or check for an existing proof.', {
 				answers: [
-					AnswerFactory.answer('Picture', 'picture', /^picture/i),
+					AnswerFactory.answer('Create a proof', 'createProof', /^create/i),
 					AnswerFactory.answer('Check Picture', 'checkPicture', /^check/i),
 					// AnswerFactory.answer('File', 'file', /file/i),
 					AnswerFactory.answer('Why', 'why', /why/i)
 				]
 			}),
 
-			picture: new Question('Choose a Picture to create a proof for', {
+			createProof: new Question('How about creating your first proof? You can prove the existence of a picture.', {
+				answers: [
+					AnswerFactory.answer('Picture with upload', 'pictureWithUpload', /^picture/i),
+					AnswerFactory.answer('File without upload', 'fileNoUpload', /^file/i),
+					AnswerFactory.answer('Text', 'proofByString', /^text/i),
+					AnswerFactory.answer('Explain these options', 'explainProofMethods', /^explain/i)
+				]
+			}),
+
+			pictureWithUpload: new Question('Choose a Picture to create a proof for. The Picture will be uplaoded and stored on our servers.', {
 				onEnter: function () {
 					fsm.emit('showFileUpload', true)
 				},
@@ -72,19 +81,38 @@ export default function () {
 				]
 			}),
 
-			file: new Question('Insert File is not implemented yet', {
+			fileNoUpload: new Question('Choose a File. The Hash is generated locally in your browser.', {
+				onEnter: function () {
+					fsm.emit('showFileUpload', true)
+				},
+				onLeave: function () {
+					fsm.emit('showFileUpload', false)
+				},
+				answers: [
+					AnswerFactory.freetext('', 'name', /^.*$/i)
+				]
+			}),
+
+			proofByString: new Question('You can enter any text you like to proof. This can be a sha256 hash of a file you want to notarize.', {
+				onEnter: function () {
+					fsm.emit('showFreetext', true)
+				},
+				onLeave: function () {
+					fsm.emit('showFreetext', false)
+				},
+				answers: [
+					AnswerFactory.freetext('inputhashString', 'name', /^.*$/i, function (givenText) {
+						fsm.emit('proofTextGiven', givenText)
+					})
+				]
+			}),
+
+			why: new Question('Proof of Existence is an online service that verifies the existence of computer files as of a specific time via timestamped transactions in the ethereum blockchain. A Hash of the uploaded Picture together with a short description will be stored in the contract.', {
 				onEnter: function () {
 					fsm.transition('welcome')
 				},
 				answers: [
 					AnswerFactory.freetext('', 'welcome', /^.*$/i)
-				]
-			}),
-
-			why: new Question('Proof of Existence is an online service that verifies the existence of computer files as of a specific time via timestamped transactions in the ethereum blockchain. A Hash of the uploaded Picture together with a short description will be stored in the contract.', {
-				answers: [
-					AnswerFactory.answer('Picture', 'picture', /picture/i)
-					// AnswerFactory.answer('File', 'file', /file/i)
 				]
 			}),
 
@@ -144,7 +172,10 @@ export default function () {
 			summary: new Question('Success! Your proof has been issued. It may take a while until its written to the blockchain.', {
 				onEnter: function () {
 					fsm.emit('showSummary')
-				}
+				},
+				answers: [
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+				]
 			}),
 
 			clear: new Question('', {
@@ -165,7 +196,7 @@ export default function () {
 					fsm.emit('showFileUpload', false)
 				},
 				answers: [
-					AnswerFactory.answer('Cancel', 'clear', /^.*$/i)
+					AnswerFactory.answer('Cancel', 'clear', /^cancel/i)
 				]
 			})
 		}

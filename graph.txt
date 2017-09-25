@@ -1,0 +1,56 @@
+digraph G {
+	"uninitialized" -> "checkRequirements"
+
+	"checkRequirements" -> "welcome"
+	"checkRequirements" -> "noWeb3"
+	"checkRequirements" -> "notUnlocked"
+	"checkRequirements" -> "noEther"
+	"checkRequirements" -> "noToken"
+
+	"noWeb3" -> "checkRequirements"
+
+	"notUnlocked" -> "checkRequirements"
+
+	"noEther" -> "checkRequirements"
+
+	"noToken" -> "checkRequirements"
+
+	"welcome" -> "createProof"
+	"welcome" -> "checkPicture"
+	"welcome" -> "why"
+
+	"createProof" -> "pictureWithUpload"
+	"createProof" -> "fileNoUplaod"
+	"createProof" -> "proofByString"
+	"createProof" -> "explainProofMethods"
+
+	"explainProofMethods" -> "createProof"
+
+	"pictureWithUpload" -> "name"
+
+	"fileNoUplaod" -> "name"
+
+	"why" -> "welcome"
+
+	"name" -> "pay"
+
+	"pay" -> "explainPaymentRequest"
+	"pay" -> "whyPay"
+	"pay" -> "clear"
+
+	"whyPay" -> "pay"
+
+	"explainPaymentRequest" -> "summary"
+	"explainPaymentRequest" -> "transactionError"
+	"explainPaymentRequest" -> "clear"
+
+	"transactionError" -> "pay"
+
+	"clear" -> "welcome"
+
+	"checkPicture" -> "clear"
+
+	"proofByString" -> "name"
+
+	"summary" -> "clear"
+}

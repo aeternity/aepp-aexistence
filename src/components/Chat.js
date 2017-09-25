@@ -171,6 +171,8 @@ export default {
 
 				if (this.machine.currentState == 'checkPicture') {
 					this.checkImage();
+				} if (this.machine.currentState == 'fileNoUpload') {
+					this.createProofNoUpload();
 				} else {
 					this.sendFile();
 				}
@@ -179,9 +181,17 @@ export default {
 				event.preventDefault();
 			},
 			checkImage: function() {
-				this.$http.post(this.$store.state.apiBaseUrl + '/hash', this.fileUploadFormData).then(response => {
-					console.log('yay', response);
-					let hash = response.body.hash;
+				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
+					if (err) {
+						this.addMessage({
+							sender: MessageSenderEnum.APP,
+							body: {
+								type: MessageBodyTypeEnum.TEXT,
+								text: 'Something went wrong D: ',
+							},
+						});
+						return false;
+					}
 					if (this.contractReady) {
 						window.globalContract.hasProof(hash, (err, hasProof) => {
 							if (err) {
@@ -212,15 +222,13 @@ export default {
 					} else {
 						console.log('contract not ready');
 					}
-				}, response => {
-					console.log('nay', response);
-					this.addMessage({
-						sender: MessageSenderEnum.APP,
-						body: {
-							type: MessageBodyTypeEnum.TEXT,
-							text: 'Something went wrong D: ',
-						},
-					});
+				});
+			},
+			createProofNoUpload() {
+				let file = this.fileUploadFormData.get('file');
+				this.generateFileHash(file, (err, hash) => {
+					this.proof.hash = hash;
+					this.machine.transition('name');
 				});
 			},
 			sendFile: function(event) {
@@ -251,6 +259,12 @@ export default {
 					});
 				});
 			},
+			generateFileHash(file, done) {
+				let hasher = require('../lib/hash');
+				hasher(file, (err, hash) => {
+					return done(err, hash);
+				});
+			},
 			addMessage: function(message) {
 				this.messages.push(message);
 				this.scrollDown();
@@ -265,9 +279,10 @@ export default {
 						linktext: this.proof.description
 					},
 				}, 1000, true);
+				this.machine.transition('clear');
 			},
 			showGasEstimate: function(textToProof, comment) {
-				console.log("showGasEstimate");
+				console.log("showGasEstimate", textToProof, comment);
 				let contract = window.globalContract;
 				if (contract) {
 					contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
@@ -366,6 +381,10 @@ export default {
 
 			this.machine.on("checkRequirements", () => {
 				this.checkRequirements();
+			});
+
+			this.machine.on('proofTextGiven', (givenText) => {
+				this.proof.hash = givenText;
 			});
 
 			if (this.contractReady) {
