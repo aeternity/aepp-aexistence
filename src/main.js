@@ -33,7 +33,8 @@ const store = new Vuex.Store({
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
 		contractAddress: '0x6500d6fdedf8ee9b151aac852ff7ee3ce84f3b48',
-		tokenAddress: '0xad2757044ee8c351c16fe2bd5cae38da1fc3c6bd'
+		tokenAddress: '0xad2757044ee8c351c16fe2bd5cae38da1fc3c6bd',
+		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
 	},
 	getters: {
 		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id)

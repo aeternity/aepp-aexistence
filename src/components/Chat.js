@@ -179,7 +179,7 @@ export default {
 				event.preventDefault();
 			},
 			checkImage: function() {
-				this.$http.post('/hash', this.fileUploadFormData).then(response => {
+				this.$http.post(this.$store.state.apiBaseUrl + '/hash', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
 					let hash = response.body.hash;
 					if (this.contractReady) {
@@ -228,7 +228,7 @@ export default {
 					event.preventDefault();
 				}
 
-				this.$http.post('/upload', this.fileUploadFormData).then(response => {
+				this.$http.post(this.$store.state.apiBaseUrl + '/upload', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
 					let hash = response.body.hash;
 					this.proof.hash = hash;
@@ -236,7 +236,7 @@ export default {
 						sender: MessageSenderEnum.ME,
 						body: {
 							type: MessageBodyTypeEnum.IMAGE,
-							image: '/uploads/' + hash
+							image: this.$store.state.apiBaseUrl + '/uploads/' + hash
 						}
 					});
 					this.machine.setAnswer('pay');
@@ -246,7 +246,7 @@ export default {
 						sender: MessageSenderEnum.APP,
 						body: {
 							type: MessageBodyTypeEnum.TEXT,
-							text: 'Something went wrong D: ',
+							text: 'Something went wrong D: '
 						},
 					});
 				});
@@ -260,7 +260,7 @@ export default {
 					sender: MessageSenderEnum.APP,
 					body: {
 						type: MessageBodyTypeEnum.IMAGE,
-						image: '/uploads/' + this.proof.hash,
+						image: this.$store.state.apiBaseUrl + '/uploads/' + this.proof.hash,
 						link: '/proofs/' + this.proof.hash,
 						linktext: this.proof.description
 					},
