@@ -171,7 +171,7 @@ export default {
 
 				if (this.machine.currentState == 'checkPicture') {
 					this.checkImage();
-				} if (this.machine.currentState == 'fileNoUpload') {
+				} else if (this.machine.currentState == 'fileNoUpload') {
 					this.createProofNoUpload();
 				} else {
 					this.sendFile();

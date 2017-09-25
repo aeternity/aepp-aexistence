@@ -21,7 +21,7 @@ export default {
 						for (let hash of hashes) {
 							window.globalContract.getProofByHash(hash, (err, rawProof) => {
 								let data = {
-									image: '/uploads/' + rawProof[5],
+									image: this.$store.state.apiBaseUrl + '/uploads/' + rawProof[5],
 									title: rawProof[4],
 									fileSha256: rawProof[5],
 									created : rawProof[2],
