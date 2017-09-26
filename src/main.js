@@ -32,7 +32,7 @@ const store = new Vuex.Store({
 		// Ropsten
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
-		contractAddress: '0xAC656E02c85712B2021290dAaa4ccc1E7a5DE834',
+		contractAddress: '0xedae862a9915e5eb070abc4e57bf4d9933af71eb',
 		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
 		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
 	},

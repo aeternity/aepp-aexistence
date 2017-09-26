@@ -91,6 +91,8 @@ export default {
 					return
 				}
 
+				let ipfsHash = 'QmRdCzjPegB8F4azGEk81ydwhQMjKo3yaEiXrN6tp1bN1T';
+
 				waterfall([
 					(callback) => {
 						tokenContract.balanceOf(window.globalWeb3.eth.accounts[0], {}, (err, balance) => {
@@ -131,7 +133,7 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
+						contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 							return callback(err, estimate);
 						});
 					},
@@ -140,7 +142,7 @@ export default {
 							from : window.globalWeb3.eth.accounts[0],
 							gas: parseInt(parseInt(estimate) * 1.1) + ''
 						};
-						contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
+						contract.notarize(textToProof, comment, ipfsHash, transactionOptions, (err, txId) => {
 							return callback(err, txId);
 						});
 					}
@@ -290,9 +292,10 @@ export default {
 			},
 			showGasEstimate: function(textToProof, comment) {
 				console.log("showGasEstimate", textToProof, comment);
+				let ipfsHash = 'QmRdCzjPegB8F4azGEk81ydwhQMjKo3yaEiXrN6tp1bN1T';
 				let contract = window.globalContract;
 				if (contract) {
-					contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
+					contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 						console.log("showGasEstimate", err, estimate);
 						if (!err) {
 							let ethtimate = 0.00000002 * estimate;
