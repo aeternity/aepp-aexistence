@@ -228,6 +228,13 @@ export default {
 				let file = this.fileUploadFormData.get('file');
 				this.generateFileHash(file, (err, hash) => {
 					this.proof.hash = hash;
+					this.addMessageDelayed({
+						sender: MessageSenderEnum.APP,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: "I calculated to following hash for the file you chose. This will be notarized: " + hash
+						},
+					}, 1000, true);
 					this.machine.transition('name');
 				});
 			},
@@ -327,6 +334,23 @@ export default {
 					}, 1300);
 				}
 			},
+			checkManualInput() {
+				let textToCheck = this.proof.hash;
+				let regexp = /^[A-Fa-f0-9]{64}$/;
+				if (regexp.test(textToCheck)) {
+					this.machine.transition('name');
+				} else {
+					this.addMessageDelayed({
+						sender: MessageSenderEnum.APP,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: 'This is not a valid sha256 hash.',
+						},
+					}, 1000, true);
+					this.proof.hash = null;
+					this.machine.transition('proofByString');
+				}
+			},
 			clearProof: function() {
 				this.proof.hash = null;
 				this.proof.description = '';
@@ -385,6 +409,10 @@ export default {
 
 			this.machine.on('proofTextGiven', (givenText) => {
 				this.proof.hash = givenText;
+			});
+
+			this.machine.on('checkManualInput', (givenText) => {
+				this.checkManualInput();
 			});
 
 			if (this.contractReady) {
