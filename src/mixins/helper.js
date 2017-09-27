@@ -1,4 +1,6 @@
 import moment from 'moment'
+const blockies = require('ethereum-blockies-png')
+
 export default {
 	methods: {
 		readableTimestamp: function (timestamp) {
@@ -16,6 +18,11 @@ export default {
 			baseurl += '/'
 			baseurl += value
 			return baseurl
+		},
+		blockie: function (address) {
+			return blockies.createDataURL({
+				seed: address
+			})
 		}
 	}
 }
