@@ -10,7 +10,7 @@ contract AEProof {
 	mapping (bytes32 => Proof) private proofs;
 	mapping (address => bytes32[]) private proofsByOwner;
 
-	function AEProof2(address tokenAddress) {
+	function AEProof(address tokenAddress) {
 		aeToken = AeToken(tokenAddress);
 	}
 
@@ -20,6 +20,7 @@ contract AEProof {
 		uint proofBlock;
 		string comment;
 		string ipfsHash;
+		string document;
 	}
 
 	function notarize(string document, string comment, string ipfsHash) onlyTokenHolder {
@@ -31,6 +32,7 @@ contract AEProof {
 		proof.proofBlock = block.number;
 		proof.comment = comment;
 		proof.ipfsHash = ipfsHash;
+		proof.document = document;
 
 		proofsByOwner[msg.sender].push(proofHash);
 	}
@@ -39,7 +41,7 @@ contract AEProof {
 		return sha256(document);
 	}
 
-	function getProof(string document) constant returns (address owner, uint timestamp, uint proofBlock, string comment, string ipfsHash) {
+	function getProof(string document) constant returns (address owner, uint timestamp, uint proofBlock, string comment, string ipfsHash, string storedDocument) {
 		var calcHash = calculateHash(document);
 		var proof = proofs[calcHash];
 		require(proof.owner != address(0));
@@ -48,9 +50,10 @@ contract AEProof {
 		proofBlock = proof.proofBlock;
 		comment = proof.comment;
 		ipfsHash = proof.ipfsHash;
+		storedDocument = proof.document;
 	}
 
-	function getProofByHash(bytes32 hash) constant returns (address owner, uint timestamp, uint proofBlock, string comment, string ipfsHash) {
+	function getProofByHash(bytes32 hash) constant returns (address owner, uint timestamp, uint proofBlock, string comment, string ipfsHash, string storedDocument) {
 		var proof = proofs[hash];
 		require(proof.owner != address(0));
 		owner = proof.owner;
@@ -58,6 +61,7 @@ contract AEProof {
 		proofBlock = proof.proofBlock;
 		comment = proof.comment;
 		ipfsHash = proof.ipfsHash;
+		storedDocument = proof.document;
 	}
 
 	function hasProof(string document) constant returns (bool) {

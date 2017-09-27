@@ -91,7 +91,8 @@ export default {
 					return
 				}
 
-				let ipfsHash = 'QmRdCzjPegB8F4azGEk81ydwhQMjKo3yaEiXrN6tp1bN1T';
+				//TODO: use IPFS
+				let ipfsHash = '';
 
 				waterfall([
 					(callback) => {
@@ -292,7 +293,8 @@ export default {
 			},
 			showGasEstimate: function(textToProof, comment) {
 				console.log("showGasEstimate", textToProof, comment);
-				let ipfsHash = 'QmRdCzjPegB8F4azGEk81ydwhQMjKo3yaEiXrN6tp1bN1T';
+				//TODO: use IPFS
+				let ipfsHash = '';
 				let contract = window.globalContract;
 				if (contract) {
 					contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {

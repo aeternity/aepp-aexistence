@@ -20,15 +20,16 @@ export default {
 					if (!err) {
 						for (let hash of hashes) {
 							window.globalContract.getProofByHash(hash, (err, rawProof) => {
+								console.log(rawProof);
 								let data = {
 									image: this.$store.state.apiBaseUrl + '/uploads/' + rawProof[5],
-									title: rawProof[4],
-									fileSha256: rawProof[5],
-									created : rawProof[2],
-									confirmations : 0,
 									owner: rawProof[0],
+									created : rawProof[1],
+									block: rawProof[2],
+									title: rawProof[3],
+									ipfsHash: rawProof[4],
+									fileSha256: rawProof[5],
 									contract: this.$store.state.contractAddress,
-									block: rawProof[3],
 								};
 								this.$store.commit('addProof', data);
 							});
@@ -111,17 +112,6 @@ export default {
 				"type": "function"
 			},
 			{
-				"constant": false,
-				"inputs": [{
-					"name": "tokenAddress",
-					"type": "address"
-				}],
-				"name": "AEProof2",
-				"outputs": [],
-				"payable": false,
-				"type": "function"
-			},
-			{
 				"constant": true,
 				"inputs": [{
 					"name": "owner",
@@ -175,6 +165,10 @@ export default {
 					{
 						"name": "ipfsHash",
 						"type": "string"
+					},
+					{
+						"name": "storedDocument",
+						"type": "string"
 					}
 				],
 				"payable": false,
@@ -206,6 +200,10 @@ export default {
 					{
 						"name": "ipfsHash",
 						"type": "string"
+					},
+					{
+						"name": "storedDocument",
+						"type": "string"
 					}
 				],
 				"payable": false,
@@ -224,6 +222,14 @@ export default {
 				}],
 				"payable": false,
 				"type": "function"
+			},
+			{
+				"inputs": [{
+					"name": "tokenAddress",
+					"type": "address"
+				}],
+				"payable": false,
+				"type": "constructor"
 			}];
 			let PoEContract = web3.eth.contract(abi);
 			PoEContract.at(this.$store.state.contractAddress, (err, contract) => {
