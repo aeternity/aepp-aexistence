@@ -141,7 +141,8 @@ export default {
 					(estimate, callback) => {
 						let transactionOptions = {
 							from : window.globalWeb3.eth.accounts[0],
-							gas: parseInt(parseInt(estimate) * 1.1) + ''
+							gas: parseInt(parseInt(estimate) * 1.1) + '',
+							gasPrice: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
 						};
 						contract.notarize(textToProof, comment, ipfsHash, transactionOptions, (err, txId) => {
 							return callback(err, txId);
@@ -300,7 +301,8 @@ export default {
 					contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 						console.log("showGasEstimate", err, estimate);
 						if (!err) {
-							let ethtimate = 0.00000002 * estimate;
+							let gasPriceEth = this.$store.state.gasPrice / 1000000000;
+							let ethtimate = gasPriceEth * estimate;
 							this.addMessageDelayed({
 								sender: MessageSenderEnum.APP,
 								body: {
