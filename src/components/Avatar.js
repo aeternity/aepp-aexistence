@@ -9,12 +9,16 @@ export default {
 		mixins: [
 			helperMixin
 		],
-		computed : {
-			style : function() {
-				return {
-					// backgroundImage: "url('"+this.image+"')",
-					// backgroundColor: '#d1d1d1'
-					backgroundImage: "url('" + this.blockie(this.address) + "')",
+		computed: {
+			style: function () {
+				if (this.address) {
+					return {
+						backgroundImage: "url('" + this.blockie(this.address) + "')"
+					}
+				} else {
+					return {
+						backgroundColor: '#d1d1d1'
+					}
 				}
 			}
 		}
