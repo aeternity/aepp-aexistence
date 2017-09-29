@@ -46,50 +46,60 @@ export default {
 		setAcountInterval: function(web3) {
 			setInterval(() => {
 				if (web3) {
-					let address = web3.eth.accounts[0];
-					if (address) {
-						let currentAddress = this.$store.state.identity.address;
-						if (address != currentAddress) {
-							console.log('address changed');
-							this.changeUser(address);
+					web3.eth.getAccounts((err, accounts) => {
+						if (err) {
+							console.log(err);
+							return;
+						} else if (accounts.length === 0) {
+							console.log('no accounts found');
+							return
 						}
+						let address = accounts[0];
+						if (address) {
+							let currentAddress = this.$store.state.identity.address;
+							if (address != currentAddress) {
+								console.log('address changed');
+								this.changeUser(address);
+							}
 
-						web3.eth.getBalance(address, (err, balance) => {
-							let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
-							console.log(err, readable);
-							this.$store.commit('setBalance', readable);
-						});
-
-						let tokenContract = window.globalTokenContract;
-						if (tokenContract) {
-							tokenContract.balanceOf(address, {}, (err, balance) => {
-								let readable = web3.fromWei(balance.toString(10), 'ether');
-								this.$store.commit('setTokenBalance', readable);
-								this.$store.commit('setHasTokens', balance > 0);
+							web3.eth.getBalance(address, (err, balance) => {
+								let readable = parseFloat(web3.fromWei(balance.toString(10), 'ether')).toFixed(3);
+								console.log(err, readable);
+								this.$store.commit('setBalance', readable);
 							});
+
+							let tokenContract = window.globalTokenContract;
+							if (tokenContract) {
+								tokenContract.balanceOf(address, {}, (err, balance) => {
+									let readable = web3.fromWei(balance.toString(10), 'ether');
+									this.$store.commit('setTokenBalance', readable);
+									this.$store.commit('setHasTokens', balance > 0);
+								});
+							}
 						}
-					}
+					})
 				}
 			}, 1000);
 		},
 		initWeb3: function() {
-			if (typeof web3 !== 'undefined') {
-				web3 = new Web3(web3.currentProvider);
+			let web3;
+			if (typeof window.web3 !== 'undefined') { // Metamask
+				web3 = new Web3(window.web3.currentProvider);
+			} else if (window.parent !== window && window.parent.web3 !== undefined) {
+				// Parent has something for us.
+				console.log('loaded with parent web3 instance');
+				web3 = new Web3(window.parent.web3.currentProvider);
 			} else {
 				web3 = null;
-				// web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
 			}
 			if (web3) {
 				window.globalWeb3 = web3;
-
 				this.initContract(web3);
-
 				this.initTokenContract(web3);
-
 				this.setAcountInterval(web3);
 			}
 		},
-		initContract: function(web) {
+		initContract: function(web3) {
 			let abi = [{
 				"constant": true,
 				"inputs": [{

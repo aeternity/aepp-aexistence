@@ -93,22 +93,31 @@ export default {
 
 				waterfall([
 					(callback) => {
-						tokenContract.balanceOf(window.globalWeb3.eth.accounts[0], {}, (err, balance) => {
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
 							if (err) {
-								return callback(err);
+								console.log(err);
+								return;
+							} else if (accounts.length === 0) {
+								console.log('no accounts found');
+								return
 							}
-							if (balance <= 0) {
-								this.addMessageDelayed({
-									sender: MessageSenderEnum.APP,
-									body: {
-										type: MessageBodyTypeEnum.TEXT,
-										text: "You don't have any AE Tokens. The contract will fail without tokens."
-									},
-								}, 1000, true);
-								this.machine.transition('clear');
-								return callback(new Error('No AE Token'));
-							}
-							return callback(null);
+							tokenContract.balanceOf(accounts[0], {}, (err, balance) => {
+								if (err) {
+									return callback(err);
+								}
+								if (balance <= 0) {
+									this.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.TEXT,
+											text: "You don't have any AE Tokens. The contract will fail without tokens."
+										},
+									}, 1000, true);
+									this.machine.transition('clear');
+									return callback(new Error('No AE Token'));
+								}
+								return callback(null);
+							});
 						});
 					},
 					(callback) => {
@@ -136,12 +145,21 @@ export default {
 						});
 					},
 					(estimate, callback) => {
-						let transactionOptions = {
-							from : window.globalWeb3.eth.accounts[0],
-							gas: parseInt(parseInt(estimate) * 1.1) + ''
-						};
-						contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
-							return callback(err, txId);
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
+							if (err) {
+								console.log(err);
+								return;
+							} else if (accounts.length === 0) {
+								console.log('no accounts found');
+								return
+							}
+							let transactionOptions = {
+								from : accounts[0],
+								gas: parseInt(parseInt(estimate) * 1.1) + ''
+							};
+							contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
+								return callback(err, txId);
+							});
 						});
 					}
 				], (err, txId) => {
