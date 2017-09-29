@@ -10,7 +10,7 @@
 				<div class="proof-created">{{ readableTimestamp(proof.created) }}</div>
 			</div>
 			<div class="right">
-				<div class="proof-confirmations">{{ proof.confirmations}} confirmed</div>
+				
 			</div>
 		</div>
 	</router-link>

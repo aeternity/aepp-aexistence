@@ -93,7 +93,7 @@ export default function () {
 				]
 			}),
 
-			proofByString: new Question('You can enter any text you like to proof. This can be a sha256 hash of a file you want to notarize.', {
+			proofByString: new Question('You can enter a sha256 hash of a file you want to notarize without passing it to our application. Just calculate the hash on your local machine and enter it here.', {
 				onEnter: function () {
 					fsm.emit('showFreetext', true)
 				},
@@ -101,9 +101,19 @@ export default function () {
 					fsm.emit('showFreetext', false)
 				},
 				answers: [
-					AnswerFactory.freetext('inputhashString', 'name', /^.*$/i, function (givenText) {
+					AnswerFactory.freetext('inputhashString', 'checkManualInput', /^.*$/i, function (givenText) {
 						fsm.emit('proofTextGiven', givenText)
 					})
+				]
+			}),
+
+			checkManualInput: new Question('', {
+				onEnter: function () {
+					fsm.emit('checkManualInput', true)
+				},
+				answers: [
+					AnswerFactory.freetext('', 'name', /^.*$/i),
+					AnswerFactory.freetext('', 'proofByString', /^.*$/i)
 				]
 			}),
 

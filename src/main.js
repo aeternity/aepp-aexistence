@@ -29,10 +29,12 @@ const store = new Vuex.Store({
 		identityCollapsed: true,
 		hasWeb3: false,
 		contractReady: false,
+		// default gas price in wei
+		gasPrice: 5,
 		// Ropsten
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
-		contractAddress: '0xAC656E02c85712B2021290dAaa4ccc1E7a5DE834',
+		contractAddress: '0x2801361d0e854d5a8ca5a53243720a227ef08182',
 		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
 		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
 	},

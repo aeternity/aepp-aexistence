@@ -140,7 +140,7 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
+						contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 							return callback(err, estimate);
 						});
 					},
@@ -155,9 +155,9 @@ export default {
 							}
 							let transactionOptions = {
 								from : accounts[0],
-								gas: parseInt(parseInt(estimate) * 1.1) + ''
+								gas: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
 							};
-							contract.notarize(textToProof, comment, transactionOptions, (err, txId) => {
+							contract.notarize(textToProof, comment, ipfsHash,transactionOptions, (err, txId) => {
 								return callback(err, txId);
 							});
 						});
@@ -246,6 +246,13 @@ export default {
 				let file = this.fileUploadFormData.get('file');
 				this.generateFileHash(file, (err, hash) => {
 					this.proof.hash = hash;
+					this.addMessageDelayed({
+						sender: MessageSenderEnum.APP,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: "I calculated to following hash for the file you chose. This will be notarized: " + hash
+						},
+					}, 1000, true);
 					this.machine.transition('name');
 				});
 			},
@@ -301,12 +308,15 @@ export default {
 			},
 			showGasEstimate: function(textToProof, comment) {
 				console.log("showGasEstimate", textToProof, comment);
+				//TODO: use IPFS
+				let ipfsHash = '';
 				let contract = window.globalContract;
 				if (contract) {
-					contract.notarize.estimateGas(textToProof, comment, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
+					contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
 						console.log("showGasEstimate", err, estimate);
 						if (!err) {
-							let ethtimate = 0.00000002 * estimate;
+							let gasPriceEth = this.$store.state.gasPrice / 1000000000;
+							let ethtimate = gasPriceEth * estimate;
 							this.addMessageDelayed({
 								sender: MessageSenderEnum.APP,
 								body: {
@@ -343,6 +353,23 @@ export default {
 						}
 						return this.machine.transition('welcome');
 					}, 1300);
+				}
+			},
+			checkManualInput() {
+				let textToCheck = this.proof.hash;
+				let regexp = /^[A-Fa-f0-9]{64}$/;
+				if (regexp.test(textToCheck)) {
+					this.machine.transition('name');
+				} else {
+					this.addMessageDelayed({
+						sender: MessageSenderEnum.APP,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: 'This is not a valid sha256 hash.',
+						},
+					}, 1000, true);
+					this.proof.hash = null;
+					this.machine.transition('proofByString');
 				}
 			},
 			clearProof: function() {
@@ -403,6 +430,10 @@ export default {
 
 			this.machine.on('proofTextGiven', (givenText) => {
 				this.proof.hash = givenText;
+			});
+
+			this.machine.on('checkManualInput', (givenText) => {
+				this.checkManualInput();
 			});
 
 			if (this.contractReady) {

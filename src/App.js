@@ -20,15 +20,16 @@ export default {
 					if (!err) {
 						for (let hash of hashes) {
 							window.globalContract.getProofByHash(hash, (err, rawProof) => {
+								console.log(rawProof);
 								let data = {
 									image: this.$store.state.apiBaseUrl + '/uploads/' + rawProof[5],
-									title: rawProof[4],
-									fileSha256: rawProof[5],
-									created : rawProof[2],
-									confirmations : 0,
 									owner: rawProof[0],
+									created : rawProof[1],
+									block: rawProof[2],
+									title: rawProof[3],
+									ipfsHash: rawProof[4],
+									fileSha256: rawProof[5],
 									contract: this.$store.state.contractAddress,
-									block: rawProof[3],
 								};
 								this.$store.commit('addProof', data);
 							});
@@ -101,6 +102,26 @@ export default {
 		},
 		initContract: function(web3) {
 			let abi = [{
+				"constant": false,
+				"inputs": [{
+						"name": "document",
+						"type": "string"
+					},
+					{
+						"name": "comment",
+						"type": "string"
+					},
+					{
+						"name": "ipfsHash",
+						"type": "string"
+					}
+				],
+				"name": "notarize",
+				"outputs": [],
+				"payable": false,
+				"type": "function"
+			},
+			{
 				"constant": true,
 				"inputs": [{
 					"name": "owner",
@@ -114,120 +135,112 @@ export default {
 				"payable": false,
 				"type": "function"
 			},
-				{
-					"constant": true,
-					"inputs": [{
-						"name": "document",
-						"type": "string"
-					}],
-					"name": "calculateHash",
-					"outputs": [{
-						"name": "",
-						"type": "bytes32"
-					}],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": true,
-					"inputs": [{
-						"name": "hash",
-						"type": "bytes32"
-					}],
-					"name": "getProofByHash",
-					"outputs": [{
+			{
+				"constant": true,
+				"inputs": [{
+					"name": "document",
+					"type": "string"
+				}],
+				"name": "calculateHash",
+				"outputs": [{
+					"name": "",
+					"type": "bytes32"
+				}],
+				"payable": false,
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [{
+					"name": "hash",
+					"type": "bytes32"
+				}],
+				"name": "getProofByHash",
+				"outputs": [{
 						"name": "owner",
 						"type": "address"
 					},
-						{
-							"name": "proofHash",
-							"type": "bytes32"
-						},
-						{
-							"name": "timestamp",
-							"type": "uint256"
-						},
-						{
-							"name": "proofBlock",
-							"type": "uint256"
-						},
-						{
-							"name": "comment",
-							"type": "string"
-						},
-						{
-							"name": "storedDocument",
-							"type": "string"
-						}
-					],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": true,
-					"inputs": [{
-						"name": "document",
+					{
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"name": "proofBlock",
+						"type": "uint256"
+					},
+					{
+						"name": "comment",
 						"type": "string"
-					}],
-					"name": "getProof",
-					"outputs": [{
+					},
+					{
+						"name": "ipfsHash",
+						"type": "string"
+					},
+					{
+						"name": "storedDocument",
+						"type": "string"
+					}
+				],
+				"payable": false,
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [{
+					"name": "document",
+					"type": "string"
+				}],
+				"name": "getProof",
+				"outputs": [{
 						"name": "owner",
 						"type": "address"
 					},
-						{
-							"name": "proofHash",
-							"type": "bytes32"
-						},
-						{
-							"name": "timestamp",
-							"type": "uint256"
-						},
-						{
-							"name": "proofBlock",
-							"type": "uint256"
-						},
-						{
-							"name": "comment",
-							"type": "string"
-						},
-						{
-							"name": "storedDocument",
-							"type": "string"
-						}
-					],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": false,
-					"inputs": [{
-						"name": "document",
+					{
+						"name": "timestamp",
+						"type": "uint256"
+					},
+					{
+						"name": "proofBlock",
+						"type": "uint256"
+					},
+					{
+						"name": "comment",
 						"type": "string"
 					},
-						{
-							"name": "comment",
-							"type": "string"
-						}
-					],
-					"name": "notarize",
-					"outputs": [],
-					"payable": false,
-					"type": "function"
-				},
-				{
-					"constant": true,
-					"inputs": [{
-						"name": "document",
+					{
+						"name": "ipfsHash",
 						"type": "string"
-					}],
-					"name": "hasProof",
-					"outputs": [{
-						"name": "",
-						"type": "bool"
-					}],
-					"payable": false,
-					"type": "function"
-				}];
+					},
+					{
+						"name": "storedDocument",
+						"type": "string"
+					}
+				],
+				"payable": false,
+				"type": "function"
+			},
+			{
+				"constant": true,
+				"inputs": [{
+					"name": "document",
+					"type": "string"
+				}],
+				"name": "hasProof",
+				"outputs": [{
+					"name": "",
+					"type": "bool"
+				}],
+				"payable": false,
+				"type": "function"
+			},
+			{
+				"inputs": [{
+					"name": "tokenAddress",
+					"type": "address"
+				}],
+				"payable": false,
+				"type": "constructor"
+			}];
 			let PoEContract = web3.eth.contract(abi);
 			PoEContract.at(this.$store.state.contractAddress, (err, contract) => {
 				window.globalContract = contract;
