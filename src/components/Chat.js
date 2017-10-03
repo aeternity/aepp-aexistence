@@ -95,11 +95,9 @@ export default {
 					(callback) => {
 						window.globalWeb3.eth.getAccounts((err, accounts) => {
 							if (err) {
-								console.log(err);
-								return;
+								return callback(err);
 							} else if (accounts.length === 0) {
-								console.log('no accounts found');
-								return
+								return callback(new Error('No accounts found'));
 							}
 							tokenContract.balanceOf(accounts[0], {}, (err, balance) => {
 								if (err) {
@@ -140,18 +138,23 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
-							return callback(err, estimate);
-						});
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
+							if (err) {
+								return callback(err);
+							} else if (accounts.length === 0) {
+								return callback(new Error('No accounts found'));
+							}
+							contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
+								return callback(err, estimate);
+							});
+						})
 					},
 					(estimate, callback) => {
 						window.globalWeb3.eth.getAccounts((err, accounts) => {
 							if (err) {
-								console.log(err);
-								return;
+								return callback(err);
 							} else if (accounts.length === 0) {
-								console.log('no accounts found');
-								return
+								return callback(new Error('No accounts found'));
 							}
 							let transactionOptions = {
 								from : accounts[0],
