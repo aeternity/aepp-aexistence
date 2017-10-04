@@ -4,7 +4,8 @@ let Question = Conversational.Question
 // let WidgetQuestion = Conversational.WidgetQuestion
 let AnswerFactory = Conversational.AnswerFactory
 
-export default function () {
+// export default function () {
+module.exports = function () {
 	let fsm = new Conversational.ConversationalFSM({
 		initialState: 'uninitialized',
 		states: {
@@ -53,47 +54,55 @@ export default function () {
 
 			welcome: new Question('You can create a proof or check for an existing proof.', {
 				answers: [
-					AnswerFactory.answer('Create a proof', 'createProof', /^create/i),
-					AnswerFactory.answer('Check Picture', 'checkPicture', /^check/i),
-					// AnswerFactory.answer('File', 'file', /file/i),
-					AnswerFactory.answer('Why', 'why', /why/i)
+					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.answer('Why would I do that?', 'whyProof', /^why/i)
 				]
 			}),
 
-			createProof: new Question('How about creating your first proof? You can prove the existence of a picture.', {
+			whyProof: new Question('Mainly to proof to', {
 				answers: [
-					AnswerFactory.answer('Picture with upload', 'pictureWithUpload', /^picture/i),
-					AnswerFactory.answer('File without upload', 'fileNoUpload', /^file/i),
-					AnswerFactory.answer('Text', 'proofByString', /^text/i),
-					AnswerFactory.answer('Explain these options', 'explainProofMethods', /^explain/i)
+					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.answer('How does that work?', 'howProofWorks', /^how/i)
 				]
 			}),
 
-			pictureWithUpload: new Question('Choose a Picture to create a proof for. The Picture will be uplaoded and stored on our servers.', {
+			howProofWorks: new Question('I calculate a', {
+				answers: [
+					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+				]
+			}),
+
+			selectFile: new Question('', {
 				onEnter: function () {
+					fsm.emit('openFilePicker', true)
 					fsm.emit('showFileUpload', true)
 				},
 				onLeave: function () {
 					fsm.emit('showFileUpload', false)
 				},
 				answers: [
-					AnswerFactory.freetext('', 'name', /^.*$/i)
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i),
+					AnswerFactory.freetext('', 'giveName', /^.*$/i),
+					AnswerFactory.freetext('', 'proofExists', /^.*$/i),
+					AnswerFactory.freetext('', 'filesizeLimit', /^.*$/i)
 				]
 			}),
 
-			fileNoUpload: new Question('Choose a File. The Hash is generated locally in your browser.', {
-				onEnter: function () {
-					fsm.emit('showFileUpload', true)
-				},
-				onLeave: function () {
-					fsm.emit('showFileUpload', false)
-				},
+			filesizeLimit: new Question('Error: File size', {
 				answers: [
-					AnswerFactory.freetext('', 'name', /^.*$/i)
+					AnswerFactory.answer('Pick different file', 'selectFile', /^select/i),
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
 				]
 			}),
 
-			proofByString: new Question('You can enter a sha256 hash of a file you want to notarize without passing it to our application. Just calculate the hash on your local machine and enter it here.', {
+			proofExists: new Question('This file has already been proofed.', {
+				answers: [
+					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+				]
+			}),
+
+			giveName: new Question('OK! Now you want to give your proof a reasonable name. Make it descriptive! Remember: The longer the description the higher the gas costs.', {
 				onEnter: function () {
 					fsm.emit('showFreetext', true)
 				},
@@ -101,91 +110,55 @@ export default function () {
 					fsm.emit('showFreetext', false)
 				},
 				answers: [
-					AnswerFactory.freetext('inputhashString', 'checkManualInput', /^.*$/i, function (givenText) {
-						fsm.emit('proofTextGiven', givenText)
-					})
-				]
-			}),
-
-			checkManualInput: new Question('', {
-				onEnter: function () {
-					fsm.emit('checkManualInput', true)
-				},
-				answers: [
-					AnswerFactory.freetext('', 'name', /^.*$/i),
-					AnswerFactory.freetext('', 'proofByString', /^.*$/i)
-				]
-			}),
-
-			why: new Question('Proof of Existence is an online service that verifies the existence of computer files as of a specific time via timestamped transactions in the ethereum blockchain. A Hash of the uploaded Picture together with a short description will be stored in the contract.', {
-				onEnter: function () {
-					fsm.transition('welcome')
-				},
-				answers: [
-					AnswerFactory.freetext('', 'welcome', /^.*$/i)
-				]
-			}),
-
-			name: new Question('OK! Now you want to give your proof a reasonable name. Make it descriptive! Remember: The longer the description the higher the gas costs.', {
-				onEnter: function () {
-					fsm.emit('showFreetext', true)
-				},
-				onLeave: function () {
-					fsm.emit('showFreetext', false)
-				},
-				answers: [
-					AnswerFactory.freetext('description', 'pay', /^.*$/i, function (givenDescription) {
+					AnswerFactory.freetext('description', 'askStorage', /^.*$/i, function (givenDescription) {
 						fsm.emit('proofDescriptionGiven', givenDescription)
 					})
 				]
 			}),
 
-			pay: new Question('I will now calculate the estimated Gas usage.', {
-				onEnter: function () {
-					fsm.emit('showGasEstimate')
-				},
+			askStorage: new Question('Do you want me to save...?', {
 				answers: [
-					AnswerFactory.answer('Okay', 'explainPaymentRequest', /okay/i, function (answerText) {
-						fsm.emit('startProof')
-					}),
-					AnswerFactory.answer('Why?', 'whyPay', /why/i),
-					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+					AnswerFactory.answer('Save it', 'storeFile', /save/i),
+					AnswerFactory.answer('Nope – I got it!', 'showSummary', /nope/i)
 				]
 			}),
 
-			whyPay: new Question('TODO: Transaction Fees explained', {
-				onEnter: function () {
-					fsm.transition('pay')
-				},
+			storeFile: new Question('', {
 				answers: [
-					AnswerFactory.freetext('', 'pay', /^.*$/i)
+					AnswerFactory.freetext('', 'showSummary', /^.*$/i),
+					AnswerFactory.freetext('', 'askStorage', /^.*$/i)
 				]
 			}),
 
-			explainPaymentRequest: new Question('A payment request has been issued. Check metamask!', {
+			showSummary: new Question('To finish you must...', {
 				answers: [
-					AnswerFactory.freetext('', 'summary', /^.*$/i),
-					AnswerFactory.freetext('', 'transactionError', /^.*$/i),
-					AnswerFactory.freetext('', 'clear', /^.*$/i)
+					AnswerFactory.answer('Approve', 'triggerTransaction', /approve/i),
+					AnswerFactory.answer('I changed my mind!', 'askStorage', /changed/i)
 				]
 			}),
 
-			transactionError: new Question('Transaction Error', {
-				onEnter: function () {
-					fsm.transition('pay')
-				},
+			triggerTransaction: new Question('', {
 				answers: [
-					AnswerFactory.freetext('', 'pay', /^.*$/i)
+					AnswerFactory.freetext('', 'showSuccess', /^.*$/i),
+					AnswerFactory.freetext('', 'transactionError', /^.*$/i)
 				]
 			}),
 
-			summary: new Question('Success! Your proof has been issued. It may take a while until its written to the blockchain.', {
-				onEnter: function () {
-					fsm.emit('showSummary')
-				},
+			transactionError: new Question('An Error...', {
 				answers: [
-					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+					AnswerFactory.answer('Try again', 'triggerTransaction', /try/i)
 				]
+			}),
+
+			showSuccess: new Question('Success!', {
+				answers: [
+					AnswerFactory.answer('New proof', 'clear', /new/i),
+					AnswerFactory.answer('Show my proofs', 'showProofList', /show/i)
+				]
+			}),
+
+			showProofList: new Question('', {
+				answers: []
 			}),
 
 			clear: new Question('', {
@@ -196,19 +169,137 @@ export default function () {
 				answers: [
 					AnswerFactory.freetext('', 'welcome', /^.*$/i)
 				]
-			}),
-
-			checkPicture: new Question('Choose an image to check for existing proofs.', {
-				onEnter: function () {
-					fsm.emit('showFileUpload', true)
-				},
-				onLeave: function () {
-					fsm.emit('showFileUpload', false)
-				},
-				answers: [
-					AnswerFactory.answer('Cancel', 'clear', /^cancel/i)
-				]
 			})
+
+			// createProof: new Question('How about creating your first proof? You can prove the existence of a picture.', {
+			// 	answers: [
+			// 		AnswerFactory.answer('Picture with upload', 'pictureWithUpload', /^picture/i),
+			// 		AnswerFactory.answer('File without upload', 'fileNoUpload', /^file/i),
+			// 		AnswerFactory.answer('Text', 'proofByString', /^text/i),
+			// 		AnswerFactory.answer('Explain these options', 'explainProofMethods', /^explain/i)
+			// 	]
+			// }),
+			//
+			// pictureWithUpload: new Question('Choose a Picture to create a proof for. The Picture will be uplaoded and stored on our servers.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showFileUpload', true)
+			// 	},
+			// 	onLeave: function () {
+			// 		fsm.emit('showFileUpload', false)
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'name', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// fileNoUpload: new Question('Choose a File. The Hash is generated locally in your browser.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showFileUpload', true)
+			// 	},
+			// 	onLeave: function () {
+			// 		fsm.emit('showFileUpload', false)
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'name', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// proofByString: new Question('You can enter a sha256 hash of a file you want to notarize without passing it to our application. Just calculate the hash on your local machine and enter it here.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showFreetext', true)
+			// 	},
+			// 	onLeave: function () {
+			// 		fsm.emit('showFreetext', false)
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('inputhashString', 'checkManualInput', /^.*$/i, function (givenText) {
+			// 			fsm.emit('proofTextGiven', givenText)
+			// 		})
+			// 	]
+			// }),
+			//
+			// checkManualInput: new Question('', {
+			// 	onEnter: function () {
+			// 		fsm.emit('checkManualInput', true)
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'name', /^.*$/i),
+			// 		AnswerFactory.freetext('', 'proofByString', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// why: new Question('Proof of Existence is an online service that verifies the existence of computer files as of a specific time via timestamped transactions in the ethereum blockchain. A Hash of the uploaded Picture together with a short description will be stored in the contract.', {
+			// 	onEnter: function () {
+			// 		fsm.transition('welcome')
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'welcome', /^.*$/i)
+			// 	]
+			// }),
+			//
+			//
+			//
+			// pay: new Question('I will now calculate the estimated Gas usage.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showGasEstimate')
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.answer('Okay', 'explainPaymentRequest', /okay/i, function (answerText) {
+			// 			fsm.emit('startProof')
+			// 		}),
+			// 		AnswerFactory.answer('Why?', 'whyPay', /why/i),
+			// 		AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+			// 	]
+			// }),
+			//
+			// whyPay: new Question('TODO: Transaction Fees explained', {
+			// 	onEnter: function () {
+			// 		fsm.transition('pay')
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'pay', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// explainPaymentRequest: new Question('A payment request has been issued. Check metamask!', {
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'summary', /^.*$/i),
+			// 		AnswerFactory.freetext('', 'transactionError', /^.*$/i),
+			// 		AnswerFactory.freetext('', 'clear', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// transactionError: new Question('Transaction Error', {
+			// 	onEnter: function () {
+			// 		fsm.transition('pay')
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.freetext('', 'pay', /^.*$/i)
+			// 	]
+			// }),
+			//
+			// summary: new Question('Success! Your proof has been issued. It may take a while until its written to the blockchain.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showSummary')
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+			// 	]
+			// }),
+			//
+			//
+			//
+			// checkPicture: new Question('Choose an image to check for existing proofs.', {
+			// 	onEnter: function () {
+			// 		fsm.emit('showFileUpload', true)
+			// 	},
+			// 	onLeave: function () {
+			// 		fsm.emit('showFileUpload', false)
+			// 	},
+			// 	answers: [
+			// 		AnswerFactory.answer('Cancel', 'clear', /^cancel/i)
+			// 	]
+			// })
 		}
 	})
 
