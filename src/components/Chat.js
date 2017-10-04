@@ -27,7 +27,8 @@ export default {
 				fileUploadFormData: new FormData(),
 				proof: {
 					hash: null,
-					description: '',
+					description: null,
+					ipfsHash: null,
 					txId: null
 				}
 			}
@@ -84,7 +85,8 @@ export default {
 					this.addMessage(message);
 				}, delay);
 			},
-			startProof: function(textToProof, comment) {
+			startProof: function(textToProof, comment, ipfsHash) {
+				console.log('startProof', textToProof, comment, ipfsHash);
 				let contract = window.globalContract;
 				let tokenContract = window.globalTokenContract;
 				if (!contract || !tokenContract) {
@@ -156,11 +158,13 @@ export default {
 							} else if (accounts.length === 0) {
 								return callback(new Error('No accounts found'));
 							}
+							console.log('estimate', estimate, );
 							let transactionOptions = {
 								from : accounts[0],
-								gas: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
+								gas: estimate,
+								gasPrice: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
 							};
-							contract.notarize(textToProof, comment, ipfsHash,transactionOptions, (err, txId) => {
+							contract.notarize(textToProof, comment, ipfsHash, transactionOptions, (err, txId) => {
 								return callback(err, txId);
 							});
 						});
@@ -171,7 +175,7 @@ export default {
 					} else {
 						this.proof.txId = txId;
 						this.showTransactionId(txId);
-						this.machine.transition('summary');
+						this.machine.transition('showSuccess');
 					}
 				});
 			},
@@ -189,17 +193,41 @@ export default {
 			onFileChange: function(event) {
 				console.log('onFileChange', event.target.files, this.machine);
 				this.fileUploadFormData.set('file', event.target.files[0]);
-
-				if (this.machine.currentState == 'checkPicture') {
-					this.checkImage();
-				} else if (this.machine.currentState == 'fileNoUpload') {
-					this.createProofNoUpload();
-				} else {
-					this.sendFile();
-				}
+				//calculate hash
+				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
+					if (err) {
+						//TODO: error handling
+					} else {
+						this.proof.hash = hash;
+						//check proof for existence
+						window.globalContract.hasProof(hash, (err, hasProof) => {
+							if (err) {
+								//TODO: error handling
+							} else {
+								if (hasProof) {
+									this.machine.transition('proofExists');
+								} else {
+									this.machine.transition('giveName');
+								}
+							}
+						});
+					}
+				});
 			},
 			preventSubmit: function(event) {
 				event.preventDefault();
+			},
+			showExistingProof: function() {
+				let hash = this.proof.hash;
+				this.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					body: {
+						type: MessageBodyTypeEnum.LINK,
+						description: "This file has already been notarized",
+						title: hash,
+						url: this.$router.resolve('/proofs/' + hash).href
+					},
+				}, 1000, true);
 			},
 			checkImage: function() {
 				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
@@ -259,15 +287,15 @@ export default {
 					this.machine.transition('name');
 				});
 			},
-			sendFile: function(event) {
+			startUpload: function(event) {
 				if (event) {
 					event.preventDefault();
 				}
 
 				this.$http.post(this.$store.state.apiBaseUrl + '/upload', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
-					let hash = response.body.hash;
-					this.proof.hash = hash;
+					let hash = this.proof.hash;
+					this.proof.ipfsHash = response.body.hash;
 					this.addMessage({
 						sender: MessageSenderEnum.ME,
 						body: {
@@ -275,7 +303,7 @@ export default {
 							image: this.$store.state.apiBaseUrl + '/uploads/' + hash
 						}
 					});
-					this.machine.setAnswer('pay');
+					this.machine.setAnswer('showSummary');
 				}, response => {
 					console.log('nay', response);
 					this.addMessage({
@@ -298,35 +326,31 @@ export default {
 				this.scrollDown();
 			},
 			showSummary: function() {
-				this.addMessageDelayed({
-					sender: MessageSenderEnum.APP,
-					body: {
-						type: MessageBodyTypeEnum.IMAGE,
-						image: this.$store.state.apiBaseUrl + '/uploads/' + this.proof.hash,
-						link: '/proofs/' + this.proof.hash,
-						linktext: this.proof.description
-					},
-				}, 1000, true);
-				this.machine.transition('clear');
+				//show order summary before transmitting transaction
+				this.showGasEstimate(this.proof.hash, this.proof.description, this.proof.ipfsHash);
 			},
-			showGasEstimate: function(textToProof, comment) {
+			showGasEstimate: function(textToProof, comment, ipfsHash) {
 				console.log("showGasEstimate", textToProof, comment);
-				//TODO: use IPFS
-				let ipfsHash = '';
 				let contract = window.globalContract;
 				if (contract) {
-					contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
-						console.log("showGasEstimate", err, estimate);
-						if (!err) {
-							let gasPriceEth = this.$store.state.gasPrice / 1000000000;
-							let ethtimate = gasPriceEth * estimate;
-							this.addMessageDelayed({
-								sender: MessageSenderEnum.APP,
-								body: {
-									type: MessageBodyTypeEnum.TEXT,
-									text: 'The transaction will use approximately ' + estimate + ' gas (' + ethtimate + ' eth)',
-								},
-							}, 1000, true);
+					window.globalWeb3.eth.getAccounts((err, accounts) => {
+						if (err || accounts.lenth === 0) {
+							//TODO: error handling
+						} else {
+							contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
+								console.log("showGasEstimate", err, estimate);
+								if (!err) {
+									let gasPriceEth = this.$store.state.gasPrice / 1000000000;
+									let ethtimate = gasPriceEth * estimate;
+									this.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.TEXT,
+											text: 'The transaction will use approximately ' + estimate + ' gas (' + ethtimate + ' eth)',
+										},
+									}, 1000, true);
+								}
+							});
 						}
 					});
 				}
@@ -377,12 +401,18 @@ export default {
 			},
 			clearProof: function() {
 				this.proof.hash = null;
-				this.proof.description = '';
+				this.proof.description = null;
+				this.proof.ipfsHash = null;
 				this.proof.txId = null;
+			},
+			openFilePicker: function() {
+				this.$refs.fileButton.click();
+			},
+			showProofList: function() {
+				this.$router.push({ path: '/proofs' });
 			}
 		},
 		mounted: function() {
-
 			this.machine.on("transition", data => {
 				let fromState = data.fromState;
 				let toState = data.toState;
@@ -397,13 +427,24 @@ export default {
 				console.log('startProof');
 				let text = this.proof.hash;
 				let comment = this.proof.description;
-				this.startProof(text, comment);
+				let ipfsHash = this.proof.ipfsHash ? this.proof.ipfsHash : '';
+				this.startProof(text, comment, ipfsHash);
 			});
 
 			this.machine.on("showFileUpload", (showFileUpload) => {
 				console.log('showFileUpload');
 				this.showFileUpload = showFileUpload;
 			});
+
+			this.machine.on('openFilePicker', () => {
+				console.log('openFilePicker');
+				this.openFilePicker();
+			});
+
+			this.machine.on('startUpload', () => {
+				console.log('startUpload');
+				this.startUpload();
+			})
 
 			this.machine.on("showFreetext", (showFreetext) => {
 				console.log('showFreetext');
@@ -435,8 +476,12 @@ export default {
 				this.proof.hash = givenText;
 			});
 
-			this.machine.on('checkManualInput', (givenText) => {
-				this.checkManualInput();
+			this.machine.on('showExistingProof', () => {
+				this.showExistingProof();
+			});
+
+			this.machine.on('showProofList', () => {
+				this.showProofList();
 			});
 
 			if (this.contractReady) {

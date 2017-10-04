@@ -16,7 +16,7 @@
 
 				<form  enctype='multipart/form-data' action="#" v-show='showFileUpload' @submit='preventSubmit'>
 					<input id="selectedFile" class='answer' type="file" accept="image/*" @change="onFileChange" style="display: none;">
-					<button class="answer" onclick="document.getElementById('selectedFile').click();">Choose File</button>
+					<button class="answer" ref="fileButton" onclick="document.getElementById('selectedFile').click();">Choose File</button>
 				</form>
 
 				<input @keyup.enter='handleFreetextInput()' v-model='userInput' type="text" v-show='showFreetext'>
