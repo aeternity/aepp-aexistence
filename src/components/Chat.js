@@ -1,6 +1,7 @@
 import machine from './../machine.js'
 import Speech from './Speech.vue'
 import waterfall from 'async/waterfall'
+import parallel from 'async/parallel'
 
 import helperMixin from '../mixins/helper.js';
 
@@ -29,7 +30,8 @@ export default {
 					hash: null,
 					description: null,
 					ipfsHash: null,
-					txId: null
+					txId: null,
+					dataUrl: null
 				}
 			}
 		},
@@ -193,24 +195,50 @@ export default {
 			onFileChange: function(event) {
 				console.log('onFileChange', event.target.files, this.machine);
 				this.fileUploadFormData.set('file', event.target.files[0]);
-				//calculate hash
-				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
+
+				parallel({
+					dataUrl: (callback) => {
+						this.getImageDataUrl(this.fileUploadFormData.get('file'), (err, dataUrl) => {
+							console.log('getImageDataUrl', err);
+							if (err) {
+								return callback(err);
+							}
+							this.proof.dataUrl = dataUrl;
+							return callback(null, dataUrl);
+						});
+					},
+					hasProof: (callback) => {
+						this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
+							if (err) {
+								return callback(err);
+							} else {
+								this.proof.hash = hash;
+								//check proof for existence
+								window.globalContract.hasProof(hash, (err, hasProof) => {
+									return callback(err, hasProof);
+								});
+							}
+						});
+					},
+				}, (err, result) => {
+					console.log(err, result);
 					if (err) {
 						//TODO: error handling
 					} else {
-						this.proof.hash = hash;
-						//check proof for existence
-						window.globalContract.hasProof(hash, (err, hasProof) => {
-							if (err) {
-								//TODO: error handling
-							} else {
-								if (hasProof) {
-									this.machine.transition('proofExists');
-								} else {
-									this.machine.transition('giveName');
+						if (result.dataUrl) {
+							this.addMessage({
+								sender: MessageSenderEnum.ME,
+								body: {
+									type: MessageBodyTypeEnum.IMAGE,
+									image: result.dataUrl
 								}
-							}
-						});
+							});
+						}
+						if (result.hasProof) {
+							this.machine.transition('proofExists');
+						} else {
+							this.machine.transition('giveName');
+						}
 					}
 				});
 			},
@@ -273,36 +301,14 @@ export default {
 					}
 				});
 			},
-			createProofNoUpload() {
-				let file = this.fileUploadFormData.get('file');
-				this.generateFileHash(file, (err, hash) => {
-					this.proof.hash = hash;
-					this.addMessageDelayed({
-						sender: MessageSenderEnum.APP,
-						body: {
-							type: MessageBodyTypeEnum.TEXT,
-							text: "I calculated to following hash for the file you chose. This will be notarized: " + hash
-						},
-					}, 1000, true);
-					this.machine.transition('name');
-				});
-			},
 			startUpload: function(event) {
 				if (event) {
 					event.preventDefault();
 				}
-
 				this.$http.post(this.$store.state.apiBaseUrl + '/upload', this.fileUploadFormData).then(response => {
 					console.log('yay', response);
 					let hash = this.proof.hash;
 					this.proof.ipfsHash = response.body.hash;
-					this.addMessage({
-						sender: MessageSenderEnum.ME,
-						body: {
-							type: MessageBodyTypeEnum.IMAGE,
-							image: this.$store.state.apiBaseUrl + '/uploads/' + hash
-						}
-					});
 					this.machine.setAnswer('showSummary');
 				}, response => {
 					console.log('nay', response);
@@ -310,7 +316,7 @@ export default {
 						sender: MessageSenderEnum.APP,
 						body: {
 							type: MessageBodyTypeEnum.TEXT,
-							text: 'Something went wrong D: '
+							text: 'Something went wrong'
 						},
 					});
 				});
@@ -330,7 +336,10 @@ export default {
 				this.showGasEstimate(this.proof.hash, this.proof.description, this.proof.ipfsHash);
 			},
 			showGasEstimate: function(textToProof, comment, ipfsHash) {
-				console.log("showGasEstimate", textToProof, comment);
+				console.log("showGasEstimate", textToProof, comment, ipfsHash);
+				if (!ipfsHash) {
+					ipfsHash = '';
+				}
 				let contract = window.globalContract;
 				if (contract) {
 					window.globalWeb3.eth.getAccounts((err, accounts) => {
@@ -404,12 +413,26 @@ export default {
 				this.proof.description = null;
 				this.proof.ipfsHash = null;
 				this.proof.txId = null;
+				this.proof.dataUrl = null;
 			},
 			openFilePicker: function() {
 				this.$refs.fileButton.click();
 			},
 			showProofList: function() {
 				this.$router.push({ path: '/proofs' });
+			},
+			getImageDataUrl: function(file, done) {
+				if (file) {
+					var reader = new FileReader();
+
+					reader.onload = function (e) {
+						return done(null, e.target.result);
+					}
+
+					reader.readAsDataURL(file);
+				} else {
+					return done(null, null);
+				}
 			}
 		},
 		mounted: function() {
@@ -458,10 +481,6 @@ export default {
 
 			this.machine.on("showSummary", () => {
 				this.showSummary();
-			});
-
-			this.machine.on("showGasEstimate", () => {
-				this.showGasEstimate(this.proof.hash, this.proof.description);
 			});
 
 			this.machine.on("clearProof", () => {
