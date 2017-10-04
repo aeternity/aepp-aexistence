@@ -91,27 +91,31 @@ export default {
 					return
 				}
 
-				//TODO: use IPFS
-				let ipfsHash = '';
-
 				waterfall([
 					(callback) => {
-						tokenContract.balanceOf(window.globalWeb3.eth.accounts[0], {}, (err, balance) => {
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
 							if (err) {
 								return callback(err);
+							} else if (accounts.length === 0) {
+								return callback(new Error('No accounts found'));
 							}
-							if (balance <= 0) {
-								this.addMessageDelayed({
-									sender: MessageSenderEnum.APP,
-									body: {
-										type: MessageBodyTypeEnum.TEXT,
-										text: "You don't have any AE Tokens. The contract will fail without tokens."
-									},
-								}, 1000, true);
-								this.machine.transition('clear');
-								return callback(new Error('No AE Token'));
-							}
-							return callback(null);
+							tokenContract.balanceOf(accounts[0], {}, (err, balance) => {
+								if (err) {
+									return callback(err);
+								}
+								if (balance <= 0) {
+									this.addMessageDelayed({
+										sender: MessageSenderEnum.APP,
+										body: {
+											type: MessageBodyTypeEnum.TEXT,
+											text: "You don't have any AE Tokens. The contract will fail without tokens."
+										},
+									}, 1000, true);
+									this.machine.transition('clear');
+									return callback(new Error('No AE Token'));
+								}
+								return callback(null);
+							});
 						});
 					},
 					(callback) => {
@@ -134,18 +138,31 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : window.globalWeb3.eth.accounts[0]}, (err, estimate) => {
-							return callback(err, estimate);
-						});
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
+							if (err) {
+								return callback(err);
+							} else if (accounts.length === 0) {
+								return callback(new Error('No accounts found'));
+							}
+							contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
+								return callback(err, estimate);
+							});
+						})
 					},
 					(estimate, callback) => {
-						let transactionOptions = {
-							from : window.globalWeb3.eth.accounts[0],
-							gas: parseInt(parseInt(estimate) * 1.1) + '',
-							gasPrice: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
-						};
-						contract.notarize(textToProof, comment, ipfsHash, transactionOptions, (err, txId) => {
-							return callback(err, txId);
+						window.globalWeb3.eth.getAccounts((err, accounts) => {
+							if (err) {
+								return callback(err);
+							} else if (accounts.length === 0) {
+								return callback(new Error('No accounts found'));
+							}
+							let transactionOptions = {
+								from : accounts[0],
+								gas: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
+							};
+							contract.notarize(textToProof, comment, ipfsHash,transactionOptions, (err, txId) => {
+								return callback(err, txId);
+							});
 						});
 					}
 				], (err, txId) => {
