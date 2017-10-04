@@ -1,4 +1,5 @@
 let Conversational = require('conversational-machine')
+// let Conversational = require('../../conversational-machine')
 // let ConversationalFSM = Conversational.ConversationalFSM
 let Question = Conversational.Question
 // let WidgetQuestion = Conversational.WidgetQuestion
@@ -52,21 +53,21 @@ module.exports = function () {
 				]
 			}),
 
-			welcome: new Question('You can create a proof or check for an existing proof.', {
+			welcome: new Question('Hi! I am æxistence – built to proof the existence of files on the blockchain. \n Select a file from your device to get started.', {
 				answers: [
 					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
 					AnswerFactory.answer('Why would I do that?', 'whyProof', /^why/i)
 				]
 			}),
 
-			whyProof: new Question('Mainly to proof to', {
+			whyProof: new Question('Mainly to proof to third parties that an image or file existed at a certain point of time. ✍ \n Also to check if that exact same file has been registred before', {
 				answers: [
 					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
 					AnswerFactory.answer('How does that work?', 'howProofWorks', /^how/i)
 				]
 			}),
 
-			howProofWorks: new Question('I calculate a', {
+			howProofWorks: new Question('I calculate a SHA256 hash from the file and save it – together with the timestamp and the user adress – to one of the most secure data storages in the world: The blockchain. Note: Although my service is free, every block of information saved to the blockchain comes with a transaction fee.', {
 				answers: [
 					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
