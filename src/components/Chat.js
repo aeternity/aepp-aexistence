@@ -20,6 +20,7 @@ export default {
 		],
 		data: function() {
 			return {
+				defaultDelay: 500,
 				machine: machine(),
 				messages: [],
 				showti: false,
@@ -78,7 +79,7 @@ export default {
 						type: MessageBodyTypeEnum.TEXT,
 						text: text,
 					},
-				}, 1000, true);
+				}, this.defaultDelay, true);
 			},
 			addMessageDelayed: function(message, delay, showThinkingBubble) {
 				console.log('addMessageDelayed');
@@ -119,7 +120,7 @@ export default {
 											type: MessageBodyTypeEnum.TEXT,
 											text: "You don't have any AE Tokens. The contract will fail without tokens."
 										},
-									}, 1000, true);
+									}, this.defaultDelay, true);
 									this.machine.transition('clear');
 									return callback(new Error('No AE Token'));
 								}
@@ -138,7 +139,7 @@ export default {
 										title: textToProof,
 										url: this.$router.resolve('/proofs/' + textToProof).href
 									},
-								}, 1000, true);
+								}, this.defaultDelay, true);
 								this.machine.transition('clear');
 								return callback(new Error('Already notarized'));
 							} else {
@@ -195,7 +196,7 @@ export default {
 						title: txId,
 						url: this.etherscanLink(txId, 'tx')
 					},
-				}, 1000, true);
+				}, this.defaultDelay, true);
 			},
 			onFileChange: function(event) {
 				console.log('onFileChange', event.target.files, this.machine);
@@ -260,7 +261,7 @@ export default {
 						title: hash,
 						url: this.$router.resolve('/proofs/' + hash).href
 					},
-				}, 1000, true);
+				}, this.defaultDelay, true);
 			},
 			checkImage: function() {
 				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
@@ -289,7 +290,7 @@ export default {
 											title: hash,
 											url: this.$router.resolve('/proofs/' + hash).href
 										},
-									}, 1000, true);
+									}, this.defaultDelay, true);
 								} else {
 									this.addMessageDelayed({
 										sender: MessageSenderEnum.APP,
@@ -297,7 +298,7 @@ export default {
 											type: MessageBodyTypeEnum.TEXT,
 											text: "No proof found for this file! " + hash
 										},
-									}, 1000, true);
+									}, this.defaultDelay, true);
 								}
 							}
 						});
@@ -314,11 +315,20 @@ export default {
 					console.log('yay', response);
 					let hash = this.proof.hash;
 					this.proof.ipfsHash = response.body.hash;
+					this.addMessage({
+						sender: MessageSenderEnum.APP,
+						primary: true,
+						body: {
+							type: MessageBodyTypeEnum.TEXT,
+							text: 'Note: The file will be visible to any person with access to the hash.'
+						}
+					});
 					this.machine.transition('showSummary');
 				}, response => {
 					console.log('nay', response);
 					this.addMessage({
 						sender: MessageSenderEnum.APP,
+						primary: true,
 						body: {
 							type: MessageBodyTypeEnum.TEXT,
 							text: 'Something went wrong'
@@ -365,7 +375,7 @@ export default {
 											type: MessageBodyTypeEnum.TEXT,
 											text: 'The transaction will use approximately ' + estimate + ' gas (' + ethtimate + ' eth)',
 										},
-									}, 1000, true);
+									}, this.defaultDelay, true);
 								}
 							});
 						}
@@ -399,22 +409,16 @@ export default {
 					}, 1300);
 				}
 			},
-			checkManualInput() {
-				let textToCheck = this.proof.hash;
-				let regexp = /^[A-Fa-f0-9]{64}$/;
-				if (regexp.test(textToCheck)) {
-					this.machine.transition('name');
-				} else {
-					this.addMessageDelayed({
-						sender: MessageSenderEnum.APP,
-						body: {
-							type: MessageBodyTypeEnum.TEXT,
-							text: 'This is not a valid sha256 hash.',
-						},
-					}, 1000, true);
-					this.proof.hash = null;
-					this.machine.transition('proofByString');
-				}
+			showProofLink: function (hash) {
+				this.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					body: {
+						type: MessageBodyTypeEnum.LINK,
+						description: "Your proof is ready?!",
+						title: hash,
+						url: this.$router.resolve('/proofs/' + hash).href
+					}
+				}, this.defaultDelay, true);
 			},
 			clearProof: function() {
 				this.proof.hash = null;
@@ -511,8 +515,23 @@ export default {
 				this.showProofList();
 			});
 
+			this.machine.on('showCreatedProof', () => {
+				this.showProofLink(this.proof.hash);
+			});
+
 			this.machine.on('invalidState', (data) => {
 				console.log('invalidState', data);
+			});
+
+			this.machine.on('showBubble', (text, settings) => {
+				this.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					primary: settings.primary ? true : false,
+					body: {
+						type: MessageBodyTypeEnum.TEXT,
+						text: text
+					},
+				}, this.defaultDelay, true);
 			});
 
 			if (this.contractReady) {

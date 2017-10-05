@@ -67,7 +67,10 @@ module.exports = function () {
 				]
 			}),
 
-			howProofWorks: new Question('I calculate a SHA256 hash from the file and save it – together with the timestamp and the user adress – to one of the most secure data storages in the world: The blockchain. Note: Although my service is free, every block of information saved to the blockchain comes with a transaction fee.', {
+			howProofWorks: new Question('I calculate a SHA256 hash from the file and save it – together with the timestamp and the user adress – to one of the most secure data storages in the world: The blockchain.', {
+				onEnter: function () {
+					fsm.emit('showBubble', 'Note: Although my service is free, every block of information saved to the blockchain comes with a transaction fee.', {primary: true})
+				},
 				answers: [
 					AnswerFactory.settings('Select File', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
@@ -90,7 +93,7 @@ module.exports = function () {
 				]
 			}),
 
-			filesizeLimit: new Question('Error: File size', {
+			filesizeLimit: new Question('Error: File size limit reached. Try splitting up or compressing your file.', {
 				answers: [
 					AnswerFactory.settings('Pick different file', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
@@ -106,9 +109,11 @@ module.exports = function () {
 				]
 			}),
 
-			giveName: new Question('OK! Now you want to give your proof a reasonable name. Make it descriptive! Remember: The longer the description the higher the gas costs.', {
+			giveName: new Question('Great, you uploaded a new file! Now give it a suitable name, but remember: This can’t be changed afterwards.', {
 				onEnter: function () {
 					fsm.emit('showFreetext', true)
+					fsm.emit('showBubble', 'Note: The longer the name, the higher the gas costs for the transaction.', {primary: true})
+					fsm.emit('showBubble', 'Warning: The name will be visible to public.', {primary: true})
 				},
 				onLeave: function () {
 					fsm.emit('showFreetext', false)
@@ -120,7 +125,7 @@ module.exports = function () {
 				]
 			}),
 
-			askStorage: new Question('Do you want me to save...?', {
+			askStorage: new Question('Do you want me to save a copy of the file to an IPFS server?', {
 				answers: [
 					AnswerFactory.settings('Save it', 'storeFile', /save/i, {primary: true}),
 					AnswerFactory.answer('Nope – I got it!', 'showSummary', /nope/i)
@@ -137,7 +142,7 @@ module.exports = function () {
 				]
 			}),
 
-			showSummary: new Question('To finish you must...', {
+			showSummary: new Question('To finish creating the proof, you must approve the transaction:', {
 				onEnter: function () {
 					fsm.emit('showSummary')
 				},
@@ -157,14 +162,17 @@ module.exports = function () {
 				]
 			}),
 
-			transactionError: new Question('An Error...', {
+			transactionError: new Question('An error encountered. Be sure to pay at least the minimum transaction fee.', {
 				answers: [
 					AnswerFactory.settings('Try again', 'triggerTransaction', /try/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
 				]
 			}),
 
-			showSuccess: new Question('Success!', {
+			showSuccess: new Question('Sucess! The existence of your file is now proofable! Check it out:', {
+				onEnter: function () {
+					fsm.emit('showCreatedProof')
+				},
 				answers: [
 					AnswerFactory.settings('New proof', 'clear', /new/i, {primary: true}),
 					AnswerFactory.answer('Show my proofs', 'showProofList', /show/i)

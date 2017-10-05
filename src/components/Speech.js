@@ -4,7 +4,8 @@ export default {
 	name : 'speech',
 	props : [
 		'body',
-		'sender'
+		'sender',
+		'primary'
 	],
 	computed : {
 		thisclass : function() {
@@ -14,6 +15,7 @@ export default {
 				'body-type-image ' : this.body.type === MessageBodyTypeEnum.IMAGE,
 				'body-type-text' : this.body.type === MessageBodyTypeEnum.TEXT || this.body.type === MessageBodyTypeEnum.LINK,
 				'speech': true,
+				'primary': this.primary ? true : false
 			};
 		},
 		style : function() {

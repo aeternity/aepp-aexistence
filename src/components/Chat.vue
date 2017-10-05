@@ -1,7 +1,7 @@
 <template>
 	<div class="screen">
 		<div id='conv' class="nomargin conversation-container">
-			<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
+			<speech :body='message.body' :sender='message.sender' :primary='message.primary' v-for='message in messages'></speech>
 			<div v-show='showti' class="app speech typing-indicator">
 				<span></span>
 				<span></span>
