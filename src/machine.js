@@ -21,11 +21,11 @@ module.exports = function () {
 					fsm.emit('checkRequirements')
 				},
 				answers: [
-					AnswerFactory.freetext('', 'welcome', /^.*$/i),
-					AnswerFactory.freetext('', 'noWeb3', /^.*$/i),
-					AnswerFactory.freetext('', 'notUnlocked', /^.*$/i),
-					AnswerFactory.freetext('', 'noEther', /^.*$/i),
-					AnswerFactory.freetext('', 'noToken', /^.*$/i)
+					AnswerFactory.hidden('welcome'),
+					AnswerFactory.hidden('noWeb3'),
+					AnswerFactory.hidden('notUnlocked'),
+					AnswerFactory.hidden('noEther'),
+					AnswerFactory.hidden('noToken')
 				]
 			}),
 
@@ -55,21 +55,21 @@ module.exports = function () {
 
 			welcome: new Question('Hi! I am æxistence – built to proof the existence of files on the blockchain. \n Select a file from your device to get started.', {
 				answers: [
-					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.settings('Select File', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('Why would I do that?', 'whyProof', /^why/i)
 				]
 			}),
 
 			whyProof: new Question('Mainly to proof to third parties that an image or file existed at a certain point of time. ✍ \n Also to check if that exact same file has been registred before', {
 				answers: [
-					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.settings('Select File', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('How does that work?', 'howProofWorks', /^how/i)
 				]
 			}),
 
 			howProofWorks: new Question('I calculate a SHA256 hash from the file and save it – together with the timestamp and the user adress – to one of the most secure data storages in the world: The blockchain. Note: Although my service is free, every block of information saved to the blockchain comes with a transaction fee.', {
 				answers: [
-					AnswerFactory.answer('Select File', 'selectFile', /^select/i),
+					AnswerFactory.settings('Select File', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
 				]
 			}),
@@ -84,15 +84,15 @@ module.exports = function () {
 				},
 				answers: [
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i),
-					AnswerFactory.freetext('', 'giveName', /^.*$/i),
-					AnswerFactory.freetext('', 'proofExists', /^.*$/i),
-					AnswerFactory.freetext('', 'filesizeLimit', /^.*$/i)
+					AnswerFactory.hidden('giveName'),
+					AnswerFactory.hidden('proofExists'),
+					AnswerFactory.hidden('filesizeLimit')
 				]
 			}),
 
 			filesizeLimit: new Question('Error: File size', {
 				answers: [
-					AnswerFactory.answer('Pick different file', 'selectFile', /^select/i),
+					AnswerFactory.settings('Pick different file', 'selectFile', /^select/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
 				]
 			}),
@@ -102,7 +102,7 @@ module.exports = function () {
 					fsm.emit('showExistingProof')
 				},
 				answers: [
-					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
+					AnswerFactory.settings('Cancel', 'clear', /cancel/i, {primary: true})
 				]
 			}),
 
@@ -122,7 +122,7 @@ module.exports = function () {
 
 			askStorage: new Question('Do you want me to save...?', {
 				answers: [
-					AnswerFactory.answer('Save it', 'storeFile', /save/i),
+					AnswerFactory.settings('Save it', 'storeFile', /save/i, {primary: true}),
 					AnswerFactory.answer('Nope – I got it!', 'showSummary', /nope/i)
 				]
 			}),
@@ -132,8 +132,8 @@ module.exports = function () {
 					fsm.emit('startUpload')
 				},
 				answers: [
-					AnswerFactory.freetext('', 'showSummary', /^.*$/i),
-					AnswerFactory.freetext('', 'askStorage', /^.*$/i)
+					AnswerFactory.hidden('showSummary'),
+					AnswerFactory.hidden('askStorage')
 				]
 			}),
 
@@ -142,7 +142,7 @@ module.exports = function () {
 					fsm.emit('showSummary')
 				},
 				answers: [
-					AnswerFactory.answer('Approve', 'triggerTransaction', /approve/i),
+					AnswerFactory.settings('Approve', 'triggerTransaction', /approve/i, {primary: true}),
 					AnswerFactory.answer('I changed my mind!', 'askStorage', /changed/i)
 				]
 			}),
@@ -152,21 +152,21 @@ module.exports = function () {
 					fsm.emit('startProof')
 				},
 				answers: [
-					AnswerFactory.freetext('', 'showSuccess', /^.*$/i),
-					AnswerFactory.freetext('', 'transactionError', /^.*$/i)
+					AnswerFactory.hidden('showSuccess'),
+					AnswerFactory.hidden('transactionError')
 				]
 			}),
 
 			transactionError: new Question('An Error...', {
 				answers: [
-					AnswerFactory.answer('Try again', 'triggerTransaction', /try/i),
+					AnswerFactory.settings('Try again', 'triggerTransaction', /try/i, {primary: true}),
 					AnswerFactory.answer('Cancel', 'clear', /cancel/i)
 				]
 			}),
 
 			showSuccess: new Question('Success!', {
 				answers: [
-					AnswerFactory.answer('New proof', 'clear', /new/i),
+					AnswerFactory.settings('New proof', 'clear', /new/i, {primary: true}),
 					AnswerFactory.answer('Show my proofs', 'showProofList', /show/i)
 				]
 			}),
@@ -186,7 +186,7 @@ module.exports = function () {
 					fsm.transition('welcome')
 				},
 				answers: [
-					AnswerFactory.freetext('', 'welcome', /^.*$/i)
+					AnswerFactory.hidden('welcome')
 				]
 			})
 		}

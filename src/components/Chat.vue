@@ -12,7 +12,7 @@
 		<div class="response">
 
 			<div class="answer-group">
-				<button v-for="(answer, index) in answers" class='answer' @click='handleAnswer(answer)'>{{answer}}</button>
+				<Answer v-for="(answer, index) in answers" v-on:answerClicked='handleAnswer(answer)' :answer='answer'></Answer>
 
 				<form  enctype='multipart/form-data' action="#" v-show='showFileUpload' @submit='preventSubmit'>
 					<input id="selectedFile" class='answer' type="file" accept="image/*" @change="onFileChange" style="display: none;">

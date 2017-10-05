@@ -1,5 +1,6 @@
 import machine from './../machine.js'
 import Speech from './Speech.vue'
+import Answer from './Answer.vue'
 import waterfall from 'async/waterfall'
 import parallel from 'async/parallel'
 
@@ -11,7 +12,8 @@ import MessageBodyTypeEnum from '../MessageBodyTypeEnum.js'
 export default {
 		name: 'chat',
 		components: {
-			'speech': Speech
+			'speech': Speech,
+			'Answer': Answer
 		},
 		mixins: [
 			helperMixin
@@ -53,18 +55,21 @@ export default {
 				},100);
 			},
 			handleAnswer: function(givenAnswer) {
+				this.setAnswer(givenAnswer.name);
+			},
+			handleFreetextInput: function() {
+				this.setAnswer(this.userInput);
+				this.userInput = '';
+			},
+			setAnswer: function(answerText) {
 				this.addMessage({
 					sender: MessageSenderEnum.ME,
 					body: {
 						type: MessageBodyTypeEnum.TEXT,
-						text: givenAnswer,
+						text: answerText,
 					},
 				});
-				this.machine.setAnswer(givenAnswer);
-			},
-			handleFreetextInput: function() {
-				this.handleAnswer(this.userInput);
-				this.userInput = '';
+				this.machine.setAnswer(answerText);
 			},
 			showQuestionDelayed: function(text) {
 				this.addMessageDelayed({
@@ -309,7 +314,7 @@ export default {
 					console.log('yay', response);
 					let hash = this.proof.hash;
 					this.proof.ipfsHash = response.body.hash;
-					this.machine.setAnswer('showSummary');
+					this.machine.transition('showSummary');
 				}, response => {
 					console.log('nay', response);
 					this.addMessage({
@@ -339,6 +344,9 @@ export default {
 				console.log("showGasEstimate", textToProof, comment, ipfsHash);
 				if (!ipfsHash) {
 					ipfsHash = '';
+				}
+				if (!comment) {
+					comment = '';
 				}
 				let contract = window.globalContract;
 				if (contract) {
@@ -501,6 +509,10 @@ export default {
 
 			this.machine.on('showProofList', () => {
 				this.showProofList();
+			});
+
+			this.machine.on('invalidState', (data) => {
+				console.log('invalidState', data);
 			});
 
 			if (this.contractReady) {

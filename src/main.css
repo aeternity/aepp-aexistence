@@ -445,6 +445,10 @@ nav .avatar + .name{
 .response .answer:last-child{
 	margin-right:21px;
 }
+.response .answer.primary {
+	background-color: #F03C6E;
+	color: #FFFFFF;
+}
 .response .send {
 	/* Send: */
 	font-weight:500;
