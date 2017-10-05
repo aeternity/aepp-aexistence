@@ -22,7 +22,7 @@ export default {
 							window.globalContract.getProofByHash(hash, (err, rawProof) => {
 								console.log(rawProof);
 								let data = {
-									image: this.$store.state.apiBaseUrl + '/uploads/' + rawProof[5],
+									image: null,
 									owner: rawProof[0],
 									created : rawProof[1],
 									block: rawProof[2],
@@ -31,6 +31,9 @@ export default {
 									fileSha256: rawProof[5],
 									contract: this.$store.state.contractAddress,
 								};
+								if (rawProof[4]) {
+									data.image = this.$store.state.apiBaseUrl + '/uploads/' + rawProof[4];
+								}
 								this.$store.commit('addProof', data);
 							});
 						}

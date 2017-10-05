@@ -181,23 +181,25 @@ export default {
 					if (err) {
 						this.machine.transition('transactionError');
 					} else {
+						console.log('calling', txId, textToProof);
+						this.$store.commit('addTransaction', {txId: txId, hash: textToProof});
 						this.proof.txId = txId;
-						this.showTransactionId(txId);
+						// this.showTransactionId(txId);
 						this.machine.transition('showSuccess');
 					}
 				});
 			},
-			showTransactionId: function(txId) {
-				this.addMessageDelayed({
-					sender: MessageSenderEnum.APP,
-					body: {
-						type: MessageBodyTypeEnum.LINK,
-						description: "This is the Transaction ID",
-						title: txId,
-						url: this.etherscanLink(txId, 'tx')
-					},
-				}, this.defaultDelay, true);
-			},
+			// showTransactionId: function(txId) {
+			// 	this.addMessageDelayed({
+			// 		sender: MessageSenderEnum.APP,
+			// 		body: {
+			// 			type: MessageBodyTypeEnum.LINK,
+			// 			description: "This is the Transaction ID",
+			// 			title: txId,
+			// 			url: this.etherscanLink(txId, 'tx')
+			// 		},
+			// 	}, this.defaultDelay, true);
+			// },
 			onFileChange: function(event) {
 				console.log('onFileChange', event.target.files, this.machine);
 				this.fileUploadFormData.set('file', event.target.files[0]);
@@ -373,7 +375,7 @@ export default {
 										sender: MessageSenderEnum.APP,
 										body: {
 											type: MessageBodyTypeEnum.TEXT,
-											text: 'The transaction will use approximately ' + estimate + ' gas (' + ethtimate + ' eth)',
+											text: 'Estimated transaction fee: ' + ethtimate + ' eth'
 										},
 									}, this.defaultDelay, true);
 								}
@@ -413,10 +415,8 @@ export default {
 				this.addMessageDelayed({
 					sender: MessageSenderEnum.APP,
 					body: {
-						type: MessageBodyTypeEnum.LINK,
-						description: "Your proof is ready?!",
-						title: hash,
-						url: this.$router.resolve('/proofs/' + hash).href
+						type: MessageBodyTypeEnum.PROOF,
+						hash: hash
 					}
 				}, this.defaultDelay, true);
 			},
@@ -534,9 +534,16 @@ export default {
 				}, this.defaultDelay, true);
 			});
 
+			this.machine.on('deleteIpfsHash', () => {
+				this.proof.ipfsHash = null;
+			});
+
 			if (this.contractReady) {
 				this.machine.setAnswer('go');
 			}
+			// this.showProofLink('7fa16023269fade88c2286974da405fd9309ecefd50e6cab39c2cf6da6c46c32');
+			// this.showProofLink('test');
+			// this.$store.commit('addTransaction', {txId: '0x0554296e6cce8bbc05dc11adc348b568e3c95721384114db8acd460058d01c0f', hash: 'test'});
 		},
 		watch: {
 			contractReady: function() {

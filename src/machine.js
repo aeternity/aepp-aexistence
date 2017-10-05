@@ -148,7 +148,9 @@ module.exports = function () {
 				},
 				answers: [
 					AnswerFactory.settings('Approve', 'triggerTransaction', /approve/i, {primary: true}),
-					AnswerFactory.answer('I changed my mind!', 'askStorage', /changed/i)
+					AnswerFactory.answer('I changed my mind!', 'askStorage', /changed/i, function () {
+						fsm.emit('deleteIpfsHash')
+					})
 				]
 			}),
 

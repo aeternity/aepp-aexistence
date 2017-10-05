@@ -26,6 +26,7 @@ const store = new Vuex.Store({
 			approvedPayments: [],
 			declinedPayments: []
 		},
+		transactions: {},
 		identityCollapsed: true,
 		hasWeb3: false,
 		contractReady: false,
@@ -39,7 +40,19 @@ const store = new Vuex.Store({
 		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
 	},
 	getters: {
-		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id)
+		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id),
+		getTxByHash: (state, getters) => (hash) => {
+			if (state.transactions[hash]) {
+				return state.transactions[hash]
+			}
+			if (typeof (Storage) !== 'undefined') {
+				let txId = localStorage.getItem('txFor_' + hash)
+				if (txId) {
+					return txId
+				}
+			}
+			return null
+		}
 	},
 	mutations: {
 		title: function (state, newtitle) {
@@ -93,6 +106,15 @@ const store = new Vuex.Store({
 		},
 		clearProofs: function (state) {
 			state.proofs = []
+		},
+		addTransaction: function (state, options) {
+			console.log('addTransaction', options)
+			if (options.hash && options.txId) {
+				state.transactions[options.hash] = options.txId
+				if (typeof (Storage) !== 'undefined') {
+					localStorage.setItem('txFor_' + options.hash, options.txId)
+				}
+			}
 		}
 	},
 	actions: {
