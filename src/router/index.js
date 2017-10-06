@@ -44,7 +44,8 @@ export default new Router({
 				title: 'Your Proofs',
 				appClass: 'proofs'
 			}},
-		{ path: '/proofs/:id',
+		{ name: 'proof',
+			path: '/proofs/:id',
 			component: Proof,
 			meta: {
 				title: 'Proof Details',

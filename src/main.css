@@ -445,6 +445,10 @@ nav .avatar + .name{
 .response .answer:last-child{
 	margin-right:21px;
 }
+.response .answer.primary {
+	background-color: #F03C6E;
+	color: #FFFFFF;
+}
 .response .send {
 	/* Send: */
 	font-weight:500;
@@ -484,8 +488,19 @@ nav .avatar + .name{
 	max-width:60%;
 	margin-left:21px;
 }
+.app.speech.primary {
+	background: #F03C6E;
+}
 .speech.body-type-text {
 	padding:15px 20px;
+}
+.body-type-proof {
+	padding:15px 20px;
+}
+.body-type-proof .image {
+	width: 100px;
+	height: 100px;
+	background-size:cover;
 }
 .app.speech:after {
 	content: ' ';
@@ -497,6 +512,9 @@ nav .avatar + .name{
 	border: 15px solid;
 	transform:rotate(14deg);
 	border-color: #3C3C3C transparent transparent #3c3c3c;
+}
+.app.speech.primary:after {
+	border-color: #F03C6E transparent transparent #F03C6E;
 }
 .speech-container {
 	padding-bottom:21px;

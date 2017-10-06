@@ -1,7 +1,7 @@
 <template>
 	<div class="screen">
 		<div id='conv' class="nomargin conversation-container">
-			<speech :body='message.body' :sender='message.sender' v-for='message in messages'></speech>
+			<speech :body='message.body' :sender='message.sender' :primary='message.primary' v-for='message in messages'></speech>
 			<div v-show='showti' class="app speech typing-indicator">
 				<span></span>
 				<span></span>
@@ -12,11 +12,11 @@
 		<div class="response">
 
 			<div class="answer-group">
-				<button v-for="(answer, index) in answers" class='answer' @click='handleAnswer(answer)'>{{answer}}</button>
+				<Answer v-for="(answer, index) in answers" v-on:answerClicked='handleAnswer(answer)' :answer='answer'></Answer>
 
 				<form  enctype='multipart/form-data' action="#" v-show='showFileUpload' @submit='preventSubmit'>
 					<input id="selectedFile" class='answer' type="file" accept="image/*" @change="onFileChange" style="display: none;">
-					<button class="answer" onclick="document.getElementById('selectedFile').click();">Choose File</button>
+					<button class="answer" ref="fileButton" onclick="document.getElementById('selectedFile').click();">Choose File</button>
 				</form>
 
 				<input @keyup.enter='handleFreetextInput()' v-model='userInput' type="text" v-show='showFreetext'>

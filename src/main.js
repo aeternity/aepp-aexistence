@@ -18,22 +18,41 @@ const store = new Vuex.Store({
 		identity: {
 			avatar: '/static/avatar-1.jpg',
 			balance: '0.00',
+			tokenBalance: 0,
+			hasTokens: false,
 			name: '',
 			address: null,
 			paymentRequest: null,
 			approvedPayments: [],
 			declinedPayments: []
 		},
+		transactions: {},
 		identityCollapsed: true,
 		hasWeb3: false,
 		contractReady: false,
+		// default gas price in wei
+		gasPrice: 5,
 		// Ropsten
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
-		contractAddress: '0x4d987d358d66bbcf4f8f59cf0521b6138ee6cc3d'
+		contractAddress: '0x2801361d0e854d5a8ca5a53243720a227ef08182',
+		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
+		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : ''
 	},
 	getters: {
-		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id)
+		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id),
+		getTxByHash: (state, getters) => (hash) => {
+			if (state.transactions[hash]) {
+				return state.transactions[hash]
+			}
+			if (typeof (Storage) !== 'undefined') {
+				let txId = localStorage.getItem('txFor_' + hash)
+				if (txId) {
+					return txId
+				}
+			}
+			return null
+		}
 	},
 	mutations: {
 		title: function (state, newtitle) {
@@ -70,17 +89,32 @@ const store = new Vuex.Store({
 		setContractReady: function (state, contractReady) {
 			state.contractReady = contractReady
 		},
+		setHasTokens: function (state, hasTokens) {
+			state.identity.hasTokens = hasTokens
+		},
 		setAccount: function (state, account) {
 			state.identity.address = account
 		},
 		setBalance: function (state, balance) {
 			state.identity.balance = balance
 		},
+		setTokenBalance: function (state, balance) {
+			state.identity.tokenBalance = balance
+		},
 		setName: function (state, name) {
 			state.identity.name = name
 		},
 		clearProofs: function (state) {
 			state.proofs = []
+		},
+		addTransaction: function (state, options) {
+			console.log('addTransaction', options)
+			if (options.hash && options.txId) {
+				state.transactions[options.hash] = options.txId
+				if (typeof (Storage) !== 'undefined') {
+					localStorage.setItem('txFor_' + options.hash, options.txId)
+				}
+			}
 		}
 	},
 	actions: {

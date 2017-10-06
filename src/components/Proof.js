@@ -24,12 +24,11 @@ export default {
 		proof : function() {
 			let hash = this.$route.params.id;
 			let data = {
-				image: '/uploads/' + hash,
+				image: this.$store.state.apiBaseUrl + '/uploads/' + hash,
 				title: '',
 				fileSha256: hash,
 				created: null,
-				verified: null,
-				confirmations: 0,
+				ipfsHash: '',
 				contract: '',
 				owner: '',
 				block: ''
@@ -38,9 +37,11 @@ export default {
 			if (this.rawProof) {
 				data.contract = this.$store.state.contractAddress;
 				data.owner = this.rawProof[0];
-				data.created = this.rawProof[2];
-				data.block = this.rawProof[3];
-				data.title = this.rawProof[4];
+				data.created = this.rawProof[1];
+				data.block = this.rawProof[2];
+				data.title = this.rawProof[3];
+				data.ipfsHash = this.rawProof[4];
+				data.fileSha256 = this.rawProof[5];
 			}
 
 			return data;

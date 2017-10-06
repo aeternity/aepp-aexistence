@@ -28,7 +28,7 @@
 		<nav>
 			<div class="inner">
 				<div class="center">
-					<avatar :image='identity.avatar'></avatar>
+					<avatar :address='identity.address'></avatar>
 					<div class="name">
 						{{identity.name}}
 					</div>
