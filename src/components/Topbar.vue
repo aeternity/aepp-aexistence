@@ -24,7 +24,7 @@
 				</router-link>
 			</div>
 		</header>
-		<identity/>
+		<identity v-if="showQuickId" />
 		<nav>
 			<div class="inner">
 				<div class="center">
