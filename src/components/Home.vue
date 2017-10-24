@@ -9,6 +9,7 @@
 				Create first proof
 			</router-link>
 		</div>
+		<div v-if="this.$store.state.hasParentWeb3" class="quickIdPlaceholder"></div>
 	</div>
 </template>
 

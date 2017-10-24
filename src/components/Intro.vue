@@ -51,6 +51,7 @@
 				<div class="swiper-pagination"></div>
 			</div>
 		</div>
+		<div v-if="this.$store.state.hasParentWeb3" class="quickIdPlaceholder"></div>
 	</div>
 </template>
 
