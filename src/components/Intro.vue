@@ -1,12 +1,12 @@
 <template>
 	<div class="intro screen">
 		<div class="nomargin inner">
-			<div class='nomargin logo img' style="background-image:url(/static/logo.png);"></div>
+			<div class='nomargin logo img' style="background-image:url(static/logo.png);"></div>
 			<div class="swiper-container">
 				<div class="swiper-wrapper">
 					<div class="swiper-slide">
 
-						<div class='img' style="background-image:url(/static/welcome-1.png);"></div>
+						<div class='img' style="background-image:url(static/welcome-1.png);"></div>
 						<h1 class='center'>Welcome</h1>
 						<p class="text center">
 						This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
@@ -18,7 +18,7 @@
 					</div>
 					<div class="swiper-slide">
 
-						<div class='img' style="background-image:url(/static/welcome-2.png);"></div>
+						<div class='img' style="background-image:url(static/welcome-2.png);"></div>
 
 						<h1 class='center'>Proofs</h1>
 						<p class="text center">
@@ -31,7 +31,7 @@
 					</div>
 					<div class="swiper-slide">
 
-						<div class='img' style="background-image:url(/static/welcome-3.png);"></div>
+						<div class='img' style="background-image:url(static/welcome-3.png);"></div>
 
 						<h1 class='center'>Welcome</h1>
 						<p class="text center">

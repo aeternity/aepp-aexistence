@@ -87,13 +87,13 @@ export default {
 		},
 		initWeb3: function() {
 			let web3;
-			if (typeof window.web3 !== 'undefined') { // Metamask
-				web3 = new Web3(window.web3.currentProvider);
-			} else if (window.parent !== window && window.parent.web3 !== undefined) {
+			if (window.parent !== window && window.parent.web3 !== undefined) {
 				// Parent has something for us.
 				console.log('loaded with parent web3 instance');
 				this.$store.commit('setHasParentWeb3', true)
 				web3 = new Web3(window.parent.web3.currentProvider);
+			} else if (typeof window.web3 !== 'undefined') { // Metamask
+				web3 = new Web3(window.web3.currentProvider);
 			} else {
 				web3 = null;
 			}
