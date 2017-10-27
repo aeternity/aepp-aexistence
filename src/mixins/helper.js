@@ -1,8 +1,38 @@
 import moment from 'moment'
 const blockies = require('ethereum-blockies-png')
+const ipfsAPI = require('ipfs-api')
 
 export default {
 	methods: {
+		getIpfsClient: function (host = 'localhost', port = 5001, protocol = 'http') {
+			return ipfsAPI(host, port, {protocol: protocol})
+		},
+		getIpfsContent: function (ipfsHash, callback = function () {}, errCb = function () {}) {
+			let ipfs = this.getIpfsClient()
+			ipfs.files.get(ipfsHash, function (err, stream) {
+				if (err) {
+					errCb(err)
+				}
+				stream.on('data', (file) => {
+					// write the file's path and contents to standard out
+					console.log(file.path)
+					let image = file.content.read()
+					if (image != null) {
+						callback(image.toString())
+					}
+				})
+			})
+		},
+		addIpfsContent: function (content, callback = function () {}, errCb = function () {}) {
+			let ipfs = this.getIpfsClient()
+			ipfs.add([content], (err, res) => {
+				if (err) {
+					errCb(err)
+					throw err
+				}
+				callback(res[0].hash)
+			})
+		},
 		readableTimestamp: function (timestamp) {
 			if (timestamp) {
 				let momentTime = moment.unix(timestamp.toString())

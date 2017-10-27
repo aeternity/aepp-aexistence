@@ -8,7 +8,8 @@ export default {
 					fullscreen : false,
 				}
 			},
-			rawProof: null
+			rawProof: null,
+      image : null
 		}
 	},
 	mixins: [
@@ -22,9 +23,9 @@ export default {
 			return this.$store.state.contractReady;
 		},
 		proof : function() {
-			let hash = this.$route.params.id;
+      let hash = this.$route.params.id;
 			let data = {
-				image: this.$store.state.apiBaseUrl + '/uploads/' + hash,
+				image: null,
 				title: '',
 				fileSha256: hash,
 				created: null,
@@ -42,9 +43,12 @@ export default {
 				data.title = this.rawProof[3];
 				data.ipfsHash = this.rawProof[4];
 				data.fileSha256 = this.rawProof[5];
+        data.image = this.image;
+        this.image = null;
 			}
 
 			return data;
+		
 		}
 	},
 	methods : {
@@ -57,8 +61,17 @@ export default {
 			let contract = window.globalContract;
 			if (contract) {
 				contract.getProof(text, (err, proof) => {
+          console.log('getProof', err, proof);
+          
 					this.rawProof = proof;
-					console.log('getProof', err, proof);
+          let ipfsHash = proof[4];
+          //now we can see other's proofs
+          this.getIpfsContent(ipfsHash, (image)=>{
+            this.image = image;
+          },(err)=>{
+            console.log('Something went wrong fetching ipfs data: ' + err);
+          });
+					
 				});
 			}
 		},

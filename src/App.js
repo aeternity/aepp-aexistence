@@ -1,7 +1,10 @@
 import Topbar from './components/Topbar.vue'
 import Web3 from 'web3'
+import helperMixin from './mixins/helper.js';
+
 export default {
 	name: 'app',
+  mixins : [helperMixin],
 	computed : {
 		appClass : function() {
 			return this.$store.state.appClass;
@@ -19,7 +22,7 @@ export default {
 				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
 					if (!err) {
 						for (let hash of hashes) {
-							window.globalContract.getProofByHash(hash, (err, rawProof) => {
+							window.globalContract.getProofByHash(hash, async(err, rawProof) => {
 								console.log(rawProof);
 								let data = {
 									image: null,
@@ -30,11 +33,26 @@ export default {
 									ipfsHash: rawProof[4],
 									fileSha256: rawProof[5],
 									contract: this.$store.state.contractAddress,
+                  self : this
 								};
+                
+                //since async in a loop, we need to bind correct data reference to callback
+                //or else we'll add image wrong data reference (usually the last one in the loop) 
 								if (rawProof[4]) {
-									data.image = this.$store.state.apiBaseUrl + '/uploads/' + rawProof[4];
-								}
-								this.$store.commit('addProof', data);
+                  this.getIpfsContent(rawProof[4], function(image){
+                    let self = this.self;
+                    delete this.self;
+                    this.image = image;
+                    console.log('img: ' + this.image);
+                    self.$store.commit('addProof', this);
+                  }.bind(data), (err)=>{
+                    console.log('There was a problem getting IPFS content: ' + rawProof[4]);
+                  });
+                  
+								}else{
+                  this.$store.commit('addProof', data);
+                }
+								
 							});
 						}
 					}
