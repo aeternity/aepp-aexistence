@@ -93,8 +93,9 @@ export default {
 					this.addMessage(message);
 				}, delay);
 			},
-			startProof: function(textToProof, comment, ipfsHash) {
-				console.log('startProof', textToProof, comment, ipfsHash);
+      //renamed textToProof to sha256 to be more descriptive
+			startProof: function(sha256, comment, ipfsHash) {
+				console.log('startProof', sha256, comment, ipfsHash);
 				let contract = window.globalContract;
 				let tokenContract = window.globalTokenContract;
 				if (!contract || !tokenContract) {
@@ -129,25 +130,21 @@ export default {
 						});
 					},
 					(callback) => {
-						contract.hasProof(textToProof, (err, hasProof) => {
+						contract.hasProof(sha256, (err, hasProof) => {
 							if (hasProof) {
+                //this is dead code. we check if notarized earlier and won't let tx start if proof exists
+                this.addMessageDelayed({
+                  sender: MessageSenderEnum.APP,
+                  body: {
+                    type: MessageBodyTypeEnum.LINK,
+                    description: "This file has already been notarized",
+                    title: comment,
+                    url: '#/proofs/' + sha256
+                  },
+                }, this.defaultDelay, true);
                 
-              this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-                console.log('ipfs: ' + image);
-								this.addMessageDelayed({
-									sender: MessageSenderEnum.APP,
-									body: {
-										type: MessageBodyTypeEnum.LINK,
-										description: "This file has already been notarized",
-										title: textToProof,
-										url: image
-                    //IPFS Insert point
-									},
-								}, this.defaultDelay, true);
-              });
-              
-              this.machine.transition('clear');
-              return callback(new Error('Already notarized'));
+                this.machine.transition('clear');
+                return callback(new Error('Already notarized'));
 							} else {
 								return callback(null);
 							}
@@ -160,7 +157,7 @@ export default {
 							} else if (accounts.length === 0) {
 								return callback(new Error('No accounts found'));
 							}
-							contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
+							contract.notarize.estimateGas(sha256, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
 								return callback(err, estimate);
 							});
 						})
@@ -178,7 +175,7 @@ export default {
 								gas: estimate,
 								gasPrice: window.globalWeb3.toWei(this.$store.state.gasPrice, 'gwei')
 							};
-							contract.notarize(textToProof, comment, ipfsHash, transactionOptions, (err, txId) => {
+							contract.notarize(sha256, comment, ipfsHash, transactionOptions, (err, txId) => {
 								return callback(err, txId);
 							});
 						});
@@ -187,8 +184,8 @@ export default {
 					if (err) {
 						this.machine.transition('transactionError');
 					} else {
-						console.log('calling', txId, textToProof);
-						this.$store.commit('addTransaction', {txId: txId, hash: textToProof});
+						console.log('calling', txId, sha256);
+						this.$store.commit('addTransaction', {txId: txId, hash: sha256});
 						this.proof.txId = txId;
 						// this.showTransactionId(txId);
 						this.machine.transition('showSuccess');
@@ -252,6 +249,7 @@ export default {
 								}
 							});
 						}
+
 						if (result.hasProof) {
 							this.machine.transition('proofExists');
 						} else {
@@ -265,20 +263,18 @@ export default {
 			},
 			showExistingProof: function() {
 				let hash = this.proof.hash;
+        
+        this.addMessageDelayed({
+        sender: MessageSenderEnum.APP,
+        body: {
+          type: MessageBodyTypeEnum.LINK,
+          description: "This file has already been notarized",
+          title: hash,
+          url: '#/proofs/' + hash
 
-        this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-          console.log('ipfs: ' + image);
-          this.addMessageDelayed({
-              sender: MessageSenderEnum.APP,
-              body: {
-                type: MessageBodyTypeEnum.LINK,
-                description: "This file has already been notarized",
-                title: hash,
-                url: image
-
-              },
-            }, this.defaultDelay, true);
-        });
+        },
+      }, this.defaultDelay, true);
+        
 				
 			},
 			checkImage: function() {
@@ -300,19 +296,15 @@ export default {
 								console.log(err);
 							} else {
 								if (hasProof) {
-                  this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-                    console.log('ipfs: ' + image);
-                    this.addMessageDelayed({
-                      sender: MessageSenderEnum.APP,
-                      body: {
-                        type: MessageBodyTypeEnum.LINK,
-                        description: "This file has already been notarized",
-                        title: hash,
-                        url: image
-                      },
-                    }, this.defaultDelay, true);
-                  
-                  });
+                  this.addMessageDelayed({
+                    sender: MessageSenderEnum.APP,
+                    body: {
+                      type: MessageBodyTypeEnum.LINK,
+                      description: "This file has already been notarized",
+                      title: hash,
+                      url: '#/proofs/' + hash
+                    },
+                  }, this.defaultDelay, true);
 									
                   
                   
@@ -341,7 +333,14 @@ export default {
         this.getImageDataUrl(this.fileUploadFormData.get('file'), (err, dataUrl) => {
           console.log('getImageDataUrl', err);
           if (err) {
-            return callback(err);
+            this.addMessage({
+              sender: MessageSenderEnum.APP,
+              primary: true,
+              body: {
+                type: MessageBodyTypeEnum.TEXT,
+                text: 'Something went wrong:' + err
+              },
+            });
           }
           this.proof.dataUrl = dataUrl;
 
@@ -387,8 +386,8 @@ export default {
 				//show order summary before transmitting transaction
 				this.showGasEstimate(this.proof.hash, this.proof.description, this.proof.ipfsHash);
 			},
-			showGasEstimate: function(textToProof, comment, ipfsHash) {
-				console.log("showGasEstimate", textToProof, comment, ipfsHash);
+			showGasEstimate: function(sha256, comment, ipfsHash) {
+				console.log("showGasEstimate", sha256, comment, ipfsHash);
 				if (!ipfsHash) {
 					ipfsHash = '';
 				}
@@ -401,7 +400,7 @@ export default {
 						if (err || accounts.lenth === 0) {
 							//TODO: error handling
 						} else {
-							contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
+							contract.notarize.estimateGas(sha256, comment, ipfsHash, {from : accounts[0]}, (err, estimate) => {
 								console.log("showGasEstimate", err, estimate);
 								if (!err) {
 									let gasPriceEth = this.$store.state.gasPrice / 1000000000;

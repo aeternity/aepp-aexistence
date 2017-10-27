@@ -33,15 +33,25 @@ export default {
 									ipfsHash: rawProof[4],
 									fileSha256: rawProof[5],
 									contract: this.$store.state.contractAddress,
+                  self : this
 								};
+                
+                //since async in a loop, we need to bind correct data reference to callback
+                //or else we'll add image wrong data reference (usually the last one in the loop) 
 								if (rawProof[4]) {
-                  this.getIpfsContent(rawProof[4], (image)=>{
-                    data.image = image;
-                    console.log('img: ' + data.image);
-                    this.$store.commit('addProof', data);
+                  this.getIpfsContent(rawProof[4], function(image){
+                    let self = this.self;
+                    delete this.self;
+                    this.image = image;
+                    console.log('img: ' + this.image);
+                    self.$store.commit('addProof', this);
+                  }.bind(data), (err)=>{
+                    console.log('There was a problem getting IPFS content: ' + rawProof[4]);
                   });
                   
-								}
+								}else{
+                  this.$store.commit('addProof', data);
+                }
 								
 							});
 						}

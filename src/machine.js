@@ -153,7 +153,6 @@ module.exports = function () {
 					})
 				]
 			}),
-
 			triggerTransaction: new Question('', {
 				onEnter: function () {
 					fsm.emit('startProof')
