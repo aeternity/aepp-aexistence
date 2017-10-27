@@ -131,23 +131,18 @@ export default {
 					(callback) => {
 						contract.hasProof(textToProof, (err, hasProof) => {
 							if (hasProof) {
-                
-              this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-                console.log('ipfs: ' + image);
 								this.addMessageDelayed({
 									sender: MessageSenderEnum.APP,
 									body: {
 										type: MessageBodyTypeEnum.LINK,
 										description: "This file has already been notarized",
 										title: textToProof,
-										url: image
-                    //IPFS Insert point
-									},
+										url: this.$router.resolve('/proofs/' + textToProof).href
+									}
 								}, this.defaultDelay, true);
-              });
-              
-              this.machine.transition('clear');
-              return callback(new Error('Already notarized'));
+
+								this.machine.transition('clear');
+								return callback(new Error('Already notarized'));
 							} else {
 								return callback(null);
 							}
@@ -221,8 +216,8 @@ export default {
               return callback(null, dataUrl)
             });
 
-            
-						
+
+
 					},
 					hasProof: (callback) => {
 						this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
@@ -263,90 +258,31 @@ export default {
 			preventSubmit: function(event) {
 				event.preventDefault();
 			},
-			showExistingProof: function() {
+			showExistingProof: async function() {
 				let hash = this.proof.hash;
 
-        this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-          console.log('ipfs: ' + image);
-          this.addMessageDelayed({
-              sender: MessageSenderEnum.APP,
-              body: {
-                type: MessageBodyTypeEnum.LINK,
-                description: "This file has already been notarized",
-                title: hash,
-                url: image
-
-              },
-            }, this.defaultDelay, true);
-        });
-				
-			},
-			checkImage: function() {
-				this.generateFileHash(this.fileUploadFormData.get('file'), (err, hash) => {
-					if (err) {
-						this.addMessage({
-							sender: MessageSenderEnum.APP,
-							body: {
-								type: MessageBodyTypeEnum.TEXT,
-								text: 'Something went wrong D: ',
-							},
-						});
-						return false;
+				this.addMessageDelayed({
+					sender: MessageSenderEnum.APP,
+					body: {
+						type: MessageBodyTypeEnum.LINK,
+						description: "This file has already been notarized",
+						title: hash,
+						url: this.$router.resolve('/proofs/' + hash).href
 					}
-					if (this.contractReady) {
-						window.globalContract.hasProof(hash, (err, hasProof) => {
-							if (err) {
-								//TODO: handle
-								console.log(err);
-							} else {
-								if (hasProof) {
-                  this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-                    console.log('ipfs: ' + image);
-                    this.addMessageDelayed({
-                      sender: MessageSenderEnum.APP,
-                      body: {
-                        type: MessageBodyTypeEnum.LINK,
-                        description: "This file has already been notarized",
-                        title: hash,
-                        url: image
-                      },
-                    }, this.defaultDelay, true);
-                  
-                  });
-									
-                  
-                  
-								} else {
-									this.addMessageDelayed({
-										sender: MessageSenderEnum.APP,
-										body: {
-											type: MessageBodyTypeEnum.TEXT,
-											text: "No proof found for this file! " + hash
-										},
-									}, this.defaultDelay, true);
-								}
-							}
-						});
-					} else {
-						console.log('contract not ready');
-					}
-				});
+				}, this.defaultDelay, true);
 			},
 			startUpload: function(event) {
 				if (event) {
 					event.preventDefault();
 				}
-        
 
-        this.getImageDataUrl(this.fileUploadFormData.get('file'), (err, dataUrl) => {
-          console.log('getImageDataUrl', err);
-          if (err) {
-            return callback(err);
-          }
-          this.proof.dataUrl = dataUrl;
 
-          this.addIpfsContent(Buffer.from(dataUrl),(ipfsHash)=>{
-            console.log('adding ipfs: ' + dataUrl + ' hash is: ' + ipfsHash);
+        this.getImageBuffer(this.fileUploadFormData.get('file'), (err, buffer) => {
+          console.log('getImageBuffer', err);
+          // this.proof.dataUrl = dataUrl;
+
+          this.addIpfsContent(buffer, (ipfsHash)=>{
+            console.log('adding ipfs: hash is: ' + ipfsHash);
             this.proof.ipfsHash = ipfsHash;
             this.addMessage({
               sender: MessageSenderEnum.APP,
@@ -369,7 +305,7 @@ export default {
             });
           });
         });
-        
+
 
 
 			},
@@ -480,6 +416,13 @@ export default {
 				} else {
 					return done(null, null);
 				}
+			},
+			getImageBuffer: function(file, done) {
+				const reader = new FileReader();
+				reader.onloadend = function() {
+					return done(null, Buffer.from(reader.result));
+				}
+				reader.readAsArrayBuffer(file);
 			}
 		},
 		mounted: function() {

@@ -22,7 +22,7 @@ export default {
 			return this.$store.state.contractReady;
 		},
 		proof : function() {
-
+			//TODO: this wont work
       let proof = this.$store.state.proofs.find((el)=>{return el.fileSha256 = this.$route.params.id;});
 			return proof;
 		}

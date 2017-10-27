@@ -2,24 +2,32 @@ import moment from 'moment'
 const blockies = require('ethereum-blockies-png')
 const ipfsAPI = require('ipfs-api')
 
+let ipfsClient = null
+
 export default {
 	methods: {
-		getIpfsClient: function (host = 'localhost', port = 5001, protocol = 'http') {
-			return ipfsAPI(host, port, {protocol: protocol})
+		getIpfsClient: function (host = 'ipfs.infura.io', port = 5001, protocol = 'https') {
+			if (ipfsClient === null) {
+				ipfsClient = ipfsAPI(host, port, {protocol: protocol})
+			}
+			return ipfsClient
 		},
-		getIpfsContent: function (ipfsHash, callback = function () {}, errCb = function () {}) {
+		getIpfsContent: function (ipfsHash) {
 			let ipfs = this.getIpfsClient()
-			ipfs.files.get(ipfsHash, function (err, stream) {
-				if (err) {
-					errCb(err)
-				}
-				stream.on('data', (file) => {
-					// write the file's path and contents to standard out
-					console.log(file.path)
-					let image = file.content.read()
-					if (image != null) {
-						callback(image.toString())
+			return new Promise(function (resolve, reject) {
+				ipfs.files.get(ipfsHash, function (err, stream) {
+					if (err) {
+						return reject(err)
 					}
+					stream.on('data', (file) => {
+						// write the file's path and contents to standard out
+						console.log(file.path)
+						let image = file.content.read()
+						if (image != null) {
+							return resolve(image.toString())
+						}
+						return reject(Error('No Image'))
+					})
 				})
 			})
 		},

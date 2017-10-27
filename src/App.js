@@ -17,7 +17,7 @@ export default {
 		Topbar
 	},
 	methods: {
-		loadAllProofs: function() {
+		loadAllProofs: async function() {
 			if (window.globalContract) {
 				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
 					if (!err) {
@@ -35,14 +35,14 @@ export default {
 									contract: this.$store.state.contractAddress,
 								};
 								if (rawProof[4]) {
-                  this.getIpfsContent(rawProof[4], (image)=>{
-                    data.image = image;
-                    console.log('img: ' + data.image);
-                    this.$store.commit('addProof', data);
-                  });
-                  
+									try {
+										data.image = 'https://ipfs.infura.io/ipfs/' + rawProof[4]
+										// data.image = await this.getIpfsContent(rawProof[4]);
+									} catch (err) {
+										console.log(err);
+									}
 								}
-								
+								this.$store.commit('addProof', data);
 							});
 						}
 					}
