@@ -133,7 +133,7 @@ export default {
 							if (hasProof) {
                 
               this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-                
+                console.log('ipfs: ' + image);
 								this.addMessageDelayed({
 									sender: MessageSenderEnum.APP,
 									body: {
@@ -267,7 +267,7 @@ export default {
 				let hash = this.proof.hash;
 
         this.getIpfsContent(this.proof.ipfsHash, (image)=>{
-          
+          console.log('ipfs: ' + image);
           this.addMessageDelayed({
               sender: MessageSenderEnum.APP,
               body: {
@@ -301,6 +301,7 @@ export default {
 							} else {
 								if (hasProof) {
                   this.getIpfsContent(this.proof.ipfsHash, (image)=>{
+                    console.log('ipfs: ' + image);
                     this.addMessageDelayed({
                       sender: MessageSenderEnum.APP,
                       body: {
@@ -345,6 +346,7 @@ export default {
           this.proof.dataUrl = dataUrl;
 
           this.addIpfsContent(Buffer.from(dataUrl),(ipfsHash)=>{
+            console.log('adding ipfs: ' + dataUrl + ' hash is: ' + ipfsHash);
             this.proof.ipfsHash = ipfsHash;
             this.addMessage({
               sender: MessageSenderEnum.APP,

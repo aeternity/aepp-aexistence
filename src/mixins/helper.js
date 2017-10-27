@@ -7,7 +7,7 @@ export default {
 		getIpfsClient: function (host = 'localhost', port = 5001, protocol = 'http') {
 			return ipfsAPI(host, port, {protocol: protocol})
 		},
-		getIpfsContent: function (ipfsHash, callback, errCb) {
+		getIpfsContent: function (ipfsHash, callback = function () {}, errCb = function () {}) {
 			let ipfs = this.getIpfsClient()
 			ipfs.files.get(ipfsHash, function (err, stream) {
 				if (err) {
@@ -16,11 +16,14 @@ export default {
 				stream.on('data', (file) => {
 					// write the file's path and contents to standard out
 					console.log(file.path)
-					callback(file.content)
+					let image = file.content.read()
+					if (image != null) {
+						callback(image.toString())
+					}
 				})
 			})
 		},
-		addIpfsContent: function (content, callback, errCb) {
+		addIpfsContent: function (content, callback = function () {}, errCb = function () {}) {
 			let ipfs = this.getIpfsClient()
 			ipfs.add([content], (err, res) => {
 				if (err) {

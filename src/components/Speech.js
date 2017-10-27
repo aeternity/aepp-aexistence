@@ -48,6 +48,7 @@ export default {
 		},
 		proofImage: function() {
 			if (this.proof.data.ipfsHash) {
+        
 				return this.$store.state.apiBaseUrl + '/uploads/' + this.proof.data.ipfsHash
 			} else {
 				return null;
