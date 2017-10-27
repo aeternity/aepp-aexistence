@@ -22,29 +22,9 @@ export default {
 			return this.$store.state.contractReady;
 		},
 		proof : function() {
-			let hash = this.$route.params.id;
-			let data = {
-				image: this.$store.state.apiBaseUrl + '/uploads/' + hash,
-				title: '',
-				fileSha256: hash,
-				created: null,
-				ipfsHash: '',
-				contract: '',
-				owner: '',
-				block: ''
-			};
 
-			if (this.rawProof) {
-				data.contract = this.$store.state.contractAddress;
-				data.owner = this.rawProof[0];
-				data.created = this.rawProof[1];
-				data.block = this.rawProof[2];
-				data.title = this.rawProof[3];
-				data.ipfsHash = this.rawProof[4];
-				data.fileSha256 = this.rawProof[5];
-			}
-
-			return data;
+      let proof = this.$store.state.proofs.find((el)=>{return el.fileSha256 = this.$route.params.id;});
+			return proof;
 		}
 	},
 	methods : {
