@@ -29,6 +29,7 @@
     "connect-multiparty": "2.0.0",
     "conversational-machine": "0.0.5",
     "ethereum-blockies-png": "^0.1.2",
+    "ipfs-api": "^15.0.1",
     "js-sha256": "0.6.0",
     "moment": "^2.18.1",
     "swiper": "^3.4.0",
