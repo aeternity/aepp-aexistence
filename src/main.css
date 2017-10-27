@@ -49,7 +49,7 @@ html, body {
 	margin-bottom:5px;
 }
 .home.screen  {
-	margin-top:225px;
+	margin-top:60px;
 
 }
 .notice {
@@ -80,11 +80,12 @@ button {
 }
 .img {
 	width:100%;
-	height:210px;
+	height:90px;
 	z-index:100;
 	position:relative;
 	background-repeat:no-repeat;
 	background-position:center center;
+	background-size:contain;
 }
 .img.cover {
 	background-size:cover;
