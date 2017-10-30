@@ -23,7 +23,7 @@ export default {
 					if (!err) {
 						for (let hash of hashes) {
 							window.globalContract.getProofByHash(hash, async(err, rawProof) => {
-								console.log(rawProof);
+								// console.log(rawProof);
 								let data = {
 									image: null,
 									owner: rawProof[0],
@@ -92,6 +92,11 @@ export default {
 					})
 				}
 			}, 1000);
+
+			//this checks for new proofs every 10 seconds
+			setInterval(() => {
+				this.loadAllProofs();
+			}, 10000);
 		},
 		initWeb3: function() {
 			let web3;

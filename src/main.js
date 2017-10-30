@@ -65,10 +65,16 @@ const store = new Vuex.Store({
 			state.title = newtitle
 		},
 		addProof: function (state, newProof) {
-			state.proofs.push(newProof)
-			state.proofs.sort((a, b) => {
-				return b.created - a.created
+			// check if proof already in list
+			let findIndex = state.proofs.findIndex((existingProof) => {
+				return existingProof.fileSha256 === newProof.fileSha256
 			})
+			if (findIndex < 0) {
+				state.proofs.push(newProof)
+				state.proofs.sort((a, b) => {
+					return b.created - a.created
+				})
+			}
 		},
 		appClass: function (state, newClass) {
 			state.appClass = newClass
