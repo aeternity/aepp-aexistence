@@ -36,7 +36,7 @@ export default {
 								};
 								if (rawProof[4]) {
 									try {
-										data.image = 'https://ipfs.infura.io/ipfs/' + rawProof[4]
+										data.image = this.$store.state.ipfs.imgBaseUrl + rawProof[4]
 										// data.image = await this.getIpfsContent(rawProof[4]);
 									} catch (err) {
 										console.log(err);

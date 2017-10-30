@@ -6,9 +6,10 @@ let ipfsClient = null
 
 export default {
 	methods: {
-		getIpfsClient: function (host = 'ipfs.infura.io', port = 5001, protocol = 'https') {
+		getIpfsClient: function () {
 			if (ipfsClient === null) {
-				ipfsClient = ipfsAPI(host, port, {protocol: protocol})
+				let ipfsConf = this.$store.state.ipfs
+				ipfsClient = ipfsAPI(ipfsConf.host, ipfsConf.port, {protocol: ipfsConf.protocol})
 			}
 			return ipfsClient
 		},

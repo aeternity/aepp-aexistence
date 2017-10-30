@@ -37,8 +37,13 @@ const store = new Vuex.Store({
 		// Kovan
 		contractAddress: '0x2801361d0e854d5a8ca5a53243720a227ef08182',
 		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
-		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '',
-		hasParentWeb3: false
+		hasParentWeb3: false,
+		ipfs: {
+			host: 'ipfs.infura.io',
+			port: 5001,
+			protocol: 'https',
+			imgBaseUrl: 'https://ipfs.infura.io/ipfs/'
+		}
 	},
 	getters: {
 		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id),
