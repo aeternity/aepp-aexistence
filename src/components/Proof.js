@@ -24,7 +24,7 @@ export default {
 		proof : function() {
 			let hash = this.$route.params.id;
 			let data = {
-				image: this.$store.state.apiBaseUrl + '/uploads/' + hash,
+				image: null,
 				title: '',
 				fileSha256: hash,
 				created: null,
@@ -41,6 +41,9 @@ export default {
 				data.block = this.rawProof[2];
 				data.title = this.rawProof[3];
 				data.ipfsHash = this.rawProof[4];
+				if (data.ipfsHash) {
+					data.image = this.$store.state.ipfs.imgBaseUrl + data.ipfsHash;
+				}
 				data.fileSha256 = this.rawProof[5];
 			}
 

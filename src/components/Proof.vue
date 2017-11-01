@@ -1,7 +1,7 @@
 <template>
 	<div class="screen proof">
 
-		<div :class="{'proof-image' :true, image: true, fullscreen : cssClass.image.fullscreen}" @click='toggleImage' :style='"background-image:url(" +proof.image+ ")"'></div>
+		<div v-if="proof.image" :class="{'proof-image' :true, image: true, fullscreen : cssClass.image.fullscreen}" @click='toggleImage' :style='"background-image:url(" +proof.image+ ")"'></div>
 
 		<div class="columns">
 			<div class="column">

@@ -46,6 +46,9 @@ export default {
 		},
 		title : function() {
 			return this.$store.state.title;
+		},
+		showQuickId: function() {
+			return !this.$store.state.hasParentWeb3;
 		}
 	},
 	watch: {

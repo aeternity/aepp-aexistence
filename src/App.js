@@ -1,7 +1,10 @@
 import Topbar from './components/Topbar.vue'
 import Web3 from 'web3'
+import helperMixin from './mixins/helper.js';
+
 export default {
 	name: 'app',
+  mixins : [helperMixin],
 	computed : {
 		appClass : function() {
 			return this.$store.state.appClass;
@@ -14,13 +17,13 @@ export default {
 		Topbar
 	},
 	methods: {
-		loadAllProofs: function() {
+		loadAllProofs: async function() {
 			if (window.globalContract) {
 				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
 					if (!err) {
 						for (let hash of hashes) {
-							window.globalContract.getProofByHash(hash, (err, rawProof) => {
-								console.log(rawProof);
+							window.globalContract.getProofByHash(hash, async(err, rawProof) => {
+								// console.log(rawProof);
 								let data = {
 									image: null,
 									owner: rawProof[0],
@@ -32,7 +35,12 @@ export default {
 									contract: this.$store.state.contractAddress,
 								};
 								if (rawProof[4]) {
-									data.image = this.$store.state.apiBaseUrl + '/uploads/' + rawProof[4];
+									try {
+										data.image = this.$store.state.ipfs.imgBaseUrl + rawProof[4]
+										// data.image = await this.getIpfsContent(rawProof[4]);
+									} catch (err) {
+										console.log(err);
+									}
 								}
 								this.$store.commit('addProof', data);
 							});
@@ -84,15 +92,21 @@ export default {
 					})
 				}
 			}, 1000);
+
+			//this checks for new proofs every 10 seconds
+			setInterval(() => {
+				this.loadAllProofs();
+			}, 10000);
 		},
 		initWeb3: function() {
 			let web3;
-			if (typeof window.web3 !== 'undefined') { // Metamask
-				web3 = new Web3(window.web3.currentProvider);
-			} else if (window.parent !== window && window.parent.web3 !== undefined) {
+			if (window.parent !== window && window.parent.web3 !== undefined) {
 				// Parent has something for us.
 				console.log('loaded with parent web3 instance');
+				this.$store.commit('setHasParentWeb3', true)
 				web3 = new Web3(window.parent.web3.currentProvider);
+			} else if (typeof window.web3 !== 'undefined') { // Metamask
+				web3 = new Web3(window.web3.currentProvider);
 			} else {
 				web3 = null;
 			}
