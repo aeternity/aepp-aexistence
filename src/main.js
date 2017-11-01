@@ -39,9 +39,9 @@ const store = new Vuex.Store({
 		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
 		hasParentWeb3: false,
 		ipfs: {
-			host: 'ipfs.infura.io',
-			port: 5001,
-			protocol: 'https',
+			host: '207.154.212.173',
+			port: 5002,
+			protocol: 'http',
 			imgBaseUrl: 'http://207.154.212.173/ipfs/'
 		}
 	},
