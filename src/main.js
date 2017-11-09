@@ -37,8 +37,13 @@ const store = new Vuex.Store({
 		// Kovan
 		contractAddress: '0x2801361d0e854d5a8ca5a53243720a227ef08182',
 		tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
-		apiBaseUrl: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : '',
-		hasParentWeb3: false
+		hasParentWeb3: false,
+		ipfs: {
+			host: '207.154.212.173',
+			port: 5002,
+			protocol: 'http',
+			imgBaseUrl: 'http://207.154.212.173/ipfs/'
+		}
 	},
 	getters: {
 		getProofById: (state, getters) => (id) => state.proofs.find(proof => proof.id === id),
@@ -60,10 +65,16 @@ const store = new Vuex.Store({
 			state.title = newtitle
 		},
 		addProof: function (state, newProof) {
-			state.proofs.push(newProof)
-			state.proofs.sort((a, b) => {
-				return b.created - a.created
+			// check if proof already in list
+			let findIndex = state.proofs.findIndex((existingProof) => {
+				return existingProof.fileSha256 === newProof.fileSha256
 			})
+			if (findIndex < 0) {
+				state.proofs.push(newProof)
+				state.proofs.sort((a, b) => {
+					return b.created - a.created
+				})
+			}
 		},
 		appClass: function (state, newClass) {
 			state.appClass = newClass

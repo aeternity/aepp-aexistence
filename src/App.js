@@ -1,7 +1,10 @@
 import Topbar from './components/Topbar.vue'
 import Web3 from 'web3'
+import helperMixin from './mixins/helper.js';
+
 export default {
 	name: 'app',
+  mixins : [helperMixin],
 	computed : {
 		appClass : function() {
 			return this.$store.state.appClass;
@@ -14,13 +17,13 @@ export default {
 		Topbar
 	},
 	methods: {
-		loadAllProofs: function() {
+		loadAllProofs: async function() {
 			if (window.globalContract) {
 				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
 					if (!err) {
 						for (let hash of hashes) {
-							window.globalContract.getProofByHash(hash, (err, rawProof) => {
-								console.log(rawProof);
+							window.globalContract.getProofByHash(hash, async(err, rawProof) => {
+								// console.log(rawProof);
 								let data = {
 									image: null,
 									owner: rawProof[0],
@@ -32,7 +35,12 @@ export default {
 									contract: this.$store.state.contractAddress,
 								};
 								if (rawProof[4]) {
-									data.image = this.$store.state.apiBaseUrl + '/uploads/' + rawProof[4];
+									try {
+										data.image = this.$store.state.ipfs.imgBaseUrl + rawProof[4]
+										// data.image = await this.getIpfsContent(rawProof[4]);
+									} catch (err) {
+										console.log(err);
+									}
 								}
 								this.$store.commit('addProof', data);
 							});
@@ -84,6 +92,11 @@ export default {
 					})
 				}
 			}, 1000);
+
+			//this checks for new proofs every 10 seconds
+			setInterval(() => {
+				this.loadAllProofs();
+			}, 10000);
 		},
 		initWeb3: function() {
 			let web3;
@@ -538,6 +551,14 @@ export default {
 			TokenContract.at(this.$store.state.tokenAddress, (err, contract) => {
 				window.globalTokenContract = contract;
 			});
+		}
+	},
+	created: function () {
+		// set domain to base host because of iframe cross domain policy, very nice hardcoded urls
+		if (document.domain.includes('aepps.com')) {
+			document.domain = 'aepps.com'
+		} else if (document.domain.includes('aepps.dev')) {
+			document.domain = 'aepps.dev'
 		}
 	},
 	mounted: function() {
