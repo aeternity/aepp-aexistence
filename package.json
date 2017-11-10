@@ -24,6 +24,7 @@
     "stat": "./node_modules/webpack/bin/webpack.js --json --config build/webpack.prod.conf.js > stat.json"
   },
   "dependencies": {
+    "@aeternity/id-manager-provider": "0.0.1",
     "async": "^2.5.0",
     "conversational-machine": "0.0.5",
     "ethereum-blockies-png": "^0.1.2",

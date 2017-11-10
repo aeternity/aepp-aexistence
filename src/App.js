@@ -1,6 +1,8 @@
 import Topbar from './components/Topbar.vue'
 import Web3 from 'web3'
-import helperMixin from './mixins/helper.js';
+import helperMixin from './mixins/helper.js'
+import IdManagerProvider from '@aeternity/id-manager-provider'
+// import IdManagerProvider from '../../id-manager-provider'
 
 export default {
 	name: 'app',
@@ -100,7 +102,14 @@ export default {
 		},
 		initWeb3: function() {
 			let web3;
-			if (window.parent !== window && window.parent.web3 !== undefined) {
+			let idManager = new IdManagerProvider({
+				idManagerHost: 'identity.aepps.dev'
+			})
+			if (idManager.checkIdManager()) {
+				console.log('we have id manager by messages')
+				this.$store.commit('setHasParentWeb3', true)
+				web3 = new Web3(idManager.web3.currentProvider)
+			} else if (window.parent !== window && window.parent.web3 !== undefined) {
 				// Parent has something for us.
 				console.log('loaded with parent web3 instance');
 				this.$store.commit('setHasParentWeb3', true)
@@ -110,6 +119,7 @@ export default {
 			} else {
 				web3 = null;
 			}
+
 			if (web3) {
 				window.globalWeb3 = web3;
 				this.initContract(web3);
