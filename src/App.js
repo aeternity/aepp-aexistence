@@ -2,7 +2,6 @@ import Topbar from './components/Topbar.vue'
 import Web3 from 'web3'
 import helperMixin from './mixins/helper.js'
 import IdManagerProvider from '@aeternity/id-manager-provider'
-// import IdManagerProvider from '../../id-manager-provider'
 
 export default {
 	name: 'app',
@@ -103,7 +102,7 @@ export default {
 		initWeb3: function() {
 			let web3;
 			let idManager = new IdManagerProvider({
-				idManagerHost: 'identity.aepps.dev'
+				skipSecurity: process.env.NODE_ENV === 'development'
 			})
 			if (idManager.checkIdManager()) {
 				console.log('we have id manager by messages')
