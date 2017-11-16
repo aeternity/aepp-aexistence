@@ -104,27 +104,31 @@ export default {
 			let idManager = new IdManagerProvider({
 				skipSecurity: process.env.NODE_ENV === 'development'
 			})
-			if (idManager.checkIdManager()) {
-				console.log('we have id manager by messages')
-				this.$store.commit('setHasParentWeb3', true)
-				web3 = new Web3(idManager.web3.currentProvider)
-			} else if (window.parent !== window && window.parent.web3 !== undefined) {
-				// Parent has something for us.
-				console.log('loaded with parent web3 instance');
-				this.$store.commit('setHasParentWeb3', true)
-				web3 = new Web3(window.parent.web3.currentProvider);
-			} else if (typeof window.web3 !== 'undefined') { // Metamask
-				web3 = new Web3(window.web3.currentProvider);
-			} else {
-				web3 = null;
-			}
+			idManager.checkIdManager().then((idManagerPresent)=>{
+				console.log('idManagerPresent ',idManagerPresent )
+				if (idManagerPresent ) {
+					console.log('we have id manager by messages')
+					this.$store.commit('setHasParentWeb3', true)
+					web3 = new Web3(idManager.web3.currentProvider)
+				} else if (window.parent !== window && window.parent.web3 !== undefined) {
+					// Parent has something for us.
+					console.log('loaded with parent web3 instance');
+					this.$store.commit('setHasParentWeb3', true)
+					web3 = new Web3(window.parent.web3.currentProvider);
+				} else if (typeof window.web3 !== 'undefined') { // Metamask
+					web3 = new Web3(window.web3.currentProvider);
+				} else {
+					web3 = null;
+				}
 
-			if (web3) {
-				window.globalWeb3 = web3;
-				this.initContract(web3);
-				this.initTokenContract(web3);
-				this.setAcountInterval(web3);
-			}
+				if (web3) {
+					window.globalWeb3 = web3;
+					this.initContract(web3);
+					this.initTokenContract(web3);
+					this.setAcountInterval(web3);
+				}
+
+			})
 		},
 		initContract: function(web3) {
 			let abi = [{
