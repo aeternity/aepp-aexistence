@@ -1,13 +1,8 @@
-let Conversational = require('conversational-machine')
-// let Conversational = require('../../conversational-machine')
-// let ConversationalFSM = Conversational.ConversationalFSM
-let Question = Conversational.Question
-// let WidgetQuestion = Conversational.WidgetQuestion
-let AnswerFactory = Conversational.AnswerFactory
+import { ConversationalFSM, Question, AnswerFactory } from '@aeternity/conversational-machine'
 
 // export default function () {
-module.exports = function () {
-	let fsm = new Conversational.ConversationalFSM({
+let machine = function () {
+	let fsm = new ConversationalFSM({
 		initialState: 'uninitialized',
 		states: {
 			uninitialized: new Question(null, {
@@ -204,3 +199,5 @@ module.exports = function () {
 
 	return fsm
 }
+
+export default machine

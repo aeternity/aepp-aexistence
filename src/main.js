@@ -31,7 +31,7 @@ const store = new Vuex.Store({
 		hasWeb3: false,
 		contractReady: false,
 		// default gas price in wei
-		gasPrice: 5,
+		gasPrice: 20,
 		// Ropsten
 		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
 		// Kovan
