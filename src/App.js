@@ -1,4 +1,6 @@
-import Topbar from './components/Topbar.vue'
+//import AeMenu from './components/aeMenu/aeMenu.vue'
+import { AeMenu } from '@aeternity/aepp-components'
+import Identity from './components/Identity.vue'
 import Web3 from 'web3'
 import helperMixin from './mixins/helper.js'
 import IdManagerProvider from '@aeternity/id-manager-provider'
@@ -6,16 +8,37 @@ import IdManagerProvider from '@aeternity/id-manager-provider'
 export default {
 	name: 'app',
   mixins : [helperMixin],
+	data(){
+		return {
+			showAdd : true,
+			showBurger : true,
+			showBack : false,
+			navopen : false
+		}
+	},
 	computed : {
 		appClass : function() {
 			return this.$store.state.appClass;
 		},
 		contractReady: function() {
 			return this.$store.state.contractReady;
+		},
+		menuEntries : function() {
+			return this.$store.state.menuEntries;
+		},
+		identity : function() {
+			return this.$store.state.identity;
+		},
+		title : function() {
+			return this.$store.state.title;
+		},
+		showQuickId: function() {
+			return !this.$store.state.hasParentWeb3;
 		}
 	},
 	components : {
-		Topbar
+		'ae-menu': AeMenu,
+		'identity' : Identity
 	},
 	methods: {
 		loadAllProofs: async function() {
@@ -580,6 +603,14 @@ export default {
 			if (val === true) {
 				this.loadAllProofs();
 			}
+		},
+		'$route' : function(to, from) {
+			var proofDetail = null !== to.path.match(/^\/proofs\/\d+/);
+
+			this.showAdd = to.path !== '/chat';
+			this.showBurger = !proofDetail;
+			this.showBack = proofDetail;
+			this.navopen = false;
 		}
 	}
 }

@@ -19,7 +19,7 @@ html, body {
 	width: 100%;
 	height: 100px;
 }
-#app.welcome .topbar {
+#app.welcome .ae-menu {
 	display:none;
 }
 .screen {
@@ -297,43 +297,9 @@ h1 {
 	color: #FFFFFF;
 	letter-spacing: 2.4px;
 }
-.avatar {
-	border-radius:50%;
-	background:white;
-	width:50px;
-	height:50px;
-	border:2px solid white;
-	background-position:center;
-	background-size:cover;
-}
 .identity.collapsed .avatar {
 	width:40px;
 	height:40px;
-}
-header:before{
-	content:"";
-	width:100%;
-	height:70px;
-	position:absolute;
-	left:0;
-	top:-1px;
-	background-image: linear-gradient( -180deg,
-		#FFFFFF 0%,
-		rgba(255,255,255,1.00) 20%,
-		rgba(255,255,255,0.00) 100%
-	);
-}
-header {
-	position:fixed;
-	width:100%;
-	z-index:2;
-	display: flex;
-	padding: 21px;
-	max-width: 100%;
-	box-sizing: border-box;
-}
-header > * {
-	position:relative;
 }
 /*nav:before {*/
 	/*content: "";*/
@@ -343,50 +309,6 @@ header > * {
 	/*width:100%;*/
 	/*height:100%;*/
 /*}*/
-nav {
-	position: fixed;
-	left: 0;
-	height: 100%;
-	width: 65%;
-	/*background: red;*/
-	z-index: 10;
-	transform:translate(-100%,0);
-	transition:transform 0.4s;
-	/*display:none;*/
-}
-.open nav {
-	transform:translate(0,0);
-}
-header ,
-.topbar + * {
-	transition:transform 0.4s;
-}
-.open header ,
-.open + * {
-	transform:translate(65%, 0);
-}
-nav > .inner {
-	position:relative;
-	width:100%;
-	z-index:10;
-	background: blue;
-	min-height:100%;
-	background-image: linear-gradient(-180deg, #1E1E1E 0%, #320A3C 100%);
-	color:white;
-}
-nav .name {
-	font-weight:500;
-	font-size: 19px;
-	color: #FFFFFF;
-	letter-spacing: 0;
-}
-nav .avatar {
-	margin-top:40px;
-	margin-bottom:8px;
-}
-nav .avatar + .name{
-	margin-bottom:30px;
-}
 .conversation-container {
 	box-sizing:border-box;
 	/*top:0;*/
@@ -649,39 +571,6 @@ nav .avatar + .name{
 .camera .image {
 	position:absolute;
 	background-image:url(assets/camera.png);
-}
-.menu-entry a ,
-.menu-entry svg {
-}
-.menu-entry svg {
-	margin-right:10px;
-}
-.menu-entry a {
-	/* My Proofs: */
-	position:relative;
-	display:block;
-	/*background:blue;*/
-	opacity: 0.9;
-	font-size: 17px;
-	color: #FFFFFF;
-	letter-spacing: 0;
-	padding:20px;
-	border-top: 1px solid rgba(255,255,255,0.2);
-	border-bottom: 1px solid rgba(255,255,255,0.2);
-}
-.menu-entry a + .menu-entry a{
-	border-top:none;
-}
-.menu-entry .router-link-active:before{
-	content:"";
-	display:block;
-	position:absolute;
-	width:100%;
-	top:0;
-	left:0;
-	opacity:0.2;
-	height:100%;
-	background-image: linear-gradient(90deg, #FFFFFF 0%, rgba(255,255,255,0.14) 100%);
 }
 .proofs-list {
 	/*background:red;*/

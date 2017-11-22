@@ -13,6 +13,16 @@ const store = new Vuex.Store({
 	state: {
 		title: '',
 		appClass: '',
+		menuEntries: [
+			{
+				label: 'My Proofs',
+				link: '/proofs'
+			},
+			{
+				label: 'Create a Proof',
+				link: '/chat'
+			}
+		],
 		proofs: [
 		],
 		identity: {
