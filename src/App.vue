@@ -1,5 +1,5 @@
 <template>
-	<div id="app">
+	<div id="app" :class="{ stage: isStage }">
 		<ae-menu
 			:entries='menuEntries'
 			:identity='identity'

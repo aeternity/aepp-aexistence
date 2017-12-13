@@ -16,9 +16,12 @@ export default {
 			navopen : false
 		}
 	},
-	computed : {
-		appClass : function() {
-			return this.$store.state.appClass;
+	computed: {
+		appClass: function () {
+			return this.$store.state.appClass
+		},
+		isStage: function () {
+			return process.env.IS_STAGE === true
 		},
 		contractReady: function() {
 			return this.$store.state.contractReady;
