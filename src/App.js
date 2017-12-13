@@ -122,21 +122,21 @@ export default {
 				this.loadAllProofs();
 			}, 10000);
 		},
-		initWeb3: function() {
-			let web3;
+		initWeb3: function () {
+			let web3
 			let idManager = new IdManagerProvider({
-				skipSecurity: process.env.NODE_ENV === 'development'
+				skipSecurity: process.env.SKIP_SECURITY === true
 			})
-			idManager.checkIdManager().then((idManagerPresent)=>{
-				console.log('idManagerPresent ',idManagerPresent )
-				if (idManagerPresent ) {
+			idManager.checkIdManager().then((idManagerPresent) => {
+				console.log('idManagerPresent', idManagerPresent)
+				if (idManagerPresent) {
 					console.log('we have id manager by messages')
 					this.$store.commit('setHasParentWeb3', true)
 					web3 = new Web3(idManager.web3.currentProvider)
 				} else if (typeof window.web3 !== 'undefined') { // Metamask
-					web3 = new Web3(window.web3.currentProvider);
+					web3 = new Web3(window.web3.currentProvider)
 				} else {
-					web3 = null;
+					web3 = null
 				}
 
 				if (web3) {
