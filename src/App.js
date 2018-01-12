@@ -125,31 +125,46 @@ export default {
 				this.loadAllProofs();
 			}, 10000);
 		},
-		initWeb3: function () {
+		initWeb3: async function () {
 			let web3
 			let idManager = new IdManagerProvider({
 				skipSecurity: process.env.SKIP_SECURITY === true
 			})
-			idManager.checkIdManager().then((idManagerPresent) => {
-				console.log('idManagerPresent', idManagerPresent)
-				if (idManagerPresent) {
-					console.log('we have id manager by messages')
-					this.$store.commit('setHasParentWeb3', true)
-					web3 = new Web3(idManager.web3.currentProvider)
-				} else if (typeof window.web3 !== 'undefined') { // Metamask
-					web3 = new Web3(window.web3.currentProvider)
-				} else {
-					web3 = null
-				}
 
-				if (web3) {
-					window.globalWeb3 = web3;
-					this.initContract(web3);
-					this.initTokenContract(web3);
-					this.setAcountInterval(web3);
-				}
+			await idManager.init()
 
-			})
+			console.log('idManager.provider', idManager.provider)
+
+			web3 = new Web3(idManager.provider)
+			console.log('idManager.usesPostMessage', idManager.usesPostMessage)
+			this.$store.commit('setHasParentWeb3', idManager.usesPostMessage)
+			if (web3) {
+				window.globalWeb3 = web3
+				this.initContract(web3)
+				this.initTokenContract(web3)
+				this.setAcountInterval(web3)
+			}
+
+			// idManager.checkIdManager().then((idManagerPresent) => {
+			// 	console.log('idManagerPresent', idManagerPresent)
+			// 	if (idManagerPresent) {
+			// 		console.log('we have id manager by messages')
+			// 		this.$store.commit('setHasParentWeb3', true)
+			// 		web3 = new Web3(idManager.web3.currentProvider)
+			// 	} else if (typeof window.web3 !== 'undefined') { // Metamask
+			// 		web3 = new Web3(window.web3.currentProvider)
+			// 	} else {
+			// 		web3 = null
+			// 	}
+			//
+			// 	if (web3) {
+			// 		window.globalWeb3 = web3;
+			// 		this.initContract(web3);
+			// 		this.initTokenContract(web3);
+			// 		this.setAcountInterval(web3);
+			// 	}
+			//
+			// })
 		},
 		initContract: function(web3) {
 			let abi = [{
