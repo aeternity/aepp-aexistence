@@ -1,9 +1,10 @@
 import Swiper from 'swiper'
 export default {
-	mounted() {
-		new Swiper('.swiper-container', {
-			pagination: '.swiper-pagination',
-			nextButton: '.next'
-		})
-	}
+  mounted () {
+    /* eslint-disable no-new */
+    new Swiper('.swiper-container', {
+      pagination: '.swiper-pagination',
+      nextButton: '.next'
+    })
+  }
 }

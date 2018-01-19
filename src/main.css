@@ -553,25 +553,6 @@ h1 {
 		opacity: 1;
 	}
 }
-.camera {
-	position:fixed;
-	background-image:url(assets/image.jpg);
-	z-index:5;
-	background-color:black;
-}
-.camera ,
-.camera .image {
-	top:0;
-	background-size:contain;
-	width:100%;
-	height:100%;
-	background-position:center;
-	background-repeat:no-repeat;
-}
-.camera .image {
-	position:absolute;
-	background-image:url(assets/camera.png);
-}
 .proofs-list {
 	/*background:red;*/
 	margin-top:60px;
