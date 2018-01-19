@@ -21,7 +21,7 @@ export default {
             return reject(err)
           }
           stream.on('data', (file) => {
-						// write the file's path and contents to standard out
+            // write the file's path and contents to standard out
             console.log(file.path)
             let image = file.content.read()
             if (image != null) {
@@ -51,7 +51,7 @@ export default {
       }
     },
     etherscanLink: function (value, type) {
-			// type tx, address, block
+      // type tx, address, block
       let baseurl = 'https://kovan.etherscan.io/'
       baseurl += type
       baseurl += '/'

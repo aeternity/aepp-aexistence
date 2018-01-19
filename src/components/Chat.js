@@ -130,6 +130,10 @@ export default {
         },
         (callback) => {
           contract.hasProof(textToProof, (err, hasProof) => {
+            if (err) {
+              console.log(err)
+              return
+            }
             if (hasProof) {
               this.addMessageDelayed({
                 sender: MessageSenderEnum.APP,
@@ -167,7 +171,7 @@ export default {
             } else if (accounts.length === 0) {
               return callback(new Error('No accounts found'))
             }
-            console.log('estimate', estimate, );
+            console.log('estimate', estimate)
             let transactionOptions = {
               from: accounts[0],
               gas: estimate,
@@ -185,22 +189,10 @@ export default {
           console.log('calling', txId, textToProof)
           this.$store.commit('addTransaction', {txId: txId, hash: textToProof})
           this.proof.txId = txId
-						// this.showTransactionId(txId);
           this.machine.transition('showSuccess')
         }
       })
     },
-			// showTransactionId: function(txId) {
-			// 	this.addMessageDelayed({
-			// 		sender: MessageSenderEnum.APP,
-			// 		body: {
-			// 			type: MessageBodyTypeEnum.LINK,
-			// 			description: "This is the Transaction ID",
-			// 			title: txId,
-			// 			url: this.etherscanLink(txId, 'tx')
-			// 		},
-			// 	}, this.defaultDelay, true);
-			// },
     onFileChange: function (event) {
       console.log('onFileChange', event.target.files, this.machine)
       this.fileUploadFormData.set('file', event.target.files[0])
@@ -222,7 +214,7 @@ export default {
               return callback(err)
             } else {
               this.proof.hash = hash
-								// check proof for existence
+              // check proof for existence
               window.globalContract.hasProof(hash, (err, hasProof) => {
                 return callback(err, hasProof)
               })
@@ -232,7 +224,7 @@ export default {
       }, (err, result) => {
         console.log(err, result)
         if (err) {
-						// TODO: error handling
+          console.log(err)
         } else {
           if (result.dataUrl) {
             this.addMessage({
@@ -312,7 +304,7 @@ export default {
       this.scrollDown()
     },
     showSummary: function () {
-				// show order summary before transmitting transaction
+      // show order summary before transmitting transaction
       this.showGasEstimate(this.proof.hash, this.proof.description, this.proof.ipfsHash)
     },
     showGasEstimate: function (textToProof, comment, ipfsHash) {
@@ -327,7 +319,7 @@ export default {
       if (contract) {
         window.globalWeb3.eth.getAccounts((err, accounts) => {
           if (err || accounts.lenth === 0) {
-							// TODO: error handling
+            console.log('no accounts')
           } else {
             contract.notarize.estimateGas(textToProof, comment, ipfsHash, {from: accounts[0]}, (err, estimate) => {
               console.log('showGasEstimate', err, estimate)
@@ -352,21 +344,21 @@ export default {
       if (window.globalWeb3 && this.$store.state.identity.address && this.$store.state.identity.balance > 0 && this.$store.state.identity.tokenBalance > 0) {
         return this.machine.transition('welcome')
       } else {
-					// delay the check because of slow initialisation
+        // delay the check because of slow initialisation
         setTimeout(() => {
-						//	check web3
+          // check web3
           if (!window.globalWeb3) {
             return this.machine.transition('noWeb3')
           }
-						// check unlocked
+          // check unlocked
           if (this.$store.state.identity.address == null) {
             return this.machine.transition('notUnlocked')
           }
-						// check ether balance TODO: get real balance
+          // check ether balance TODO: get real balance
           if (this.$store.state.identity.balance <= 0) {
             return this.machine.transition('noEther')
           }
-						// check token balance
+          // check token balance
           if (this.$store.state.identity.tokenBalance <= 0) {
             return this.machine.transition('noToken')
           }
@@ -423,7 +415,7 @@ export default {
       let toState = data.toState
       console.log('we just transitioned from ' + fromState + ' to ' + toState)
       let questionText = this.machine.getCurrentQuestion().getQuestionText()
-      if (questionText && questionText != '') {
+      if (questionText && questionText !== '') {
         this.showQuestionDelayed(questionText)
       }
     })
@@ -511,9 +503,9 @@ export default {
     if (this.contractReady) {
       this.machine.setAnswer('go')
     }
-			// this.showProofLink('7fa16023269fade88c2286974da405fd9309ecefd50e6cab39c2cf6da6c46c32');
-			// this.showProofLink('test');
-			// this.$store.commit('addTransaction', {txId: '0x0554296e6cce8bbc05dc11adc348b568e3c95721384114db8acd460058d01c0f', hash: 'test'});
+    // this.showProofLink('7fa16023269fade88c2286974da405fd9309ecefd50e6cab39c2cf6da6c46c32');
+    // this.showProofLink('test');
+    // this.$store.commit('addTransaction', {txId: '0x0554296e6cce8bbc05dc11adc348b568e3c95721384114db8acd460058d01c0f', hash: 'test'});
   },
   watch: {
     contractReady: function () {

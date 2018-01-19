@@ -40,13 +40,13 @@ export default {
       }
     },
     pay: function () {
-      store.dispatch('approvePayment')
+      this.$store.dispatch('approvePayment')
       setTimeout(() => {
         this.showPaymentUi = false
       }, 200)
     },
     cancel: function () {
-      store.dispatch('cancelPayment')
+      this.$store.dispatch('cancelPayment')
       this.showPaymentUi = false
     }
   }

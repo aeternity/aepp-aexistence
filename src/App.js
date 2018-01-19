@@ -50,26 +50,28 @@ export default {
           if (!err) {
             for (let hash of hashes) {
               window.globalContract.getProofByHash(hash, async(err, rawProof) => {
-								// console.log(rawProof);
-                let data = {
-                  image: null,
-                  owner: rawProof[0],
-                  created: rawProof[1],
-                  block: rawProof[2],
-                  title: rawProof[3],
-                  ipfsHash: rawProof[4],
-                  fileSha256: rawProof[5],
-                  contract: this.$store.state.contractAddress
-                }
-                if (rawProof[4]) {
-                  try {
-                    data.image = this.$store.state.ipfs.imgBaseUrl + rawProof[4]
-										// data.image = await this.getIpfsContent(rawProof[4]);
-                  } catch (err) {
-                    console.log(err)
+                if (err) {
+                  console.log(err)
+                } else {
+                  let data = {
+                    image: null,
+                    owner: rawProof[0],
+                    created: rawProof[1],
+                    block: rawProof[2],
+                    title: rawProof[3],
+                    ipfsHash: rawProof[4],
+                    fileSha256: rawProof[5],
+                    contract: this.$store.state.contractAddress
                   }
+                  if (rawProof[4]) {
+                    try {
+                      data.image = this.$store.state.ipfs.imgBaseUrl + rawProof[4]
+                    } catch (err) {
+                      console.log(err)
+                    }
+                  }
+                  this.$store.commit('addProof', data)
                 }
-                this.$store.commit('addProof', data)
               })
             }
           }
@@ -96,7 +98,7 @@ export default {
             let address = accounts[0]
             if (address) {
               let currentAddress = this.$store.state.identity.address
-              if (address != currentAddress) {
+              if (address !== currentAddress) {
                 console.log('address changed')
                 this.changeUser(address)
               }
@@ -110,9 +112,13 @@ export default {
               let tokenContract = window.globalTokenContract
               if (tokenContract) {
                 tokenContract.balanceOf(address, {}, (err, balance) => {
-                  let readable = web3.fromWei(balance.toString(10), 'ether')
-                  this.$store.commit('setTokenBalance', readable)
-                  this.$store.commit('setHasTokens', balance > 0)
+                  if (err) {
+                    console.log(err)
+                  } else {
+                    let readable = web3.fromWei(balance.toString(10), 'ether')
+                    this.$store.commit('setTokenBalance', readable)
+                    this.$store.commit('setHasTokens', balance > 0)
+                  }
                 })
               }
             }
@@ -120,7 +126,7 @@ export default {
         }
       }, 1000)
 
-			// this checks for new proofs every 10 seconds
+      // this checks for new proofs every 10 seconds
       setInterval(() => {
         this.loadAllProofs()
       }, 10000)
@@ -293,9 +299,12 @@ export default {
       }]
       let PoEContract = web3.eth.contract(abi)
       PoEContract.at(this.$store.state.contractAddress, (err, contract) => {
-        window.globalContract = contract
-        this.$store.commit('setContractReady', true)
-				// app.loadAllProofs();
+        if (err) {
+          console.log(err)
+        } else {
+          window.globalContract = contract
+          this.$store.commit('setContractReady', true)
+        }
       })
     },
     initTokenContract: function (web3) {
@@ -582,12 +591,14 @@ export default {
 
       let TokenContract = web3.eth.contract(abi)
       TokenContract.at(this.$store.state.tokenAddress, (err, contract) => {
-        window.globalTokenContract = contract
+        if (!err) {
+          window.globalTokenContract = contract
+        }
       })
     }
   },
   created: function () {
-		// set domain to base host because of iframe cross domain policy, very nice hardcoded urls
+    // set domain to base host because of iframe cross domain policy, very nice hardcoded urls
     if (document.domain.includes('aepps.com')) {
       document.domain = 'aepps.com'
     } else if (document.domain.includes('aepps.dev')) {

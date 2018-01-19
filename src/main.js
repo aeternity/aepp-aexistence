@@ -40,11 +40,11 @@ const store = new Vuex.Store({
     identityCollapsed: true,
     hasWeb3: false,
     contractReady: false,
-		// default gas price in wei
+    // default gas price in wei
     gasPrice: 20,
-		// Ropsten
-		// contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
-		// Kovan
+    // Ropsten
+    // contractAddress: '0xcbaa1afa8bd967eb093b8da83c0cad905a82e905'
+    // Kovan
     contractAddress: '0x2801361d0e854d5a8ca5a53243720a227ef08182',
     tokenAddress: '0x35d8830ea35e6Df033eEdb6d5045334A4e34f9f9',
     hasParentWeb3: false,
@@ -75,7 +75,7 @@ const store = new Vuex.Store({
       state.title = newtitle
     },
     addProof: function (state, newProof) {
-			// check if proof already in list
+      // check if proof already in list
       let findIndex = state.proofs.findIndex((existingProof) => {
         return existingProof.fileSha256 === newProof.fileSha256
       })

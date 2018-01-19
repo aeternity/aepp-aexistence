@@ -52,8 +52,7 @@ export default {
   },
   methods: {
     toggleImage: function () {
-      this.cssClass.image.fullscreen =
-				!this.cssClass.image.fullscreen
+      this.cssClass.image.fullscreen = !this.cssClass.image.fullscreen
     },
     getProof: function (text) {
       let contract = window.globalContract
