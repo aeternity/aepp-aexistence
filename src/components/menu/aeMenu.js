@@ -25,7 +25,6 @@ export default {
   },
   data: function () {
     return {
-      navopen: false
     }
   },
   computed: {
@@ -38,7 +37,8 @@ export default {
   },
   methods: {
     toggleopen: function () {
-      this.navopen = !this.navopen
+      // this.navopen = !this.navopen
+      this.$emit('toggle-menu')
     }
   }
 }

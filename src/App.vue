@@ -5,6 +5,7 @@
 			:identity='identity'
 			:showBurger='showBurger'
 			:navopen='navopen'
+			@toggle-menu='toggleMenu'
 		>
 
 		<button slot='left-action' v-show='showBack' @click='$router.push("/proofs")'>

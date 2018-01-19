@@ -595,6 +595,9 @@ export default {
           window.globalTokenContract = contract
         }
       })
+    },
+    toggleMenu () {
+      this.navopen = !this.navopen
     }
   },
   created: function () {
