@@ -1,6 +1,7 @@
 //import AeMenu from './components/aeMenu/aeMenu.vue'
 import { AeMenu } from '@aeternity/aepp-components'
 import Identity from './components/Identity.vue'
+import ConnectPopup from './components/ConnectPopup.vue'
 import Web3 from 'web3'
 import helperMixin from './mixins/helper.js'
 import IdManagerProvider from '@aeternity/id-manager-provider'
@@ -13,7 +14,9 @@ export default {
 			showAdd : true,
 			showBurger : true,
 			showBack : false,
-			navopen : false
+			navopen : false,
+			idManager: null,
+			forceCloseConnectWindow: false
 		}
 	},
 	computed: {
@@ -37,13 +40,33 @@ export default {
 		},
 		showQuickId: function() {
 			return !this.$store.state.hasParentWeb3;
+		},
+		showConnectPopup: function () {
+			return !this.forceCloseConnectWindow && !this.idManagerConnected
+		},
+		idManagerConnected () {
+			if (this.idManager && this.idManager.isConnected()) {
+				return true
+			}
+			return false
+		},
+		connectionPassword () {
+			if (this.idManager) {
+				return this.idManager.getPassword()
+			}
+			return null
 		}
 	},
-	components : {
+	components: {
 		'ae-menu': AeMenu,
-		'identity' : Identity
+		'identity': Identity,
+		'connect-popup': ConnectPopup
 	},
 	methods: {
+		closeConnectPopup () {
+			console.log('closeConnectPopup')
+			this.forceCloseConnectWindow = true
+		},
 		loadAllProofs: async function() {
 			if (window.globalContract) {
 				window.globalContract.getProofsByOwner(this.$store.state.identity.address, (err, hashes) => {
@@ -131,9 +154,13 @@ export default {
 				skipSecurity: process.env.SKIP_SECURITY === true
 			})
 
+			this.idManager = idManager
+
 			await idManager.init()
 
 			console.log('idManager.provider', idManager.provider)
+
+			console.log(this.idManager)
 
 			web3 = new Web3(idManager.provider)
 			console.log('idManager.usesPostMessage', idManager.usesPostMessage)
@@ -142,29 +169,9 @@ export default {
 				window.globalWeb3 = web3
 				this.initContract(web3)
 				this.initTokenContract(web3)
+				//TODO: only set account interval when connected
 				this.setAcountInterval(web3)
 			}
-
-			// idManager.checkIdManager().then((idManagerPresent) => {
-			// 	console.log('idManagerPresent', idManagerPresent)
-			// 	if (idManagerPresent) {
-			// 		console.log('we have id manager by messages')
-			// 		this.$store.commit('setHasParentWeb3', true)
-			// 		web3 = new Web3(idManager.web3.currentProvider)
-			// 	} else if (typeof window.web3 !== 'undefined') { // Metamask
-			// 		web3 = new Web3(window.web3.currentProvider)
-			// 	} else {
-			// 		web3 = null
-			// 	}
-			//
-			// 	if (web3) {
-			// 		window.globalWeb3 = web3;
-			// 		this.initContract(web3);
-			// 		this.initTokenContract(web3);
-			// 		this.setAcountInterval(web3);
-			// 	}
-			//
-			// })
 		},
 		initContract: function(web3) {
 			let abi = [{

@@ -24,6 +24,7 @@
 			<identity v-if="showQuickId" />
 		</ae-menu>
 		<!-- <img src="./assets/logo.png"> -->
+		<connect-popup v-if="showConnectPopup" :password="connectionPassword" @close="closeConnectPopup()"></connect-popup>
 		<router-view></router-view>
 	</div>
 </template>
