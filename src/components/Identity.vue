@@ -21,7 +21,7 @@
 
 		<div @click='toggle' :class="{identity:true, collapsed : collapsed, 'show-payment-ui' : showPaymentUi }">
 			<div class="left">
-				<avatar :image='identity.avatar' :address='identity.address'></avatar>
+				<ae-identity-avatar :image='identity.avatar' :address='identity.address'></ae-identity-avatar>
 				<div class="account-info">
 					<div class="name">{{identity.name}}</div>
 					<div class="address">{{identity.address}}</div>

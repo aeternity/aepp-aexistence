@@ -1,8 +1,9 @@
-import Avatar from './Avatar.vue'
+import { AeIdentityAvatar } from '@aeternity/aepp-components'
+
 export default {
   name: 'identity',
   components: {
-    'avatar': Avatar
+    'ae-identity-avatar': AeIdentityAvatar
   },
   data: function () {
     return {

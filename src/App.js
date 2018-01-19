@@ -1,5 +1,5 @@
 // import AeMenu from './components/aeMenu/aeMenu.vue'
-import { AeMenu } from '@aeternity/aepp-components'
+import AeMenu from './components/menu/aeMenu.vue'
 import Identity from './components/Identity.vue'
 import Web3 from 'web3'
 import helperMixin from './mixins/helper.js'
