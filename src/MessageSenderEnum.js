@@ -1,4 +1,4 @@
 export default {
-	ME: 0,
-	APP: 1
+  ME: 0,
+  APP: 1
 }

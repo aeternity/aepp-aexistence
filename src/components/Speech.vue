@@ -35,11 +35,11 @@
 
 <script src='./Speech.js'>
 export default {
-	name: '',
-	data () {
-		return {
-		}
-	}
+  name: '',
+  data () {
+    return {
+    }
+  }
 }
 </script>
 
