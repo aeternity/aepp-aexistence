@@ -26,7 +26,7 @@
   "dependencies": {
     "@aeternity/aepp-components": "2.0.0",
     "@aeternity/conversational-machine": "0.0.6",
-    "@aeternity/id-manager-provider": "file:../id-manager-provider",
+    "@aeternity/id-manager-provider": "aeternity/id-manager-provider#websocket",
     "async": "^2.5.0",
     "ethereum-blockies-png": "^0.1.2",
     "ipfs-api": "^15.0.1",
