@@ -48,7 +48,7 @@ let machine = function () {
         ]
       }),
 
-      welcome: new Question('Hi! I am æxistence – built to proof the existence of files on the blockchain. \n Select a file from your device to get started.', {
+      welcome: new Question('Hi! I am proof – built to proof the existence of files on the blockchain. \n Select a file from your device to get started.', {
         answers: [
           AnswerFactory.settings('Select File', 'selectFile', /^select/i, {primary: true}),
           AnswerFactory.answer('Why would I do that?', 'whyProof', /^why/i)

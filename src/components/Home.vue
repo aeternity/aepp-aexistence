@@ -2,7 +2,7 @@
 	<div class="home screen">
 		<h1 class='center'>Success</h1>
 		<p class="text center">
-		This is the æxistence. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
+		This is the proof. This æpp enables you to proof the existance of digital files on the æternity blockchain and share it with other poeple.
 		</p>
 		<div class="pink next button">
 			<router-link to="/chat">

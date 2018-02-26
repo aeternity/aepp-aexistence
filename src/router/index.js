@@ -22,7 +22,7 @@ export default new Router({
     { path: '/home',
       component: Home,
       meta: {
-        title: 'Æxistence',
+        title: 'Proof',
         appClass: 'home'
       }},
     { path: '/chat',
