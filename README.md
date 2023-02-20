@@ -1,3 +1,6 @@
+## This repository has been archived on 20.02.2023
+The reason for the retirement is that the code is not used anymore.
+
 # Proof of Æxistence
 This is a click dummy for the Proof of Æxistence æpp.
 
